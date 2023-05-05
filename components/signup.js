@@ -12,6 +12,8 @@ import {
   FormHelperText,
 } from "@chakra-ui/react";
 import axios from "axios";
+import Cookies from "universal-cookie";
+import jwt from "jwt-decode"
 // API
 // -> idle (no data to be shown, null)
 // -> loading (the API request has been made, "loading")
@@ -106,7 +108,7 @@ function ConfirmationPassword({
   );
 }
 
-export default function Signup() {
+export default function Signup({setUser}) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -121,6 +123,7 @@ export default function Signup() {
     email: false,
     password: false,
   });
+  const cookies = new Cookies
   function userCreate() {
     axios({
       method: "post",
@@ -132,7 +135,13 @@ export default function Signup() {
       },
     })
       .then((res) => {
-        console.log("RESPONSE", res);
+        const data = jwt(res.data.tokens.access_token)
+        cookies.set("jwt-tokens",{
+          access_token:res.data.tokens.access_token,
+          refresh_token:res.data.tokens.refresh_token
+        })
+        cookies.set('user',data.user_id )
+        setUser(data.user_id)
         setUsername('')
         setEmail('')
         setPassword('')
@@ -150,6 +159,7 @@ export default function Signup() {
     const [allSet, setValue] = useState(false);
 
     function checkEmail() {
+     return true
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return false;
     }
@@ -194,8 +204,7 @@ export default function Signup() {
     );
   }
   return (
-    <Flex w={"600px"}>
-      <h2>Signup</h2>
+    <Flex w={"90%"}>
       <FormControl isRequired>
         <Username
           username={username}
