@@ -68,7 +68,7 @@ export default function Home() {
   }
   return (
     <>
-      <Center w={"600px"}>
+      <Flex justifyContent={"center"}>
         {mounted ? (
         <>
         {user ? (
@@ -85,7 +85,7 @@ export default function Home() {
         <Spinner size='xl'/>
         </Flex>
           )}
-      </Center>
+      </Flex>
     </>
   );
 }

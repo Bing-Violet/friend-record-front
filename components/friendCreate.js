@@ -56,9 +56,10 @@ export default function FriendCreate({ User }) {
       })
         .then((res) => {
           setClicked(false);
-          const newArray = context.friends
+          const newArray = context.friends.slice()
           newArray.unshift(res.data)
-          context.setFriends(oldArray => [...oldArray, newArray]); //update old array to new array
+          console.log("check", newArray)
+          context.setFriends(newArray); //update old array to new array
         })
         .catch((e) => {});
     }
