@@ -20,14 +20,15 @@ import AppContext from "./globalContext";
 import { useContext } from "react";
 
 
-function Search({searchFriend, setSearchFriend}) {
+function Search({searchFriend, setSearchFriend, context}) {
   const [keyword, setKeyword] = useState('')
   const handleChange = (event) => {
     console.log("UN")
     setKeyword(event.target.value)
-    const searchedF = searchFriend.filter(f => 
+    const searchedF = context.friends.filter(f => 
       f.name.includes(event.target.value)
     )
+    console.log("CH",searchedF)
     setSearchFriend([...searchedF])
   };
   return(
@@ -52,9 +53,9 @@ export default function FriendList({ User }) {
   },[])
   return (
     <>
+    <Search searchFriend={searchFriend} setSearchFriend={setSearchFriend} context={context}/>
       {searchFriend.length ? (
         <>
-        <Search searchFriend={searchFriend} setSearchFriend={setSearchFriend}/>
           {searchFriend.map((f, index) => (
             <Card minW={"100%"} key={index}>
               <Link href={"friendDetails/" + f.id} scroll={false}>
