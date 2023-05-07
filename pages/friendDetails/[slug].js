@@ -25,8 +25,6 @@ export default function FriendDetail({ user }) {
   const [slug, setSlug] = useState("");
   useEffect(() => {
     if (user && router.query.slug) {
-      console.log("yes-user");
-      console.log("EFFECT", router.query.slug);
       axios({
         method: "get",
         url: `/api/character/character-detail/${router.query.slug}`,

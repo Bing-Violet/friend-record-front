@@ -116,7 +116,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         setIsOpen(false);
         const newArray = events;
         newArray.unshift(res.data);
-        setEvents(oldArray => [...oldArray, newArray]) //update old array to new array
+        setEvents([...newArray]) //update old array to new array
         console.log("event",events)
       })
       .catch((e) => {});
