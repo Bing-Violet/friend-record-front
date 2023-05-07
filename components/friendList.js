@@ -12,32 +12,50 @@ import {
   Flex,
   Text,
   Avatar,
+  Box,
+  Input
 } from "@chakra-ui/react";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import AppContext from "./globalContext";
 import { useContext } from "react";
 
+
+function Search({searchFriend, setSearchFriend}) {
+  const [keyword, setKeyword] = useState('')
+  const handleChange = (event) => {
+    console.log("UN")
+    setKeyword(event.target.value)
+    const searchedF = searchFriend.filter(f => 
+      f.name.includes(event.target.value)
+    )
+    setSearchFriend([...searchedF])
+  };
+  return(
+    <>
+    {/* <Box w={'100%'} h={'50px'} mb={'1rem'} border={'solid gray'} borderRadius={"2rem"}> */}
+      <Input
+      value={keyword}
+      onChange={handleChange}
+      placeholder="enter password"
+      size="sm"></Input>
+    {/* </Box> */}
+    </>
+  )
+}
+
+
 export default function FriendList({ User }) {
   const context = useContext(AppContext);
-  //   useEffect(() => {
-  //     console.log("EFFECT", User);
-  //     if (User) {
-  //       axios({
-  //         method: "get",
-  //         url: "/api/character/character-list/",
-  //       })
-  //         .then((res) => {
-  //           console.log("RESPONSE", res.data, Array.isArray(res.data));
-  //           setFriends(res.data);
-  //         })
-  //         .catch((e) => {});
-  //     }
-  //   }, []);
+  const [searchFriend, setSearchFriend] = useState('')
+  useEffect(() => {
+    setSearchFriend(context.friends)
+  },[])
   return (
     <>
-      {context.friends.length ? (
+      {searchFriend.length ? (
         <>
-          {context.friends.map((f, index) => (
+        <Search searchFriend={searchFriend} setSearchFriend={setSearchFriend}/>
+          {searchFriend.map((f, index) => (
             <Card minW={"100%"} key={index}>
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>

@@ -64,7 +64,7 @@ function Password({ password, setValue, error, setError }) {
   );
 }
 
-export default function Login({ setUser }) {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({
@@ -89,7 +89,6 @@ export default function Login({ setUser }) {
           refresh_token: res.data.tokens.refresh_token,
         });
         cookies.set("user", data.user_id);
-        setUser(data.user_id);
         setUsername("");
         setEmail("");
         setPassword("");

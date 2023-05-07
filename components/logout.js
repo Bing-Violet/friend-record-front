@@ -12,7 +12,6 @@ export default function Logout({setUser}) {
         const cookies = new Cookies
         cookies.remove("user")
         cookies.remove("jwt-tokens")
-        setUser("")
     }
 
     return (

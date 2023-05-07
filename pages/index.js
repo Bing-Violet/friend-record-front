@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import Signup from "../components/signup";
-import Logout from "../components/logout";
 import Login from "../components/login";
 import FriendList from "../components/friendList";
 import FriendCreate from "../components/friendCreate";
@@ -23,12 +22,12 @@ import {
 
 
 
-export default function Home() {
+export default function Home({user}) {
   const cookies = new Cookies();
-  const [user, setUser] = useState('');
+  // const [user, setUser] = useState('');
   const [mounted, setMounted] = useState('');
   useEffect(() => {
-    setUser(cookies.get("user"))
+    // setUser(cookies.get("user"))
     setMounted(true)
   },[])
   // axios({
@@ -52,7 +51,7 @@ export default function Home() {
         </ButtonGroup>
         </Center>
         <Center>
-        {signup ? <Signup setUser={setUser} /> : <Login setUser={setUser} />}
+        {signup ? <Signup  /> : <Login />}
         </Center>
       </Flex>
     );
@@ -60,7 +59,6 @@ export default function Home() {
   function IsLoggedin() {
     return (
       <VStack>
-      <Logout setUser={setUser} />
       <FriendCreate User={user}/>
       <FriendList User={user}/>
       </VStack>
@@ -77,7 +75,7 @@ export default function Home() {
           </>
         ) : (
           <>
-          <SignupOrLogin setUser={setUser} />
+          <SignupOrLogin />
           </>
         )}
         </>):(

@@ -5,6 +5,7 @@ import axios from 'axios'
 import Cookies from "universal-cookie";
 import AppContext from "@/components/globalContext";
 import {useState, useEffect} from "react"
+import Navber from "@/components/navber";
 axios.defaults.baseURL = 'http://127.0.0.1:8000/'
 
 export default function App({ Component, pageProps }) {
@@ -28,6 +29,7 @@ export default function App({ Component, pageProps }) {
       <CSSReset />
       <Box minW={'100vw'} minH={'100vh'}>
         <AppContext.Provider value={{friends, setFriends}}>
+          <Navber></Navber>
           <Component user={user} {...pageProps} />
         </AppContext.Provider>
       </Box>
