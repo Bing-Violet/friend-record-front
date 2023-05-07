@@ -12,16 +12,28 @@ import {
   Text,
   Avatar,
 } from "@chakra-ui/react";
-export default function Navber() {
+export default function Navber({user}) {
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    },[])
     return(
         <>
-        <Flex w={"100%"} h={"100px"}  t={"0"} zIndex={'100'} justifyContent={"center"}>
+        {mounted ? (
+            <Flex w={"100%"} h={"100px"}  t={"0"} zIndex={'100'} justifyContent={"center"}>
             <HStack spacing='24px'>
 
             <Link href={"/"} scroll={false}>HOME</Link>
-            <Link href={"account/"} scroll={false}>ACCOUNT</Link>
+            {user ? (
+                <Link href={"/account"} scroll={false}>ACCOUNT</Link>
+            ):(
+                <></>
+            )}
             </HStack>
         </Flex>
+        ):(
+            <></>
+        )}
         
         </>
     )

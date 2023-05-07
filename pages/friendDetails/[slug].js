@@ -14,8 +14,22 @@ import {
   Text,
   Box,
 } from "@chakra-ui/react";
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuDivider,
+  IconButton
+} from "@chakra-ui/react";
 import EventCreate from "@/components/eventCreate";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { AiOutlineEdit } from "react-icons/ai";
+import { FiDelete } from "react-icons/fi";
 
 export default function FriendDetail({ user }) {
   const router = useRouter();
@@ -88,7 +102,8 @@ export default function FriendDetail({ user }) {
         {events.length ? (
           <>
             {events.map((e, index) => (
-             <Card key={index} mb={"1rem"} minW={"100%"}>
+             <Card position={'relative'} key={index} mb={"1rem"} minW={"100%"}>
+              <SettingMenu/>
              <CardBody>
                <Flex alignItems={"center"}>
                  <VStack align="stretch">
@@ -108,6 +123,28 @@ export default function FriendDetail({ user }) {
             <EventCreate slug={router.query.slug} friend={friend} events={events} setEvents={setEvents}/>
             </Flex>
         )}
+      </Box>
+    );
+  }
+  function SettingMenu() {
+    return (
+      <Box position={"absolute"} right={'0'}>
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            aria-label="Options"
+            icon={<BsThreeDotsVertical />}
+            variant="ghost"
+          />
+          <MenuList>
+            <MenuItem icon={<AiOutlineEdit />}>
+             Edit
+            </MenuItem>
+            <MenuItem icon={<FiDelete />}>
+              Delete
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </Box>
     );
   }

@@ -116,7 +116,13 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         setIsOpen(false);
         const newArray = events;
         newArray.unshift(res.data);
-        setEvents([...newArray]) //update old array to new array
+        setEvents([...newArray]) //set new array.'
+        context.friends.forEach((e) => {
+          console.log("Check", e)
+          if(e.id === friend.id) {
+            e.sum += money
+          }
+        })
         console.log("event",events)
       })
       .catch((e) => {});

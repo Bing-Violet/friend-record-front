@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Flex,
   Form,
@@ -14,6 +14,8 @@ import {
 import axios from "axios";
 import Cookies from "universal-cookie";
 import jwt from "jwt-decode"
+import AppContext from "./globalContext";
+import { useRouter } from "next/router";
 // API
 // -> idle (no data to be shown, null)
 // -> loading (the API request has been made, "loading")
@@ -109,6 +111,8 @@ function ConfirmationPassword({
 }
 
 export default function Signup({setUser}) {
+  const context = useContext(AppContext);
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -141,7 +145,7 @@ export default function Signup({setUser}) {
           refresh_token:res.data.tokens.refresh_token
         })
         cookies.set('user',data.user_id )
-        setUser(data.user_id)
+        context.setUser(data.user_id)
         setUsername('')
         setEmail('')
         setPassword('')

@@ -8,7 +8,8 @@ import FriendList from "../components/friendList";
 import FriendCreate from "../components/friendCreate";
 import axios from "axios";
 import Cookies from "universal-cookie";
-import { useState, useEffect } from "react";
+import AppContext from "@/components/globalContext";
+import { useState, useEffect, useContext } from "react";
 import {
   Button,
   ButtonGroup,
@@ -24,12 +25,25 @@ import {
 
 export default function Home({user}) {
   const cookies = new Cookies();
+  const context = useContext(AppContext);
   // const [user, setUser] = useState('');
   const [mounted, setMounted] = useState('');
   useEffect(() => {
-    // setUser(cookies.get("user"))
+    if (user) {
+      axios({
+        method: "post",
+        url: "/api/character/user-character/",
+        data:{
+          user:user
+        }
+      })
+        .then((res) => {
+          context.setFriends(res.data);
+        })
+        .catch((e) => {});
+    }
     setMounted(true)
-  },[])
+  }, []);
   // axios({
   //   method: "get",
   //   url: "/api/user/user-list/",

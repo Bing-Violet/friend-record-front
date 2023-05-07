@@ -11,12 +11,15 @@ axios.defaults.baseURL = 'http://127.0.0.1:8000/'
 export default function App({ Component, pageProps }) {
   const [friends, setFriends] = useState('');
   const cookies = new Cookies
-  const user = cookies.get('user')
+  const [user, setUser] = useState(cookies.get('user'))
   useEffect(() => {
     if (user) {
       axios({
-        method: "get",
-        url: "/api/character/character-list/",
+        method: "post",
+        url: "/api/character/user-character/",
+        data:{
+          user:user
+        }
       })
         .then((res) => {
           setFriends(res.data);
@@ -28,8 +31,8 @@ export default function App({ Component, pageProps }) {
     <ChakraProvider>
       <CSSReset />
       <Box minW={'100vw'} minH={'100vh'}>
-        <AppContext.Provider value={{friends, setFriends}}>
-          <Navber></Navber>
+        <AppContext.Provider value={{friends, setFriends,setUser}}>
+          <Navber user={user}/>
           <Component user={user} {...pageProps} />
         </AppContext.Provider>
       </Box>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Flex,
   Form,
@@ -21,6 +21,8 @@ import {
 import axios from "axios";
 import Cookies from "universal-cookie";
 import jwt from "jwt-decode";
+import AppContext from "./globalContext";
+import { useRouter } from "next/router";
 
 function Email({ email, setValue, error, setError }) {
   const subject = "email";
@@ -65,6 +67,8 @@ function Password({ password, setValue, error, setError }) {
 }
 
 export default function Login() {
+  const context = useContext(AppContext);
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({
@@ -89,12 +93,13 @@ export default function Login() {
           refresh_token: res.data.tokens.refresh_token,
         });
         cookies.set("user", data.user_id);
-        setUsername("");
         setEmail("");
         setPassword("");
-        setConfirmationPassword("");
+        context.setUser(data.user_id)
+        router.push('/account')
       })
       .catch((e) => {
+        console.log("error", e)
         setApiError(true)
       });
   }
