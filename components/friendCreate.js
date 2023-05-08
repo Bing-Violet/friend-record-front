@@ -16,6 +16,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import AppContext from "./globalContext";
+import toast from "./abstractChacracomps/toast";
 
 function Friend({ friendName, setValue, error, setError }) {
   const subject = "friend";
@@ -38,7 +39,7 @@ function Friend({ friendName, setValue, error, setError }) {
   );
 }
 
-export default function FriendCreate({ User }) {
+export default function FriendCreate({ User, toastFun }) {
   const context = useContext(AppContext);
   const [friendName, setFriendName] = useState("");
   const [error, setError] = useState(true);
@@ -58,8 +59,8 @@ export default function FriendCreate({ User }) {
           setClicked(false);
           const newArray = context.friends.slice()
           newArray.unshift(res.data)
-          console.log("check", newArray)
           context.setFriends(newArray); //update old array to new array
+          toastFun({title:'Friend created!',description:'We ve created your friend for you.', status:'success' })
         })
         .catch((e) => {});
     }
@@ -98,7 +99,7 @@ export default function FriendCreate({ User }) {
             >
               Cancel
             </Button>
-            <Button onClick={formCheck}>Create</Button>
+              <Button onClick={formCheck}>Create</Button>
           </ButtonGroup>
         </>
       )}

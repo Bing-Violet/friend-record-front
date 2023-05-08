@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "universal-cookie";
 import Link from "next/link";
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect, useRef, forwardRef, useContext } from "react";
 import {
   Button,
   ButtonGroup,
@@ -14,11 +14,28 @@ import {
   Avatar,
   Box,
   Input,
+  Stack,
+  FormControl,
+  FormLabel
+} from "@chakra-ui/react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
+  Portal,
+  IconButton,
+  FocusLock
 } from "@chakra-ui/react";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
-
+import { useDisclosure } from "@chakra-ui/react";
+import { AiOutlineEdit } from "react-icons/ai";
 import AppContext from "./globalContext";
-import { useContext } from "react";
 
 function Search({ searchFriend, setSearchFriend, context }) {
   const [keyword, setKeyword] = useState("");
@@ -63,10 +80,148 @@ export default function FriendList({ User }) {
     return (
       <Box w={"100%"} color={"red.500"} position={"absolute"} t={"0"} r={"0"}>
         {dateCalculation(date) >= 30 ? (
-          <Box textAlign={"right"}>chach up!</Box>
+          <Box textAlign={"left"}>chach up!</Box>
         ) : (
           <></>
         )}
+      </Box>
+    );
+  }
+
+  function DeletePopover({ id }) {
+    function deleteEvent() {
+      axios({
+        method: "delete",
+        url: `/api/character/character-detail/${id}`,
+      })
+        .then((res) => {
+          //need to change character data
+          const newEvents = searchFriend.filter((e) => e.id !== id);
+          console.log("che",newEvents)
+          setSearchFriend([...newEvents]);
+          context.setFriends([...newEvents])
+          onCancel();
+        })
+        .catch((e) => {
+          console.log("error", e);
+        });
+    }
+    return (
+      <>
+        <Popover>
+          <PopoverTrigger>
+            <Button background={"red.700"} color={"red.100"}>
+              DELETE
+            </Button>
+          </PopoverTrigger>
+          <Portal>
+            <PopoverContent background={"pink.400"}>
+              <PopoverArrow />
+              <PopoverHeader>Confirmation</PopoverHeader>
+              <PopoverCloseButton />
+              <PopoverBody>are you sure?</PopoverBody>
+              <PopoverFooter textAlign={"center"}>
+                <Button onClick={deleteEvent} colorScheme="blue">
+                  Delete
+                </Button>
+              </PopoverFooter>
+            </PopoverContent>
+          </Portal>
+        </Popover>
+      </>
+    );
+  }
+
+  function EditPopover({ eventName, money, id }) {
+    const { onOpen, onClose, isOpen } = useDisclosure();
+    const firstFieldRef = useRef(null);
+    const TextInput = forwardRef((props, ref) => {
+      return (
+        <FormControl>
+          <FormLabel htmlFor={props.id}>{props.label}</FormLabel>
+          <Input ref={ref} id={props.id} {...props} />
+        </FormControl>
+      );
+    });
+
+    const Form = ({ firstFieldRef, onCancel }) => {
+      const [editedEventName, setEditedEventName] = useState("");
+      const [isDisabled, setIsDisabled] = useState(true);
+
+      const eventHandleChange = (event) => {
+        setEditedEventName(event.target.value), setIsDisabled(false);
+      };
+      function saveFunc() {
+        axios({
+          method: "patch",
+          url: `/api/character/character-detail/${id}`,
+          data: {
+            name: !editedEventName ? eventName : editedEventName,
+          },
+        })
+          .then((res) => {
+            const  updatedName = !editedEventName ? eventName : editedEventName
+            
+            const newEvents = searchFriend.map((e) => {
+              if (e.id === id) {
+                (e.name = updatedName)
+                return e;
+              } else {
+                return e;
+              }
+            });
+            setSearchFriend([...newEvents]);
+            onCancel();
+          })
+          .catch((e) => {
+            console.log("error", e);
+          });
+      }
+      return (
+        <Stack spacing={4}>
+          <TextInput
+            label="Event name"
+            id="first-name"
+            ref={firstFieldRef}
+            defaultValue={eventName}
+            onChange={eventHandleChange}
+          />
+          <ButtonGroup display="flex" justifyContent="flex-end">
+            <Button variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button
+              isDisabled={isDisabled}
+              onClick={saveFunc}
+              colorScheme="teal"
+            >
+              Save
+            </Button>
+          </ButtonGroup>
+        </Stack>
+      );
+    };
+    return (
+      <Box position={"absolute"} right={"0"}>
+        <Popover
+          isOpen={isOpen}
+          initialFocusRef={firstFieldRef}
+          onOpen={onOpen}
+          onClose={onClose}
+          placement="right"
+          closeOnBlur={false}
+        >
+          <PopoverTrigger>
+            <IconButton size="sm" icon={<AiOutlineEdit />} />
+          </PopoverTrigger>
+          <PopoverContent p={5}>
+            <FocusLock returnFocus persistentFocus={false}>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <Form firstFieldRef={firstFieldRef} onCancel={onClose} />
+            </FocusLock>
+          </PopoverContent>
+        </Popover>
       </Box>
     );
   }
@@ -82,6 +237,7 @@ export default function FriendList({ User }) {
           {searchFriend.map((f, index) => (
             <Card minW={"100%"} key={index}>
               <DateAlert date={f.last_log} />
+              <EditPopover id={f.id}/>
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
                   <Flex alignItems={"center"}>
@@ -93,6 +249,7 @@ export default function FriendList({ User }) {
                   </Flex>
                 </CardBody>
               </Link>
+              <DeletePopover id={f.id} />
             </Card>
           ))}
         </>

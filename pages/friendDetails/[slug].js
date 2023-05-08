@@ -18,17 +18,7 @@ import {
   FormControl,
   FormLabel,
   Input,
-} from "@chakra-ui/react";
-import {
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuDivider,
-  IconButton,
+  IconButton
 } from "@chakra-ui/react";
 
 import {
@@ -328,24 +318,6 @@ export default function FriendDetail({ user }) {
             </FocusLock>
           </PopoverContent>
         </Popover>
-      </Box>
-    );
-  }
-  function SettingMenu() {
-    return (
-      <Box position={"absolute"} right={"0"}>
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            aria-label="Options"
-            icon={<BsThreeDotsVertical />}
-            variant="ghost"
-          />
-          <MenuList>
-            <MenuItem icon={<AiOutlineEdit />}>Edit</MenuItem>
-            <MenuItem icon={<FiDelete />}>Delete</MenuItem>
-          </MenuList>
-        </Menu>
       </Box>
     );
   }

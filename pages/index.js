@@ -9,7 +9,7 @@ import FriendCreate from "../components/friendCreate";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import AppContext from "@/components/globalContext";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import {
   Button,
   ButtonGroup,
@@ -18,16 +18,26 @@ import {
   Center,
   VStack,
   Flex,
-  Spinner
+  Spinner,
+  useToast
 } from "@chakra-ui/react";
 
 
 
 export default function Home({user}) {
-  const cookies = new Cookies();
   const context = useContext(AppContext);
-  // const [user, setUser] = useState('');
   const [mounted, setMounted] = useState('');
+  const toast = useToast()
+  const toastIdRef = useRef()
+  function addToast({...toastData}) {
+    console.log(toastData)
+    toastIdRef.current = toast({
+    title: toastData.title,
+    description: toastData.description,
+    status: toastData.status,
+    duration: 5000,
+    isClosable: true, })
+}
   useEffect(() => {
     if (user) {
       axios({
@@ -73,7 +83,7 @@ export default function Home({user}) {
   function IsLoggedin() {
     return (
       <VStack>
-      <FriendCreate User={user}/>
+      <FriendCreate User={user} toastFun={addToast}/>
       <FriendList User={user}/>
       </VStack>
     )
