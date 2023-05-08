@@ -16,7 +16,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import AppContext from "./globalContext";
-import toast from "./abstractChacracomps/toast";
 
 function Friend({ friendName, setValue, error, setError }) {
   const subject = "friend";
