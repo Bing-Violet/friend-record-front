@@ -163,7 +163,6 @@ export default function Signup({setUser}) {
     const [allSet, setValue] = useState(false);
 
     function checkEmail() {
-     return true
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return false;
     }

@@ -16,7 +16,8 @@ import {
   Input,
   Stack,
   FormControl,
-  FormLabel
+  FormLabel,
+  FormErrorMessage
 } from "@chakra-ui/react";
 import {
   Popover,
@@ -30,7 +31,7 @@ import {
   PopoverAnchor,
   Portal,
   IconButton,
-  FocusLock
+  FocusLock,
 } from "@chakra-ui/react";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import { useDisclosure } from "@chakra-ui/react";
@@ -40,24 +41,27 @@ import AppContext from "./globalContext";
 function Search({ searchFriend, setSearchFriend, context }) {
   const [keyword, setKeyword] = useState("");
   const handleChange = (event) => {
-    console.log("UN");
     setKeyword(event.target.value);
     const searchedF = context.friends.filter((f) =>
       f.name.includes(event.target.value)
     );
     console.log("CH", searchedF);
-    setSearchFriend([...searchedF]);
+    if(context.friends.length) {
+      setSearchFriend([...searchedF]);
+    }
   };
   return (
     <>
-      {/* <Box w={'100%'} h={'50px'} mb={'1rem'} border={'solid gray'} borderRadius={"2rem"}> */}
+     <FormControl isInvalid={!context.friends.length}>
+        <FormLabel>Password</FormLabel>
       <Input
         value={keyword}
         onChange={handleChange}
         placeholder="search"
         size="sm"
       ></Input>
-      {/* </Box> */}
+      <FormErrorMessage>no friend to search.</FormErrorMessage>
+       </FormControl>
     </>
   );
 }
@@ -97,9 +101,9 @@ export default function FriendList({ User }) {
         .then((res) => {
           //need to change character data
           const newEvents = searchFriend.filter((e) => e.id !== id);
-          console.log("che",newEvents)
+          console.log("che", newEvents);
           setSearchFriend([...newEvents]);
-          context.setFriends([...newEvents])
+          context.setFriends([...newEvents]);
           onCancel();
         })
         .catch((e) => {
@@ -160,11 +164,11 @@ export default function FriendList({ User }) {
           },
         })
           .then((res) => {
-            const  updatedName = !editedEventName ? eventName : editedEventName
-            
+            const updatedName = !editedEventName ? eventName : editedEventName;
+
             const newEvents = searchFriend.map((e) => {
               if (e.id === id) {
-                (e.name = updatedName)
+                e.name = updatedName;
                 return e;
               } else {
                 return e;
@@ -237,7 +241,7 @@ export default function FriendList({ User }) {
           {searchFriend.map((f, index) => (
             <Card minW={"100%"} key={index}>
               <DateAlert date={f.last_log} />
-              <EditPopover id={f.id}/>
+              <EditPopover id={f.id} />
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
                   <Flex alignItems={"center"}>

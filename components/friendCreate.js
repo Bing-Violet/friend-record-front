@@ -56,8 +56,12 @@ export default function FriendCreate({ User, toastFun }) {
       })
         .then((res) => {
           setClicked(false);
-          const newArray = context.friends.slice()
-          newArray.unshift(res.data)
+          let newArray = context.friends.slice()
+          if(Array.isArray(newArray)) {
+            newArray.unshift(res.data)
+          } else {
+            newArray = [res.data]
+          }
           context.setFriends(newArray); //update old array to new array
           toastFun({title:'Friend created!',description:'We ve created your friend for you.', status:'success' })
         })
