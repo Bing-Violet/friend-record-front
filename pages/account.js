@@ -17,25 +17,16 @@ import {
   VStack,
   Text,
   Avatar,
-  useToast
 } from "@chakra-ui/react";
 import Logout from "@/components/logout";
+import AppContext from "@/components/globalContext";
 import { useRouter } from "next/router";
 
 export default function Account({user}) {
-    const toast = useToast()
-    const toastIdRef = useRef()
+    const context = useContext(AppContext);
     const router = useRouter();
     const [userDetail, setUserDetail] = useState('')
-    const [isToast, setIsToast] = useState(false)
-    function addToast() {
-      toastIdRef.current = toast({
-      title: "Logged in!",
-      description: 'You are successfully logged in!',
-      status: 'success',
-      duration: 5000,
-      isClosable: true, })
-  }
+    const addToast = context.addToast
     useEffect(() => {
       console.log("router",Object.keys(router.query))
           axios({
@@ -45,8 +36,7 @@ export default function Account({user}) {
             .then((res) => {
                 setUserDetail(res.data);
                 if(Object.keys(router.query).length) {
-                  console.log("TOAST")
-                  addToast()
+                  addToast(({title:'Logged in!',description:`You are successfully logged in!`, status:'success' }))
                 }
             })
             .catch((e) => {});

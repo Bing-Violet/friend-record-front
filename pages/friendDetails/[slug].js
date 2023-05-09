@@ -176,7 +176,6 @@ export default function FriendDetail({ user }) {
           })
           setEvents([...newEvents]);
           toastFun({title:'Event deleted!',description:`Your event ${eventName} is successfully deleted!`, status:'success' })
-          onCancel();
         })
         .catch((e) => {
           toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
