@@ -96,7 +96,10 @@ export default function Login() {
         setEmail("");
         setPassword("");
         context.setUser(data.user_id)
-        router.push('/account')
+        router.push({
+          pathname: '/account',
+          query: { code: 'login' }
+        })
       })
       .catch((e) => {
         console.log("error", e)

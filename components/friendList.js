@@ -45,7 +45,6 @@ function Search({ searchFriend, setSearchFriend, context }) {
     const searchedF = context.friends.filter((f) =>
       f.name.includes(event.target.value)
     );
-    console.log("CH", searchedF);
     if(context.friends.length) {
       setSearchFriend([...searchedF]);
     }
@@ -101,7 +100,6 @@ export default function FriendList({ User }) {
         .then((res) => {
           //need to change character data
           const newEvents = searchFriend.filter((e) => e.id !== id);
-          console.log("che", newEvents);
           setSearchFriend([...newEvents]);
           context.setFriends([...newEvents]);
           onCancel();
