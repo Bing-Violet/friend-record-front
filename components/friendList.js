@@ -65,7 +65,7 @@ function Search({ searchFriend, setSearchFriend, context }) {
   );
 }
 
-export default function FriendList({ User }) {
+export default function FriendList({ User, toastFun }) {
   const context = useContext(AppContext);
   const [searchFriend, setSearchFriend] = useState("");
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function FriendList({ User }) {
     );
   }
 
-  function DeletePopover({ id }) {
+  function DeletePopover({ id, eventName, toastFun }) {
     function deleteEvent() {
       axios({
         method: "delete",
@@ -102,9 +102,10 @@ export default function FriendList({ User }) {
           const newEvents = searchFriend.filter((e) => e.id !== id);
           setSearchFriend([...newEvents]);
           context.setFriends([...newEvents]);
-          onCancel();
+          toastFun({title:'Your event is deleted!',description:`Your event ${eventName} is successfully deleted!`, status:'success' })
         })
         .catch((e) => {
+          toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
           console.log("error", e);
         });
     }
@@ -134,7 +135,7 @@ export default function FriendList({ User }) {
     );
   }
 
-  function EditPopover({ eventName, money, id }) {
+  function EditPopover({ eventName, money, id, toastFun }) {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const firstFieldRef = useRef(null);
     const TextInput = forwardRef((props, ref) => {
@@ -173,9 +174,11 @@ export default function FriendList({ User }) {
               }
             });
             setSearchFriend([...newEvents]);
+            toastFun({title:'Your event is updated!',description:`Your event ${eventName} is successfully updated!`, status:'success' })
             onCancel();
           })
           .catch((e) => {
+            toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
             console.log("error", e);
           });
       }
@@ -239,7 +242,7 @@ export default function FriendList({ User }) {
           {searchFriend.map((f, index) => (
             <Card minW={"100%"} key={index}>
               <DateAlert date={f.last_log} />
-              <EditPopover id={f.id} />
+              <EditPopover eventName={f.name} id={f.id} toastFun={toastFun} />
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
                   <Flex alignItems={"center"}>
@@ -251,7 +254,7 @@ export default function FriendList({ User }) {
                   </Flex>
                 </CardBody>
               </Link>
-              <DeletePopover id={f.id} />
+              <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} />
             </Card>
           ))}
         </>

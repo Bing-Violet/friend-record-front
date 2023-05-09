@@ -63,9 +63,11 @@ export default function FriendCreate({ User, toastFun }) {
             newArray = [res.data]
           }
           context.setFriends(newArray); //update old array to new array
-          toastFun({title:'Friend created!',description:'We ve created your friend for you.', status:'success' })
+          toastFun({title:'Friend created!',description:`Your friend ${friendName} is successfully created!`, status:'success' })
         })
-        .catch((e) => {});
+        .catch((e) => {
+          toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
+        });
     }
   }
   function formCheck() {

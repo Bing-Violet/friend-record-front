@@ -54,18 +54,9 @@ export default function Home({user}) {
     }
     setMounted(true)
   }, []);
-  // axios({
-  //   method: "get",
-  //   url: "/api/user/user-list/",
-  //   data: {},
-  // })
-  //   .then((res) => {
-  //     console.log("RESPONSE", res);
-  //   })
-  //   .catch((e) => {});
+
   function SignupOrLogin() {
     const [signup, setSignup] = useState(true);
-    // const [login, setLogin] = useState(false);
     return (
       <Flex w={"600px"} mt={"2rem"} flexDirection={"column"}>
         <Center>
@@ -84,7 +75,7 @@ export default function Home({user}) {
     return (
       <VStack>
       <FriendCreate User={user} toastFun={addToast}/>
-      <FriendList User={user}/>
+      <FriendList User={user} toastFun={addToast}/>
       </VStack>
     )
   }
