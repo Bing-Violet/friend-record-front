@@ -58,6 +58,7 @@ export default function FriendDetail({ user }) {
   const [events, setEvents] = useState("");
   const [mounted, setMounted] = useState(false);
   const [slug, setSlug] = useState("");
+  const toastFun = context.addToast
   useEffect(() => {
     if (user && router.query.slug) {
       axios({
@@ -133,7 +134,7 @@ export default function FriendDetail({ user }) {
                     </VStack>
                   </Flex>
                 </CardBody>
-                <DeletePopover id={e.id}/>
+                <DeletePopover id={e.id} eventName={e.name}/>
               </Card>
             ))}
             <EventCreate
@@ -158,7 +159,7 @@ export default function FriendDetail({ user }) {
     );
   }
 
-  function DeletePopover({id}) {
+  function DeletePopover({id, eventName}) {
     function deleteEvent() {
       axios({
         method: "delete",
@@ -171,12 +172,14 @@ export default function FriendDetail({ user }) {
             if(e.id===id) {
               friend.sum -= e.money
             }
+            
           })
           setEvents([...newEvents]);
+          toastFun({title:'Event deleted!',description:`Your event ${eventName} is successfully deleted!`, status:'success' })
           onCancel();
         })
         .catch((e) => {
-          console.log("error", e);
+          toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
         });
     }
     return (
@@ -252,11 +255,11 @@ export default function FriendDetail({ user }) {
               }
             });
             setEvents([...newEvents]);
+            toastFun({title:'Event updated!',description:`Your event ${eventName} is successfully updated!`, status:'success' })
             onCancel();
           })
           .catch((e) => {
-            console.log("error", e);
-            setApiError(true);
+            toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
           });
       }
       return (

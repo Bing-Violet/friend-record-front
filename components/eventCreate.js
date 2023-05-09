@@ -99,8 +99,8 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const context = useContext(AppContext);
   const [error, setError] = useState(true);
 
+  const toastFun = context.addToast
   function eventCreate() {
-    console.log("CREAYE", slug, events);
     axios({
       method: "post",
       url: "/api/event/event-create/",
@@ -118,14 +118,15 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         newArray.unshift(res.data);
         setEvents([...newArray]) //set new array.'
         context.friends.forEach((e) => {
-          console.log("Check", e)
           if(e.id === friend.id) {
             e.sum += money
           }
         })
-        console.log("event",events)
+        toastFun({title:'Event created!',description:`Your event ${event} is successfully created!`, status:'success' })
       })
-      .catch((e) => {});
+      .catch((e) => {
+        toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
+      });
   }
   function formCheck() {
     setError(event ? true : false);

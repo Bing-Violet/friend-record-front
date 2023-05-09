@@ -105,8 +105,7 @@ export default function FriendList({ User, toastFun }) {
           toastFun({title:'Your event is deleted!',description:`Your event ${eventName} is successfully deleted!`, status:'success' })
         })
         .catch((e) => {
-          toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
-          console.log("error", e);
+          toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
         });
     }
     return (
@@ -178,7 +177,7 @@ export default function FriendList({ User, toastFun }) {
             onCancel();
           })
           .catch((e) => {
-            toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
+            toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
             console.log("error", e);
           });
       }
