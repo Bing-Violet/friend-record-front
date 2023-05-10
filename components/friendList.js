@@ -52,7 +52,7 @@ function Search({ searchFriend, setSearchFriend, context }) {
   return (
     <>
      <FormControl isInvalid={!context.friends.length}>
-        <FormLabel>Password</FormLabel>
+        <FormLabel>Search</FormLabel>
       <Input
         value={keyword}
         onChange={handleChange}

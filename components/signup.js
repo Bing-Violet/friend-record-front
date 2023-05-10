@@ -48,6 +48,15 @@ function Email({ email, setValue, emailErrorObj, setEmailErrorObj }) {
   function emailCheck(val) {
     setEmailErrorObj({ ...emailErrorObj, isError: !val ? true : false, isEmpty: !val ? true : false});
   }
+  function errorMessage() {
+    if(emailErrorObj.isEmpty){
+      return 'Email is required!'
+    } else if(emailErrorObj.inUse) {
+      return 'this email address is already in use!'
+    } else {
+      return 'Email is not valid'
+    }
+  }
   return (
     <>
       <FormControl isInvalid={emailErrorObj.isError}>
@@ -65,11 +74,7 @@ function Email({ email, setValue, emailErrorObj, setEmailErrorObj }) {
         ) : (
           <>
             <FormErrorMessage>
-              {!emailErrorObj.isEmpty ? (
-                <>Email is not valid</>
-              ) : (
-                <>Email is required</>
-              )}
+             {errorMessage()}
             </FormErrorMessage>
           </>
         )}
@@ -244,6 +249,7 @@ export default function Signup({ setUser }) {
     isError: false,
     isEmpty: false,
     isValid: false,
+    inUse:false
   });
   const [passwordErrorObj, setPasswordErrorObj] = useState({
     isError: false,
@@ -282,7 +288,16 @@ export default function Signup({ setUser }) {
         setConfirmationPassword("");
       })
       .catch((e) => {
-        console.log("error", e);
+        console.log("e", e.response.data.message)
+        if(e.response.data.message === 'this email is already in use.') {
+          setEmailErrorObj({
+            ...passwordErrorObj,
+            isError: true,
+            inUse:true,
+          })
+        } else {
+          context.addToast({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
+        }
       });
     console.log("created");
   }
@@ -302,6 +317,7 @@ export default function Signup({ setUser }) {
         isEmpty: false,
         isError: false,
         isValid: false,
+        inUse: false,
       });
       if (!email) {
         setEmailErrorObj({ ...emailErrorObj, isEmpty: true, isError: true });
