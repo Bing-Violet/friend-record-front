@@ -90,7 +90,7 @@ function Password({
 }) {
   const [shwoPassword, setShowpassword] = useState(true);
   const [formErrorMessage, setFormErrorMessage] = useState(
-    "Password must be longer than 10 cha, and include upper-case, lower-case, one or more numerical digits and special characters, such as @, #, $"
+    "Use 8 or more characters with a mix of letters, numbers & symbols"
   );
   const handleChange = (event) => {
     setValue(event.target.value),
@@ -104,17 +104,17 @@ function Password({
       );
   };
   function onChangeHelperText(val) {
-    if (val.length < 10) {
+    if (val.length < 8) {
       return "Password must be longer than 10 cha.";
     } else {
-      return "Longer than 10 cha.";
+      return "Longer than 8 cha.";
     }
   }
   function errorMessageHandler() {
     if (passwordErrorObj.isEmpty) {
       return "Password is required!";
     } else if (passwordErrorObj.isLong) {
-      return "Password must be longer than 10 cha.";
+      return "Password must be longer than 8 cha.";
     } else if (passwordErrorObj.hasUpper) {
       return "Password must include upper-case!";
     } else if (passwordErrorObj.hasLower) {
@@ -275,13 +275,14 @@ export default function Signup({ setUser }) {
       },
     })
       .then((res) => {
-        const data = jwt(res.data.tokens.access_token);
-        cookies.set("jwt-tokens", {
-          access_token: res.data.tokens.access_token,
-          refresh_token: res.data.tokens.refresh_token,
-        });
-        cookies.set("user", data.user_id);
-        context.setUser(data.user_id);
+        console.log("CREATE", res.data)
+        // const data = jwt(res.data.tokens.access_token);
+        // cookies.set("jwt-tokens", {
+        //   access_token: res.data.tokens.access_token,
+        //   refresh_token: res.data.tokens.refresh_token,
+        // });
+        // cookies.set("user", data.user_id);
+        // context.setUser(data.user_id);
         setUsername("");
         setEmail("");
         setPassword("");
@@ -349,7 +350,7 @@ export default function Signup({ setUser }) {
           isError: true,
         });
         return false;
-      } else if (password.length < 10) {
+      } else if (password.length < 8) {
         setPasswordErrorObj({
           ...passwordErrorObj,
           isEmpty: false,

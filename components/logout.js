@@ -12,12 +12,12 @@ import { useRouter } from "next/router";
 export default function Logout({setUser}) {
     const context = useContext(AppContext);
     const router = useRouter();
-    function logout() {
+    async function logout() {
         const cookies = new Cookies
         cookies.remove("user")
         cookies.remove("jwt-tokens")
-        context.setUser('')
-        context.setFriends('')
+        await context.setUser('')
+        await context.setFriends([...[]])
         router.push('/')
     }
 

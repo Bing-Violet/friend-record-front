@@ -22,7 +22,7 @@ import Logout from "@/components/logout";
 import AppContext from "@/components/globalContext";
 import { useRouter } from "next/router";
 
-export default function Account({user}) {
+export default function Account() {
     const context = useContext(AppContext);
     const router = useRouter();
     const [userDetail, setUserDetail] = useState('')
@@ -31,7 +31,7 @@ export default function Account({user}) {
       console.log("router",Object.keys(router.query))
           axios({
             method: "get",
-            url: `/api/user/user-detail/${user}`,
+            url: `/api/user/user-detail/${context.user}`,
           })
             .then((res) => {
                 setUserDetail(res.data);

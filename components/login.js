@@ -77,6 +77,7 @@ export default function Login() {
   });
   const [apiError, setApiError] = useState(false);
   function login() {
+    console.log("LOGIN", email, password)
     axios({
       method: "post",
       url: "/api/user/user-login/",
@@ -85,7 +86,8 @@ export default function Login() {
         password: password,
       },
     })
-      .then((res) => {
+      .then(async (res) => {
+        console.log("then")
         const data = jwt(res.data.tokens.access_token);
         const cookies = new Cookies();
         cookies.set("jwt-tokens", {
@@ -95,7 +97,8 @@ export default function Login() {
         cookies.set("user", data.user_id);
         setEmail("");
         setPassword("");
-        context.setUser(data.user_id)
+        await context.setUser(data.user_id)
+        await context.getFriend(data.user_id)
         router.push({
           pathname: '/account',
           query: { code: 'login' }

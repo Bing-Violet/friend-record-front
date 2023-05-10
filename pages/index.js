@@ -15,10 +15,11 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 
-export default function Home({ user }) {
+export default function Home() {
   const context = useContext(AppContext);
   const [mounted, setMounted] = useState("");
   const addToast = context.addToast
+  const [user, setUser] = useState(context.user)
 
   useEffect(() => {
     if (user) {

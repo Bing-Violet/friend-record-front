@@ -66,10 +66,12 @@ function Search({ searchFriend, setSearchFriend, context }) {
 }
 
 export default function FriendList({ User, toastFun }) {
+  console.log("LIST")
   const context = useContext(AppContext);
-  const [searchFriend, setSearchFriend] = useState("");
+  const [searchFriend, setSearchFriend] = useState([]);
   useEffect(() => {
-    setSearchFriend(context.friends);
+    console.log("EFFECT")
+    setSearchFriend([...context.friends]);
   }, []);
   function dateCalculation(date) {
     console.log("IN", date);
