@@ -21,6 +21,8 @@ import AppContext from "./globalContext";
 import { useRouter } from "next/router";
 import { ImEye } from "react-icons/im";
 import { ImEyeBlocked } from "react-icons/im";
+import CustomSpinner from "./spinner";
+import CustomConfPassWithPass, { passwordFormCheck, confirmatinPasswordFormCheck } from "./customForms/signup/customConfPassWithPass";
 
 function Username({ username, setValue, error, setError }) {
   const handleChange = (event) => {
@@ -46,15 +48,19 @@ function Email({ email, setValue, emailErrorObj, setEmailErrorObj }) {
     setValue(event.target.value), emailCheck(event.target.value);
   };
   function emailCheck(val) {
-    setEmailErrorObj({ ...emailErrorObj, isError: !val ? true : false, isEmpty: !val ? true : false});
+    setEmailErrorObj({
+      ...emailErrorObj,
+      isError: !val ? true : false,
+      isEmpty: !val ? true : false,
+    });
   }
   function errorMessage() {
-    if(emailErrorObj.isEmpty){
-      return 'Email is required!'
-    } else if(emailErrorObj.inUse) {
-      return 'this email address is already in use!'
+    if (emailErrorObj.isEmpty) {
+      return "Email is required!";
+    } else if (emailErrorObj.inUse) {
+      return "this email address is already in use!";
     } else {
-      return 'Email is not valid'
+      return "Email is not valid";
     }
   }
   return (
@@ -73,170 +79,14 @@ function Email({ email, setValue, emailErrorObj, setEmailErrorObj }) {
           </>
         ) : (
           <>
-            <FormErrorMessage>
-             {errorMessage()}
-            </FormErrorMessage>
+            <FormErrorMessage>{errorMessage()}</FormErrorMessage>
           </>
         )}
       </FormControl>
     </>
   );
 }
-function Password({
-  password,
-  setValue,
-  passwordErrorObj,
-  setPasswordErrorObj,
-}) {
-  const [shwoPassword, setShowpassword] = useState(true);
-  const [formErrorMessage, setFormErrorMessage] = useState(
-    "Use 8 or more characters with a mix of letters, numbers & symbols"
-  );
-  const handleChange = (event) => {
-    setValue(event.target.value),
-      setFormErrorMessage(
-        onChangeHelperText(event.target.value),
-        setPasswordErrorObj({
-          ...passwordErrorObj,
-          isEmpty: !event.target.value ? true : false,
-          isError: !event.target.value ? true : false,
-        })
-      );
-  };
-  function onChangeHelperText(val) {
-    if (val.length < 8) {
-      return "Password must be longer than 10 cha.";
-    } else {
-      return "Longer than 8 cha.";
-    }
-  }
-  function errorMessageHandler() {
-    if (passwordErrorObj.isEmpty) {
-      return "Password is required!";
-    } else if (passwordErrorObj.isLong) {
-      return "Password must be longer than 8 cha.";
-    } else if (passwordErrorObj.hasUpper) {
-      return "Password must include upper-case!";
-    } else if (passwordErrorObj.hasLower) {
-      return "Password must include lower-case!";
-    } else if (passwordErrorObj.hasNum) {
-      return "Password must include at least one number!";
-    } else if (passwordErrorObj.hasSpecialCha) {
-      return "Password must include at least one special characters, like !,%,&,@,#,$,^,*,?,_,~";
-    }
-  }
-  return (
-    <>
-      <FormControl isInvalid={passwordErrorObj.isError}>
-        <FormLabel>Password</FormLabel>
-        <InputGroup>
-          <Input
-            value={password}
-            onChange={handleChange}
-            type={!shwoPassword ? "text" : "password"}
-            placeholder="enter password"
-            size="md"
-          />
-          <InputRightElement>
-            {shwoPassword ? (
-              <>
-                <IconButton
-                  onClick={() => setShowpassword(!shwoPassword)}
-                  background={"none"}
-                  size="sm"
-                  color={"gray.500"}
-                  icon={<ImEye />}
-                />
-              </>
-            ) : (
-              <>
-                <IconButton
-                  onClick={() => setShowpassword(!shwoPassword)}
-                  background={"none"}
-                  size="sm"
-                  color={"gray.500"}
-                  icon={<ImEyeBlocked />}
-                />
-              </>
-            )}
-          </InputRightElement>
-        </InputGroup>
-        {!passwordErrorObj.isError ? (
-          <>
-            <FormHelperText>{formErrorMessage}</FormHelperText>
-          </>
-        ) : (
-          <>
-            <FormErrorMessage>{errorMessageHandler()}</FormErrorMessage>
-          </>
-        )}
-      </FormControl>
-    </>
-  );
-}
-function ConfirmationPassword({
-  confirmationPassword,
-  setValue,
-  error,
-  setError,
-}) {
-  const [shwoPassword, setShowpassword] = useState(true);
-  const handleChange = (event) => {
-    setValue(event.target.value), setError(event.target.value ? false : true);
-  };
-  return (
-    <>
-      <FormControl isInvalid={error}>
-        <FormLabel>Confirmation-Password</FormLabel>
-        <InputGroup>
-          <Input
-            value={confirmationPassword}
-            onChange={handleChange}
-            type={!shwoPassword ? "text" : "password"}
-            placeholder="enter password again"
-            size="md"
-          />
-          <InputRightElement>
-            {shwoPassword ? (
-              <>
-                <IconButton
-                  onClick={() => setShowpassword(!shwoPassword)}
-                  background={"none"}
-                  size="sm"
-                  color={"gray.500"}
-                  icon={<ImEye />}
-                />
-              </>
-            ) : (
-              <>
-                <IconButton
-                  onClick={() => setShowpassword(!shwoPassword)}
-                  background={"none"}
-                  size="sm"
-                  color={"gray.500"}
-                  icon={<ImEyeBlocked />}
-                />
-              </>
-            )}
-          </InputRightElement>
-        </InputGroup>
-        {!error ? (
-          <>
-            <FormHelperText>
-              Confirmation-Password must be the same as the password.
-            </FormHelperText>
-          </>
-        ) : (
-          <>
-            <FormErrorMessage>
-              Confirmation-Password must be the same as the password.
-            </FormErrorMessage>
-          </>
-        )}
-      </FormControl>
-    </>
-  );
-}
+
 
 export default function Signup({ setUser }) {
   const context = useContext(AppContext);
@@ -245,11 +95,14 @@ export default function Signup({ setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmationPassword, setConfirmationPassword] = useState("");
+  const [isLoading, setIsloading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  // const [passwordFormCheck,setPasswordFormCheck] = useState('')
   const [emailErrorObj, setEmailErrorObj] = useState({
     isError: false,
     isEmpty: false,
     isValid: false,
-    inUse:false
+    inUse: false,
   });
   const [passwordErrorObj, setPasswordErrorObj] = useState({
     isError: false,
@@ -265,6 +118,7 @@ export default function Signup({ setUser }) {
     useState(false);
   const cookies = new Cookies();
   function userCreate() {
+    setIsloading(true);
     axios({
       method: "post",
       url: "/api/user/user-create/",
@@ -275,7 +129,9 @@ export default function Signup({ setUser }) {
       },
     })
       .then((res) => {
-        console.log("CREATE", res.data)
+        console.log("CREATE", res.data);
+        setIsloading(false);
+        setEmailSent(true);
         // const data = jwt(res.data.tokens.access_token);
         // cookies.set("jwt-tokens", {
         //   access_token: res.data.tokens.access_token,
@@ -289,15 +145,19 @@ export default function Signup({ setUser }) {
         setConfirmationPassword("");
       })
       .catch((e) => {
-        console.log("e", e.response.data.message)
-        if(e.response.data.message === 'this email is already in use.') {
+        console.log("e", e.response.data.message);
+        if (e.response.data.message === "this email is already in use.") {
           setEmailErrorObj({
             ...passwordErrorObj,
             isError: true,
-            inUse:true,
-          })
+            inUse: true,
+          });
         } else {
-          context.addToast({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
+          context.addToast({
+            title: "Failed creation!",
+            description: `Something bad happened. Please try later!`,
+            status: "error",
+          });
         }
       });
     console.log("created");
@@ -330,88 +190,15 @@ export default function Signup({ setUser }) {
         return true;
       }
     }
-    function passwordFormCheck() {
-      //password should be longer than 10 char include small, capital letter, num and special characters, such as @, #, $.
-      setPasswordErrorObj({
-        // here is for all reset but not working so each if need to make other attr false
-        ...passwordErrorObj,
-        isError: false,
-        isEmpty: false,
-        isLong: false,
-        hasLower: false,
-        hasUpper: false,
-        hasNum: false,
-        hasSpecialCha: false,
-      });
-      if (!password) {
-        setPasswordErrorObj({
-          ...passwordErrorObj,
-          isEmpty: true,
-          isError: true,
-        });
-        return false;
-      } else if (password.length < 8) {
-        setPasswordErrorObj({
-          ...passwordErrorObj,
-          isEmpty: false,
-          isLong: true,
-          isError: true,
-        });
-        return false;
-      } else if (!/[A-Z]/.test(password)) {
-        setPasswordErrorObj({
-          ...passwordErrorObj,
-          hasUpper: true,
-          isEmpty: false,
-          isLong: false,
-          isError: true,
-        });
-        return false;
-      } else if (!/[a-z]/.test(password)) {
-        setPasswordErrorObj({
-          ...passwordErrorObj,
-          hasUpper: false,
-          hasLower: true,
-          isEmpty: false,
-          isLong: false,
-          isError: true,
-        });
-        return false;
-      } else if (!/[0-9]/.test(password)) {
-        setPasswordErrorObj({
-          ...passwordErrorObj,
-          hasNum: true,
-          hasUpper: false,
-          hasLower: false,
-          isEmpty: false,
-          isLong: false,
-          isError: true,
-        });
-        return false;
-      } else if (!/[!,%,&,@,#,$,^,*,?,_,~]/.test(password)) {
-        setPasswordErrorObj({
-          ...passwordErrorObj,
-          hasSpecialCha: true,
-          hasNum: false,
-          hasUpper: false,
-          hasLower: false,
-          isEmpty: false,
-          isLong: false,
-          isError: true,
-        });
-      } else {
-        return true;
-      }
-    }
-    function confirmatinPasswordFormCheck() {
-      if (password !== confirmationPassword || !confirmationPassword) {
-        setConfirmationPasswordError(true);
-        return false;
-      } else {
-        setConfirmationPasswordError(false);
-        return true;
-      }
-    }
+    // function confirmatinPasswordFormCheck() {
+    //   if (password !== confirmationPassword || !confirmationPassword) {
+    //     setConfirmationPasswordError(true);
+    //     return false;
+    //   } else {
+    //     setConfirmationPasswordError(false);
+    //     return true;
+    //   }
+    // }
     function usernameFormCheck() {
       if (!username) {
         setUsernameError(true);
@@ -422,10 +209,11 @@ export default function Signup({ setUser }) {
       }
     }
     function formCheck() {
+      console.log("FC", passwordFormCheck)
       if (
         emailFormCheck() &
-        passwordFormCheck() &
-        confirmatinPasswordFormCheck() &
+        passwordFormCheck(password,passwordErrorObj,setPasswordErrorObj) &
+        confirmatinPasswordFormCheck(password, confirmationPassword, setConfirmationPasswordError) &
         usernameFormCheck()
       ) {
         userCreate();
@@ -444,38 +232,48 @@ export default function Signup({ setUser }) {
   }
   return (
     <Flex w={"90%"}>
-      <FormControl isRequired>
-        <VStack spacing={"1rem"}>
-          <Username
-            username={username}
-            setValue={setUsername}
-            error={usernameError}
-            setError={setUsernameError}
-          />
-          <Email
-            email={email}
-            setValue={setEmail}
-            emailErrorObj={emailErrorObj}
-            setEmailErrorObj={setEmailErrorObj}
-          />
-          <Password
-            password={password}
-            setValue={setPassword}
-            passwordErrorObj={passwordErrorObj}
-            setPasswordErrorObj={setPasswordErrorObj}
-          />
-          <ConfirmationPassword
-            confirmationPassword={confirmationPassword}
-            setValue={setConfirmationPassword}
-            error={confirmationPasswordError}
-            setError={setConfirmationPasswordError}
-          /> 
-        </VStack>
+      {!isLoading ? (
+        <>
+          {!emailSent ? (
+            <FormControl isRequired>
+              <VStack spacing={"1rem"}>
+                <Username
+                  username={username}
+                  setValue={setUsername}
+                  error={usernameError}
+                  setError={setUsernameError}
+                />
+                <Email
+                  email={email}
+                  setValue={setEmail}
+                  emailErrorObj={emailErrorObj}
+                  setEmailErrorObj={setEmailErrorObj}
+                />
+                <CustomConfPassWithPass
+                  confirmationPassword={confirmationPassword}
+                  setConf={setConfirmationPassword}
+                  conferror={confirmationPasswordError}
+                  setConfconfError={setConfirmationPasswordError}
+                  password={password}
+                  setPassword={setPassword}
+                  passwordErrorObj={passwordErrorObj}
+                  setPasswordErrorObj={setPasswordErrorObj}
+                />
+              </VStack>
 
-        <Center mt={5}>
-          <SubmitButton />
-        </Center>
-      </FormControl>
+              <Center mt={5}>
+                <SubmitButton />
+              </Center>
+            </FormControl>
+          ) : (
+            <>SENT</>
+          )}
+        </>
+      ) : (
+        <>
+          <CustomSpinner />
+        </>
+      )}
     </Flex>
   );
 }

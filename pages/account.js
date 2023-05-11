@@ -29,6 +29,7 @@ export default function Account() {
   const addToast = context.addToast;
   useEffect(() => {
     if (context) {
+      console.log('account',context.user)
       if (Object.keys(router.query).length) {
         addToast({
           title: "Logged in!",
