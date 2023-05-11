@@ -51,7 +51,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { FiDelete } from "react-icons/fi";
 import AppContext from "@/components/globalContext";
 
-export default function FriendDetail({ user }) {
+export default function FriendDetail() {
   const router = useRouter();
   const context = useContext(AppContext);
   const [friend, setFriend] = useState("");
@@ -60,12 +60,13 @@ export default function FriendDetail({ user }) {
   const [slug, setSlug] = useState("");
   const toastFun = context.addToast
   useEffect(() => {
-    if (user && router.query.slug) {
+    if (context.user && router.query.slug) {
       axios({
         method: "get",
         url: `/api/character/character-detail/${router.query.slug}`,
       })
         .then((res) => {
+          console.log("DATA", res.data)
           setFriend(res.data);
           setEvents(res.data.event);
           console.log("res_slug", res.data, events);

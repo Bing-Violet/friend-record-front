@@ -87,18 +87,18 @@ export default function Login() {
       },
     })
       .then(async (res) => {
-        console.log("then")
+        console.log("then" , res.data.user)
         const data = jwt(res.data.tokens.access_token);
         const cookies = new Cookies();
         cookies.set("jwt-tokens", {
           access_token: res.data.tokens.access_token,
           refresh_token: res.data.tokens.refresh_token,
         });
-        cookies.set("user", data.user_id);
+        cookies.set("user",  res.data.user);
         setEmail("");
         setPassword("");
-        await context.setUser(data.user_id)
-        await context.getFriend(data.user_id)
+        await context.setUser( res.data.user)
+        await context.getFriendsList(data.user_id)
         router.push({
           pathname: '/account',
           query: { code: 'login' }

@@ -22,7 +22,7 @@ export default function Home() {
   const [user, setUser] = useState(context.user)
 
   useEffect(() => {
-    if (user) {
+    if (user&&!context.friends.length) {
       axios({
         method: "post",
         url: "/api/character/user-character/",

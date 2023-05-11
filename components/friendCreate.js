@@ -45,13 +45,13 @@ export default function FriendCreate({ User, toastFun }) {
   const [clicked, setClicked] = useState(false);
 
   function friendCreate() {
-    if (User) {
+    if (context.user) {
       axios({
         method: "post",
         url: "/api/character/character-create/",
         data: {
           name: friendName,
-          user: User,
+          user: context.user.UID,
         },
       })
         .then((res) => {

@@ -23,43 +23,57 @@ import AppContext from "@/components/globalContext";
 import { useRouter } from "next/router";
 
 export default function Account() {
-    const context = useContext(AppContext);
-    const router = useRouter();
-    const [userDetail, setUserDetail] = useState('')
-    const addToast = context.addToast
-    useEffect(() => {
-      console.log("router",Object.keys(router.query))
-          axios({
-            method: "get",
-            url: `/api/user/user-detail/${context.user}`,
-          })
-            .then((res) => {
-                setUserDetail(res.data);
-                if(Object.keys(router.query).length) {
-                  addToast(({title:'Logged in!',description:`You are successfully logged in!`, status:'success' }))
-                }
-            })
-            .catch((e) => {});
-      }, []);
-    return(
+  const context = useContext(AppContext);
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const addToast = context.addToast;
+  useEffect(() => {
+    if (context) {
+      if (Object.keys(router.query).length) {
+        addToast({
+          title: "Logged in!",
+          description: `You are successfully logged in!`,
+          status: "success",
+        });
+      }
+      setMounted(true)
+      // console.log("router", Object.keys(router.query), context.user.UID);
+      // axios({
+      //   method: "get",
+      //   url: `/api/user/user-detail/${context.user.UID}`,
+      // })
+      //   .then((res) => {
+      //     setUserDetail(res.data);
+      //     if (Object.keys(router.query).length) {
+      //       addToast({
+      //         title: "Logged in!",
+      //         description: `You are successfully logged in!`,
+      //         status: "success",
+      //       });
+      //     }
+      //   })
+      //   .catch((e) => {});
+    }
+  }, []);
+  return (
+    <>
+      {context.user&&mounted ? (
         <>
-        {userDetail ? (
-            <>
-            <Card minW={"100%"}>
-                <CardBody>
-                  <Flex alignItems={"center"}>
-                    <Avatar mr={"1rem"} />
-                    <VStack align="stretch">
-                      <Text>Name:{userDetail.username}</Text>
-                    </VStack>
-                  </Flex>
-                </CardBody>
-                <Logout/>
-            </Card>
-            </>
-        ):(
-            <>NO</>
-        )}
+          <Card minW={"100%"}>
+            <CardBody>
+              <Flex alignItems={"center"}>
+                <Avatar mr={"1rem"} />
+                <VStack align="stretch">
+                  <Text>Name:{context.user.username}</Text>
+                </VStack>
+              </Flex>
+            </CardBody>
+            <Logout />
+          </Card>
         </>
-    )
+      ) : (
+        <>NO</>
+      )}
+    </>
+  );
 }

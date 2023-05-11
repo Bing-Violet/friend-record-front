@@ -9,24 +9,38 @@ export default function ContextHandler({ children }) {
   const cookies = new Cookies
   const [user, setUser] = useState(cookies.get('user'))
   useEffect(() => {
-    getFriend(user)
+    if(user) {
+      getFriendsList(user.UID)
+    }
   }, []);
-  async function getFriend(user) {
-    console.log("inGET")
-    if (user) {
+  async function getFriendsList(userUid) {
+    console.log("inGET", userUid)
+    if (userUid) {
       console.log("inGETUSER")
       axios({
         method: "post",
         url: "/api/character/user-character/",
         data: {
-          user: user,
+          user: userUid,
         },
       })
         .then((res) => {
-          setFriends(res.data);
+          console.log("GOT FRIEND", res.data)
+          setFriends([...res.data]);
         })
         .catch((e) => {});
     }
+  }
+  
+  async function getUser(userUid) {
+    axios({
+      method: "get",
+      url: `/api/user/user-detail/${userUid}`,
+    })
+      .then((res) => {
+        setUser(res.data);
+      })
+      .catch((e) => {});
   }
   // *** IS LOADING START *** //
   const [isLoading, setIsLoading] = useState(false)
@@ -49,7 +63,7 @@ export default function ContextHandler({ children }) {
   }
   return (
     <>
-    <AppContext.Provider value={{friends, setFriends, user, setUser,isLoading, setIsLoading, getFriend, addToast}}>
+    <AppContext.Provider value={{friends, setFriends, user, setUser, getUser, isLoading, setIsLoading, getFriendsList, addToast}}>
       {children}
     </AppContext.Provider>
     </>
