@@ -98,9 +98,13 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
 
   const context = useContext(AppContext);
   const [error, setError] = useState(true);
-
+  const accessToken = context.accessToken
   const toastFun = context.addToast
+  const cookies = new Cookies
   function eventCreate() {
+    const accessToken = cookies.get('jwt-tokens').access_token
+    const refreshToken = cookies.get('jwt-tokens').refresh_token
+    console.log('check', accessToken)
     axios({
       method: "post",
       url: "/api/event/event-create/",
@@ -108,7 +112,9 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         name: event,
         money: money,
         character: slug,
-      },
+      },headers: {
+        Authorization: `Bearer ${accessToken}`,
+      }
     })
       .then((res) => {
         friend.sum += res.data.money;

@@ -81,6 +81,7 @@ export default function Login() {
     password: true,
   });
   const [apiError, setApiError] = useState(false);
+
   function login() {
     console.log("LOGIN", email, password);
     axios({
@@ -110,13 +111,18 @@ export default function Login() {
         });
       })
       .catch((e) => {
-        console.log("error", e.response.data.user_exist);
-        if (e.response.data.user_exist) {
-          setErrorMessage("Password is wrong!. Please confirm your password!");
-          setUserExist(true);
-        } else {
-          setErrorMessage("User doesn't exist. Please confirm your eamil!");
-          setUserExist(false);
+        console.log("error", e);
+        try{
+          if (e.response.data.user_exist) {
+            setErrorMessage("Password is wrong!. Please confirm your password!");
+            setUserExist(true);
+          } else {
+            setErrorMessage("User doesn't exist. Please confirm your eamil!");
+            setUserExist(false);
+          }
+        } catch {
+          setErrorMessage("Something bad happened. Please try later!");
+            setUserExist(false);
         }
         setApiError(true);
       });

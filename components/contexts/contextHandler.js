@@ -8,6 +8,7 @@ export default function ContextHandler({ children }) {
   const context = useContext(AppContext);
   const cookies = new Cookies
   const [user, setUser] = useState(cookies.get('user'))
+  // const [jwtTokens, setJwtTokens] = useState(cookies.get('jwt-tokens'))
   useEffect(() => {
     if(user) {
       getFriendsList(user.UID)

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, forwardRef, useContext } from "react";
 import { useRouter } from "next/router";
+import Cookies from "universal-cookie";
 import axios from "axios";
 import {
   Button,
@@ -52,6 +53,9 @@ import { FiDelete } from "react-icons/fi";
 import AppContext from "@/components/globalContext";
 
 export default function FriendDetail() {
+  const cookies = new Cookies
+  const accessToken = cookies.get('jwt-tokens').access_token
+  const refreshToken = cookies.get('jwt-tokens').refresh_token
   const router = useRouter();
   const context = useContext(AppContext);
   const [friend, setFriend] = useState("");
@@ -64,6 +68,9 @@ export default function FriendDetail() {
       axios({
         method: "get",
         url: `/api/character/character-detail/${router.query.slug}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       })
         .then((res) => {
           console.log("DATA", res.data)
@@ -164,7 +171,10 @@ export default function FriendDetail() {
     function deleteEvent() {
       axios({
         method: "delete",
-        url: `/api/event/event-detail/${id}`,
+        url: `/api/event/event-detail/${id}`,headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+        
       })
         .then((res) => {
            //need to change character data
@@ -238,6 +248,9 @@ export default function FriendDetail() {
             name: !editedEventName ? eventName : editedEventName,
             money: editedMoney !== "default" ? editedMoney : money,
           },
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
         })
           .then((res) => {
             const  updatedName = !editedEventName ? eventName : editedEventName
