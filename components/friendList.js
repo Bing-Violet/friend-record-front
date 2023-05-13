@@ -152,12 +152,8 @@ export default function FriendList({ User, toastFun }) {
         setEditedEventName(event.target.value), setIsDisabled(false);
       };
       function saveFunc() {
-        axios({
-          method: "patch",
-          url: `/api/character/character-detail/${id}`,
-          data: {
-            name: !editedEventName ? eventName : editedEventName,
-          },
+        customAxios.patch(`/api/character/character-detail/${id}`,{
+          name: !editedEventName ? eventName : editedEventName,
         })
           .then((res) => {
             const updatedName = !editedEventName ? eventName : editedEventName;

@@ -63,7 +63,7 @@ export default function FriendDetail() {
   const [slug, setSlug] = useState("");
   const toastFun = context.addToast
   useEffect(() => {
-    console.log("DETAIL")
+    console.log("DETAIL", context.user && router.query.slug)
     if (context.user && router.query.slug) {
       axios({
         method: "get",

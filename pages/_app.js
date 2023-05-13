@@ -14,10 +14,19 @@ import Layout from "@/components/layout";
 
 axios.defaults.baseURL = "http://127.0.0.1:8000/";
 
+
+
 export default function App({ Component, pageProps, router }) {
   useEffect(() => {
     console.log("FROM APP")
+    window.addEventListener("beforeunload", alertUser);
+    return () => {
+      window.removeEventListener("beforeunload", alertUser);
+    };
   },[]);
+  function alertUser() {
+    console.log("RELOADED")
+  }
   const cookies = new Cookies();
   const [user, setUser] = useState(cookies.get("user"));
 
