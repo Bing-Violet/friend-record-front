@@ -5,8 +5,6 @@ import Navber from "./navber";
 import ContextHandler from "./contexts/contextHandler";
 import Cookies from "universal-cookie";
 
-const cookies = new Cookies();
-
 export default function Layout({ children, router, pageProps }) {
   const cookies = new Cookies();
   const [user, setUser] = useState(cookies.get("user"));
@@ -15,6 +13,7 @@ export default function Layout({ children, router, pageProps }) {
   const [path, setPath] = useState("");
 
   useEffect(() => {
+    console.log("LAYPIT");
     if (window !== "undefined") {
       setUrl(document.URL);
       setPath(
@@ -67,8 +66,8 @@ export default function Layout({ children, router, pageProps }) {
       </Head>
       <Box maxW="600px" minH="50vh">
         <ContextHandler>
-            <Navber/>
-            {children}
+          <Navber />
+          {children}
         </ContextHandler>
       </Box>
 

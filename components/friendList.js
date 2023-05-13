@@ -1,4 +1,5 @@
 import axios from "axios";
+import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
 import Link from "next/link";
 import { useState, useEffect, useRef, forwardRef, useContext } from "react";
@@ -93,10 +94,7 @@ export default function FriendList({ User, toastFun }) {
 
   function DeletePopover({ id, eventName, toastFun }) {
     function deleteEvent() {
-      axios({
-        method: "delete",
-        url: `/api/character/character-detail/${id}`,
-      })
+      customAxios.delete(`/api/character/character-detail/${id}`)
         .then((res) => {
           //need to change character data
           const newEvents = searchFriend.filter((e) => e.id !== id);

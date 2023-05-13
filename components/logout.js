@@ -15,7 +15,8 @@ export default function Logout({setUser}) {
     async function logout() {
         const cookies = new Cookies
         cookies.remove("user")
-        cookies.remove("jwt-tokens")
+        cookies.remove("access_token")
+        cookies.remove("refresh_token")
         await context.setUser('')
         await context.setFriends([...[]])
         router.push('/')

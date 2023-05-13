@@ -24,17 +24,13 @@ export default function FriendDetail({ user }) {
           data: { token: router.query.token },
         })
           .then(async (res) => {
-            console.log('then')
+            console.log('then',res.data)
             const cookies = new Cookies();
             cookies.remove("user");
-            cookies.remove("jwt-tokens");
-            console.log("then", res.data.user);
-            const data = jwt(res.data.tokens.access_token);
-            cookies.set("jwt-tokens", {
-              access_token: res.data.tokens.access_token,
-              refresh_token: res.data.tokens.refresh_token
-              
-            }, { path: '/' });
+            cookies.remove("access_token");
+            cookies.remove("refresh_token");
+            cookies.set("access_token", res.data.tokens.access_token,{ path: '/' });
+            cookies.set("refresh_token", res.data.tokens.refresh_token,{ path: '/' });
             cookies.set("user", res.data.user,{ path: '/' });
             await context.setUser(res.data.user);
             router.push({
@@ -54,6 +50,62 @@ export default function FriendDetail({ user }) {
       console.log("NO_TOKEN");
     }
   }, [router.isReady]);
+  function SubmitButton() {
+    function emailFormCheck() {
+      function checkValidEmail() {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return false;
+        }
+        return true;
+      }
+      setEmailErrorObj({
+        ...emailErrorObj,
+        isEmpty: false,
+        isError: false,
+        isValid: false,
+        inUse: false,
+      });
+      if (!email) {
+        setEmailErrorObj({ ...emailErrorObj, isEmpty: true, isError: true });
+        return false;
+      } else if (!checkValidEmail()) {
+        setEmailErrorObj({ ...emailErrorObj, isValid: true, isError: true });
+        return false;
+      } else {
+        return true;
+      }
+    }
+    function usernameFormCheck() {
+      if (!username) {
+        setUsernameError(true);
+        return false;
+      } else {
+        setUsernameError(false);
+        return true;
+      }
+    }
+    function formCheck() {
+      console.log("FC", passwordFormCheck)
+      if (
+        emailFormCheck() &
+        passwordFormCheck(password,passwordErrorObj,setPasswordErrorObj) &
+        confirmatinPasswordFormCheck(password, confirmationPassword, setConfirmationPasswordError) &
+        usernameFormCheck()
+      ) {
+        userCreate();
+      }
+    }
+    return (
+      <Button
+        colorScheme="teal"
+        variant="solid"
+        type="submit"
+        onClick={formCheck}
+      >
+        SUBMIT
+      </Button>
+    );
+  }
   return (
     <>
       VALIDATION

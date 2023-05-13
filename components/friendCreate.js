@@ -1,4 +1,5 @@
 import axios from "axios";
+import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
 import { useState, useEffect, useContext } from "react";
 import {
@@ -46,13 +47,9 @@ export default function FriendCreate({ User, toastFun }) {
 
   function friendCreate() {
     if (context.user) {
-      axios({
-        method: "post",
-        url: "/api/character/character-create/",
-        data: {
-          name: friendName,
-          user: context.user.UID,
-        },
+      customAxios.post("/api/character/character-create/",{
+        name: friendName,
+        user: context.user.UID,
       })
         .then((res) => {
           setClicked(false);

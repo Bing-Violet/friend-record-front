@@ -4,7 +4,10 @@ import axios from "axios";
 import AppContext from "@/components/globalContext";
 import Cookies from "universal-cookie";
 import jwt from "jwt-decode";
-import CustomConfPassWithPass, {passwordFormCheck, confirmatinPasswordFormCheck} from "@/components/customForms/signup/customConfPassWithPass";
+import CustomConfPassWithPass, {
+  passwordFormCheck,
+  confirmatinPasswordFormCheck,
+} from "@/components/customForms/signup/customConfPassWithPass";
 import {
   Flex,
   Form,
@@ -59,23 +62,22 @@ export default function PasswordReset({ user }) {
       url: "/api/user/password-change/",
       data: {
         token: router.query.token,
-        password: password
+        password: password,
       },
     })
       .then(async (res) => {
         const cookies = new Cookies();
         cookies.remove("user");
-        cookies.remove("jwt-tokens");
-        const data = jwt(res.data.tokens.access_token);
-        cookies.set(
-          "jwt-tokens",
-          {
-            access_token: res.data.tokens.access_token,
-            refresh_token: res.data.tokens.refresh_token,
-          },
-          { path: "/" }
-        );
+        cookies.remove("access_token");
+        cookies.remove("refresh_token");
+        cookies.set("access_token", res.data.tokens.access_token, {
+          path: "/",
+        });
+        cookies.set("refresh_token", res.data.tokens.refresh_token, {
+          path: "/",
+        });
         cookies.set("user", res.data.user, { path: "/" });
+
         await context.setUser(res.data.user);
         router.push({
           pathname: "/account",
@@ -83,7 +85,7 @@ export default function PasswordReset({ user }) {
         });
       })
       .catch((e) => {
-        console.log('error',e)
+        console.log("error", e);
         // need to check token is not exist or new token is there
         // router.push({
         //   pathname: "/",
@@ -91,13 +93,16 @@ export default function PasswordReset({ user }) {
       });
   }
   function SubmitButton() {
-    
     function formCheck() {
       if (
-        passwordFormCheck(password,passwordErrorObj,setPasswordErrorObj) &
-        confirmatinPasswordFormCheck(password, confirmationPassword, setConfirmationPasswordError)
+        passwordFormCheck(password, passwordErrorObj, setPasswordErrorObj) &
+        confirmatinPasswordFormCheck(
+          password,
+          confirmationPassword,
+          setConfirmationPasswordError
+        )
       ) {
-        console.log("OK")
+        console.log("OK");
         passwordChange();
       }
     }
@@ -114,9 +119,11 @@ export default function PasswordReset({ user }) {
   }
   return (
     <>
-    <Center>
-    <Text color={'red'} fontSize={'1.6rem'}>Reset your password!</Text>
-    </Center>
+      <Center>
+        <Text color={"red"} fontSize={"1.6rem"}>
+          Reset your password!
+        </Text>
+      </Center>
       <FormControl isRequired>
         <VStack spacing={"1rem"}>
           <CustomConfPassWithPass

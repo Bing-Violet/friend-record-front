@@ -16,16 +16,12 @@ axios.defaults.baseURL = "http://127.0.0.1:8000/";
 
 export default function App({ Component, pageProps, router }) {
   useEffect(() => {
-
+    console.log("FROM APP")
   },[]);
   const cookies = new Cookies();
   const [user, setUser] = useState(cookies.get("user"));
-  // const jwtTokens = cookies.get("jwt-tokens");
-  //   console.log("CC", jwtTokens);
-  //   const accessToken =
-  //   jwtTokens !== "undefined" ? jwtTokens["access_token"] : "";
-  //   console.log(accessToken)
-  //   axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+
+  
   return (
     <ChakraProvider>
       <CSSReset />

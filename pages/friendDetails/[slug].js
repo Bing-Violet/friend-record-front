@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, forwardRef, useContext } from "react";
 import { useRouter } from "next/router";
 import Cookies from "universal-cookie";
 import axios from "axios";
+import { customAxios } from "@/components/customAxios";
 import {
   Button,
   ButtonGroup,
@@ -54,8 +55,6 @@ import AppContext from "@/components/globalContext";
 
 export default function FriendDetail() {
   const cookies = new Cookies
-  const accessToken = cookies.get('jwt-tokens').access_token
-  const refreshToken = cookies.get('jwt-tokens').refresh_token
   const router = useRouter();
   const context = useContext(AppContext);
   const [friend, setFriend] = useState("");
@@ -64,13 +63,11 @@ export default function FriendDetail() {
   const [slug, setSlug] = useState("");
   const toastFun = context.addToast
   useEffect(() => {
+    console.log("DETAIL")
     if (context.user && router.query.slug) {
       axios({
         method: "get",
         url: `/api/character/character-detail/${router.query.slug}`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
       })
         .then((res) => {
           console.log("DATA", res.data)
@@ -169,13 +166,7 @@ export default function FriendDetail() {
 
   function DeletePopover({id, eventName}) {
     function deleteEvent() {
-      axios({
-        method: "delete",
-        url: `/api/event/event-detail/${id}`,headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-        
-      })
+      customAxios.delete(`/api/event/event-detail/${id}`)
         .then((res) => {
            //need to change character data
           const newEvents = events.filter(e => e.id !== id);
@@ -241,16 +232,9 @@ export default function FriendDetail() {
       };
       function saveFunc() {
         console.log(eventName, editedEventName, editedMoney, typeof money);
-        axios({
-          method: "patch",
-          url: `/api/event/event-detail/${id}`,
-          data: {
-            name: !editedEventName ? eventName : editedEventName,
-            money: editedMoney !== "default" ? editedMoney : money,
-          },
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          }
+        customAxios.patch(`/api/event/event-detail/${id}`,{
+          name: !editedEventName ? eventName : editedEventName,
+          money: editedMoney !== "default" ? editedMoney : money,
         })
           .then((res) => {
             const  updatedName = !editedEventName ? eventName : editedEventName
@@ -272,6 +256,8 @@ export default function FriendDetail() {
             onCancel();
           })
           .catch((e) => {
+            console.log("ERROR", e)
+            // context.getAccessTokenFromRefreshToken(e, saveFunc)
             toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
           });
       }

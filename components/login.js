@@ -90,16 +90,14 @@ export default function Login() {
       data: {
         email: email,
         password: password,
-      },
+      }
     })
       .then(async (res) => {
         console.log("then", res.data.user);
         const data = jwt(res.data.tokens.access_token);
         const cookies = new Cookies();
-        cookies.set("jwt-tokens", {
-          access_token: res.data.tokens.access_token,
-          refresh_token: res.data.tokens.refresh_token,
-        });
+        cookies.set("access_token", res.data.tokens.access_token);
+        cookies.set("refresh_token", res.data.tokens.refresh_token);
         cookies.set("user", res.data.user);
         setEmail("");
         setPassword("");
