@@ -129,7 +129,6 @@ export default function Signup({ setUser }) {
       },
     })
       .then((res) => {
-        console.log("CREATE", res.data);
         setIsloading(false);
         setEmailSent(true);
         // const data = jwt(res.data.tokens.access_token);
@@ -145,7 +144,6 @@ export default function Signup({ setUser }) {
         setConfirmationPassword("");
       })
       .catch((e) => {
-        console.log("e", e.response.data.message);
         if (e.response.data.message === "this email is already in use.") {
           setEmailErrorObj({
             ...passwordErrorObj,
@@ -160,7 +158,6 @@ export default function Signup({ setUser }) {
           });
         }
       });
-    console.log("created");
   }
   // function abstractSetError(sub, state) {
   //   setErrors({ ...errors, [sub]: state ? true : false });
@@ -190,15 +187,6 @@ export default function Signup({ setUser }) {
         return true;
       }
     }
-    // function confirmatinPasswordFormCheck() {
-    //   if (password !== confirmationPassword || !confirmationPassword) {
-    //     setConfirmationPasswordError(true);
-    //     return false;
-    //   } else {
-    //     setConfirmationPasswordError(false);
-    //     return true;
-    //   }
-    // }
     function usernameFormCheck() {
       if (!username) {
         setUsernameError(true);
@@ -209,7 +197,6 @@ export default function Signup({ setUser }) {
       }
     }
     function formCheck() {
-      console.log("FC", passwordFormCheck)
       if (
         emailFormCheck() &
         passwordFormCheck(password,passwordErrorObj,setPasswordErrorObj) &

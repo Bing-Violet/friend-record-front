@@ -18,6 +18,7 @@ export default function FriendDetail({ user }) {
           pathname: "/",
         });
       } else {
+        context.setIsLoading(true)
         axios({
           method: "post",
           url: "/api/user/email-verify/",
@@ -33,10 +34,12 @@ export default function FriendDetail({ user }) {
             cookies.set("refresh_token", res.data.tokens.refresh_token,{ path: '/' });
             cookies.set("user", res.data.user,{ path: '/' });
             await context.setUser(res.data.user);
+            await context.setIsLoading(false)
             router.push({
               pathname: "/account",
               query: { code: "login" },
             });
+            context.setIsLoading(false)
             //   context.setUser(data.user_id);
           })
           .catch((e) => {

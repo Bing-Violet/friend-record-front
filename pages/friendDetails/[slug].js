@@ -63,24 +63,27 @@ export default function FriendDetail() {
   const [slug, setSlug] = useState("");
   const toastFun = context.addToast
   useEffect(() => {
-    console.log("DETAIL", context.user && router.query.slug)
     if (context.user && router.query.slug) {
-      axios({
-        method: "get",
-        url: `/api/character/character-detail/${router.query.slug}`,
-      })
-        .then((res) => {
-          console.log("DATA", res.data)
-          setFriend(res.data);
-          setEvents(res.data.event);
-          console.log("res_slug", res.data, events);
-          setMounted(true);
-        })
-        .catch((e) => {});
+      if(!context.friends.length){getFriend()
+      }else{
+        const f = context.friends.find(f => f.id==router.query.slug)
+        setFriend(f);
+        setEvents(f.event);
+      }
     } else if (!slug) {
       setSlug(router.query.slug);
     }
+    setMounted(true);
   }, [router.query.slug]); //why set router? this is for reloading.
+
+  async function getFriend() {
+    customAxios.get(`/api/character/character-detail/${router.query.slug}`)
+      .then((res) => {
+        setFriend(res.data);
+        setEvents(res.data.event);
+      })
+      .catch((e) => {});
+  }
 
   function dateConvert(date) {
     const dateObj = new Date();
@@ -231,7 +234,6 @@ export default function FriendDetail() {
         setEditedMoney(event), setIsDisabled(false);
       };
       function saveFunc() {
-        console.log(eventName, editedEventName, editedMoney, typeof money);
         customAxios.patch(`/api/event/event-detail/${id}`,{
           name: !editedEventName ? eventName : editedEventName,
           money: editedMoney !== "default" ? editedMoney : money,
@@ -256,7 +258,6 @@ export default function FriendDetail() {
             onCancel();
           })
           .catch((e) => {
-            console.log("ERROR", e)
             // context.getAccessTokenFromRefreshToken(e, saveFunc)
             toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
           });

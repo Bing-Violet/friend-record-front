@@ -1,12 +1,15 @@
 import { Box, Flex, Spinner, useColorModeValue } from "@chakra-ui/react";
 import Head from "next/head";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useContext } from "react";
 import Navber from "./navber";
 import ContextHandler from "./contexts/contextHandler";
 import Cookies from "universal-cookie";
+import CustomSpinner from "./spinner";
+import AppContext from "./globalContext";
 
 export default function Layout({ children, router, pageProps }) {
   const cookies = new Cookies();
+  const context = useContext(AppContext);
   const [user, setUser] = useState(cookies.get("user"));
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
@@ -67,11 +70,9 @@ export default function Layout({ children, router, pageProps }) {
       <Box maxW="600px" minH="50vh">
         <ContextHandler>
           <Navber />
-          {children}
+          {context.isLoading?(<CustomSpinner/>):(<>{children}</>)}
         </ContextHandler>
       </Box>
-
-      {/* <Footer /> */}
     </Flex>
   );
 }

@@ -57,6 +57,7 @@ export default function PasswordReset({ user }) {
     // }
   }, [router.isReady]);
   function passwordChange() {
+    context.setIsLoading(true)
     axios({
       method: "post",
       url: "/api/user/password-change/",
@@ -83,6 +84,7 @@ export default function PasswordReset({ user }) {
           pathname: "/account",
           query: { code: "password-change" },
         });
+        context.setIsLoading(false)
       })
       .catch((e) => {
         console.log("error", e);

@@ -11,33 +11,26 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 import { useState, useEffect, useRef } from "react";
 import Layout from "@/components/layout";
+import ContextHandler from "/components/contexts/contextHandler";
 
 axios.defaults.baseURL = "http://127.0.0.1:8000/";
 
-
-
 export default function App({ Component, pageProps, router }) {
   useEffect(() => {
-    console.log("FROM APP")
-    window.addEventListener("beforeunload", alertUser);
-    return () => {
-      window.removeEventListener("beforeunload", alertUser);
-    };
-  },[]);
-  function alertUser() {
-    console.log("RELOADED")
-  }
+    console.log("FROM APP");
+  }, []);
   const cookies = new Cookies();
   const [user, setUser] = useState(cookies.get("user"));
 
-  
   return (
     <ChakraProvider>
       <CSSReset />
       <Box minW={"100vw"} minH={"100vh"}>
-        <Layout router={router} pageProps={pageProps}>
-          <Component user={user} {...pageProps} />
-        </Layout>
+        <ContextHandler>
+          <Layout router={router} pageProps={pageProps}>
+            <Component user={user} {...pageProps} />
+          </Layout>
+        </ContextHandler>
       </Box>
     </ChakraProvider>
   );

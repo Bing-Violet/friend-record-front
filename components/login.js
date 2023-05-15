@@ -83,7 +83,6 @@ export default function Login() {
   const [apiError, setApiError] = useState(false);
 
   function login() {
-    console.log("LOGIN", email, password);
     axios({
       method: "post",
       url: "/api/user/user-login/",
@@ -93,7 +92,6 @@ export default function Login() {
       }
     })
       .then(async (res) => {
-        console.log("then", res.data.user);
         const data = jwt(res.data.tokens.access_token);
         const cookies = new Cookies();
         cookies.set("access_token", res.data.tokens.access_token);
@@ -107,6 +105,7 @@ export default function Login() {
           pathname: "/account",
           query: { code: "login" },
         });
+        context.setIsLoading(false)
       })
       .catch((e) => {
         console.log("error", e);
@@ -126,7 +125,6 @@ export default function Login() {
       });
   }
   function sendResetPassword() {
-    setIsloading(true);
     axios({
       method: "post",
       url: "/api/user/send-password-change/",
@@ -135,7 +133,6 @@ export default function Login() {
       .then((res) => {
         console.log("res", res.data);
         setSentResetPassword(true);
-        setIsloading(false);
         setApiError(false);
       })
       .catch((e) => {
@@ -143,7 +140,6 @@ export default function Login() {
         // so error means sent reset email multiple times.
         // previous request not allowed to reset.
         console.log("error", e);
-        setIsloading(false);
         setSentResetPassword(false);
         setApiError(true);
         setUserExist(false);
@@ -159,7 +155,7 @@ export default function Login() {
       password: password ? true : false,
     });
     if (email && password) {
-      login();
+      context.setIsLoading(true,login())
     } else {
       console.log("NO");
     }

@@ -50,6 +50,7 @@ function Search({ searchFriend, setSearchFriend, context }) {
       setSearchFriend([...searchedF]);
     }
   };
+  
   return (
     <>
      <FormControl isInvalid={!context.friends.length}>
@@ -69,9 +70,15 @@ function Search({ searchFriend, setSearchFriend, context }) {
 export default function FriendList({ User, toastFun }) {
   const context = useContext(AppContext);
   const [searchFriend, setSearchFriend] = useState([]);
+  const [mounted, setMounted] = useState(false)
   useEffect(() => {
-    console.log("INLIST", context.friends)
-    setSearchFriend([...context.friends]);
+    // context.setIsLoading(true)
+    console.log("EFFECT", context.friends.length)
+    if(context.friends.length){
+      setSearchFriend([...context.friends]);
+      setMounted(true)
+      // context.setIsLoading(false)
+    } 
   }, []);
   function dateCalculation(date) {
     const nowDate = new Date();
@@ -152,10 +159,12 @@ export default function FriendList({ User, toastFun }) {
         setEditedEventName(event.target.value), setIsDisabled(false);
       };
       function saveFunc() {
+        console.log("I_SAVE")
         customAxios.patch(`/api/character/character-detail/${id}`,{
           name: !editedEventName ? eventName : editedEventName,
         })
           .then((res) => {
+            console.log("THEM IN EDDIT", res.data)
             const updatedName = !editedEventName ? eventName : editedEventName;
 
             const newEvents = searchFriend.map((e) => {
@@ -171,8 +180,8 @@ export default function FriendList({ User, toastFun }) {
             onCancel();
           })
           .catch((e) => {
+            console.log(e)
             toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
-            console.log("error", e);
           });
       }
       return (
@@ -230,7 +239,7 @@ export default function FriendList({ User, toastFun }) {
         setSearchFriend={setSearchFriend}
         context={context}
       />
-      {searchFriend.length ? (
+      {searchFriend.length&&mounted ? (
         <>
           {searchFriend.map((f, index) => (
             <Card minW={"100%"} key={index}>
@@ -252,7 +261,7 @@ export default function FriendList({ User, toastFun }) {
           ))}
         </>
       ) : (
-        <>NO</>
+        <></>
       )}
     </>
   );

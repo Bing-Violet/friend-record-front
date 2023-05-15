@@ -5,6 +5,7 @@ import FriendList from "../components/friendList";
 import FriendCreate from "../components/friendCreate";
 import axios from "axios";
 import AppContext from "@/components/globalContext";
+import CustomSpinner from "@/components/spinner";
 import { useState, useEffect, useContext } from "react";
 import {
   Button,
@@ -22,19 +23,19 @@ export default function Home() {
   const [user, setUser] = useState(context.user)
 
   useEffect(() => {
-    if (user&&!context.friends.length) {
-      axios({
-        method: "post",
-        url: "/api/character/user-character/",
-        data: {
-          user: user,
-        },
-      })
-        .then((res) => {
-          context.setFriends(res.data);
-        })
-        .catch((e) => {});
-    }
+    // if (user&&!context.friends.length) {
+    //   axios({
+    //     method: "post",
+    //     url: "/api/character/user-character/",
+    //     data: {
+    //       user: user,
+    //     },
+    //   })
+    //     .then((res) => {
+    //       context.setFriends(res.data);
+    //     })
+    //     .catch((e) => {});
+    // }
     setMounted(true);
   }, []);
 
@@ -80,9 +81,7 @@ export default function Home() {
             )}
           </>
         ) : (
-          <Flex h={"100vh"} alignItems={"center"}>
-            <Spinner size="xl" />
-          </Flex>
+         <CustomSpinner/>
         )}
       </Flex>
     </>

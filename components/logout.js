@@ -13,13 +13,18 @@ export default function Logout({setUser}) {
     const context = useContext(AppContext);
     const router = useRouter();
     async function logout() {
-        const cookies = new Cookies
-        cookies.remove("user")
-        cookies.remove("access_token")
-        cookies.remove("refresh_token")
-        await context.setUser('')
-        await context.setFriends([...[]])
-        router.push('/')
+        context.setIsLoading(true,logoutAction())
+        async function logoutAction() {
+            const cookies = new Cookies
+            cookies.remove("user")
+            cookies.remove("access_token")
+            cookies.remove("refresh_token")
+            await context.setUser('')
+            await context.setFriends([...[]])
+            router.push('/')
+            context.setIsLoading(false)
+        }
+
     }
 
     return (

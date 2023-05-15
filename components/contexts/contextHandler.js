@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useContext } from "react";
 import { useToast } from "@chakra-ui/react";
 import Cookies from "universal-cookie";
 import axios from "axios";
+import CustomSpinner from "../spinner";
+
 export default function ContextHandler({ children }) {
   const [friends, setFriends] = useState("");
   const context = useContext(AppContext);
@@ -16,8 +18,9 @@ export default function ContextHandler({ children }) {
   }, []);
   async function getFriendsList(userUid) {
     console.log("inGET", userUid);
+    setIsLoading(true)
     if (userUid) {
-      console.log("inGETUSER");
+      console.log("inGETUSER", user);
       axios({
         method: "post",
         url: "/api/character/user-character/",
@@ -28,6 +31,7 @@ export default function ContextHandler({ children }) {
         .then((res) => {
           console.log("GOT FRIEND", res.data);
           setFriends([...res.data]);
+          setIsLoading(false)
         })
         .catch((e) => {});
     }
@@ -127,7 +131,7 @@ export default function ContextHandler({ children }) {
           addToast,
         }}
       >
-        {children}
+         {isLoading?(<CustomSpinner/>):(<>{children}</>)}
       </AppContext.Provider>
     </>
   );
