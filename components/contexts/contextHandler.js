@@ -131,7 +131,8 @@ export default function ContextHandler({ children }) {
           addToast,
         }}
       >
-         {isLoading?(<CustomSpinner/>):(<>{children}</>)}
+        {children }
+         {/* {isLoading?(<CustomSpinner/>):(<>{children}</>)} */}
       </AppContext.Provider>
     </>
   );

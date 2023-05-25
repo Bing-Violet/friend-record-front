@@ -89,6 +89,7 @@ function Email({ email, setValue, emailErrorObj, setEmailErrorObj }) {
 
 
 export default function Signup({ setUser }) {
+  console.log("FROM_SIGNUP")
   const context = useContext(AppContext);
   const router = useRouter();
   const [username, setUsername] = useState("");

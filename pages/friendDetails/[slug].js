@@ -64,6 +64,7 @@ export default function FriendDetail() {
   const toastFun = context.addToast
   useEffect(() => {
     if (context.user && router.query.slug) {
+      console.log("event",context.friends,router.query.slug)
       if(!context.friends.length){getFriend()
       }else{
         const f = context.friends.find(f => f.id==router.query.slug)
@@ -234,6 +235,7 @@ export default function FriendDetail() {
         setEditedMoney(event), setIsDisabled(false);
       };
       function saveFunc() {
+
         customAxios.patch(`/api/event/event-detail/${id}`,{
           name: !editedEventName ? eventName : editedEventName,
           money: editedMoney !== "default" ? editedMoney : money,
@@ -258,6 +260,7 @@ export default function FriendDetail() {
             onCancel();
           })
           .catch((e) => {
+            console.log("ERROR", e)
             // context.getAccessTokenFromRefreshToken(e, saveFunc)
             toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
           });

@@ -7,6 +7,7 @@ import axios from "axios";
 import AppContext from "@/components/globalContext";
 import CustomSpinner from "@/components/spinner";
 import { useState, useEffect, useContext } from "react";
+import NotLogin from "@/components/homes/notLogin";
 import {
   Button,
   ButtonGroup,
@@ -17,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 
 export default function Home() {
+  console.log("FROM_HOME")
   const context = useContext(AppContext);
   const [mounted, setMounted] = useState("");
   const addToast = context.addToast
@@ -34,7 +36,7 @@ export default function Home() {
     //     .then((res) => {
     //       context.setFriends(res.data);
     //     })
-    //     .catch((e) => {});
+    //     .catch((e) => {z});
     // }
     setMounted(true);
   }, []);
@@ -42,19 +44,21 @@ export default function Home() {
   function SignupOrLogin() {
     const [signup, setSignup] = useState(true);
     return (
-      <Flex w={"600px"} mt={"2rem"} flexDirection={"column"}>
-        <Center>
-          <ButtonGroup>
-            <Button colorScheme="gray" onClick={() => setSignup(true)}>
-              Signup
-            </Button>
-            <Button colorScheme="gray" onClick={() => setSignup(false)}>
-              Login
-            </Button>
-          </ButtonGroup>
-        </Center>
-        <Center>{signup ? <Signup /> : <Login />}</Center>
-      </Flex>
+      <NotLogin width={"100vw"} height={'100vh'}/>
+      // <Flex w={"600px"} mt={"2rem"} flexDirection={"column"}>
+      //   <Center>
+      //     <ButtonGroup>
+      //       <Button colorScheme="gray" onClick={() => setSignup(true)}>
+      //         Signup
+      //       </Button>
+      //       <Button colorScheme="gray" onClick={() => setSignup(false)}>
+      //         Login
+      //       </Button>
+      //     </ButtonGroup>
+      //   </Center>
+      //   {console.log("check",signup)}
+      //   <Center>{signup ? <Signup /> : <Login />}</Center>
+      // </Flex>
     );
   }
   function IsLoggedin() {

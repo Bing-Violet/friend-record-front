@@ -111,6 +111,7 @@ export default function Login() {
         console.log("error", e);
         try{
           if (e.response.data.user_exist) {
+            console.log('USER>EX')
             setErrorMessage("Password is wrong!. Please confirm your password!");
             setUserExist(true);
           } else {
@@ -155,7 +156,7 @@ export default function Login() {
       password: password ? true : false,
     });
     if (email && password) {
-      context.setIsLoading(true,login())
+      login()
     } else {
       console.log("NO");
     }

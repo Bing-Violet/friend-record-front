@@ -103,13 +103,14 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const toastFun = context.addToast
   const cookies = new Cookies
   function eventCreate() {
+    console.log("CALED")
     customAxios.post("/api/event/event-create/",{
       name: event,
       money: money,
       character: slug,
     })
       .then((res) => {
-        friend.sum += res.data.money;
+        // friend.sum += res.data.money;
         friend.last_log = res.data.created_on;
         setIsOpen(false);
         const newArray = events;
@@ -117,7 +118,8 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         setEvents([...newArray]) //set new array.'
         context.friends.forEach((e) => {
           if(e.id === friend.id) {
-            e.sum += money
+            console.log(typeof e.sum, typeof money, money, e.sum)
+            e.sum += Number(money)
           }
         })
         toastFun({title:'Event created!',description:`Your event ${event} is successfully created!`, status:'success' })

@@ -46,7 +46,7 @@ export default function Layout({ children, router, pageProps }) {
   );
   return (
     <Flex
-      bg={bg}
+      // bg={bg}
       minW="100vw"
       minH="100vh"
       flexDirection={"column"}
@@ -67,10 +67,10 @@ export default function Layout({ children, router, pageProps }) {
         <meta property="og:site_name" content={""} />
         <link rel="apple-touch-icon" href="/favicon.ico" sizes="180x180" />
       </Head>
-      <Box maxW="600px" minH="50vh">
+      <Box minH="50vh">
         <ContextHandler>
           <Navber />
-          {context.isLoading?(<CustomSpinner/>):(<>{children}</>)}
+          {context.isLoading?(<CustomSpinner/>):(<Box pt='7rem'>{children}</Box>)}
         </ContextHandler>
       </Box>
     </Flex>

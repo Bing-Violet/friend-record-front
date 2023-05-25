@@ -37,8 +37,8 @@ async function getAccessTokenFromRefreshToken() {
           refresh: refreshToken,
         },
       }).then((res) => {
-        cookies.set("access_token", res.data.access);
-        cookies.set("refresh_token", res.data.refresh);
+        cookies.set("access_token", res.data.access,{ path: '/' });
+        cookies.set("refresh_token", res.data.refresh,{ path: '/' });
       });
     } catch (e) {
       console.log(e);
