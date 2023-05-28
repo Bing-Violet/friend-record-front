@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import AppContext from "./globalContext";
 import Logo from "./headers/logo";
+import Cookies from "universal-cookie";
 import {
   Button,
   ButtonGroup,
@@ -18,33 +19,46 @@ import {
 } from "@chakra-ui/react";
 export default function Navber() {
   const [mounted, setMounted] = useState(false);
-  const [markup, setMarkup] = useState("");
+  const [user, setUser] = useState('');
+  const cookies = new Cookies()
   const context = useContext(AppContext);
   useEffect(() => {
+    setUser(context.user)
     setMounted(true);
-    setMarkup(
-      <Flex color={"#1166EE"} fontFamily={"Gill Sans"}>
-        {/* <HStack spacing="10px"> */}
-        <Link href={"/"} scroll={false}>
-          HOME
-        </Link>
-        {context.user ? (
-          <Link href={"/account"} scroll={false}>
-            ACCOUNT
-          </Link>
-        ) : (
-          <></>
-        )}
-        {/* </HStack> */}
-      </Flex>
-    );
   }, []);
+  let markup = ''
+  if(user||cookies.get('user')&&mounted) {
+    markup = (
+      <>
+      <Box display={{base:'none',md:'block'}} w={"100%"} mt={"2rem"} left={"0"} position={"absolute"} zIndex={2}>
+        <Flex w={'800px'} justifyContent={'center'}>
+            <Box  mr={"2rem"}>
+            <Logo/>
+            </Box>
+          <HStack
+            spacing="20px"
+            color={"#1166EE"}
+            fontFamily={"Gill Sans"}
+            fontWeight="bold"
+            fontSize={"1.5rem"}
+          >
+            <Link href={"/"} scroll={false}>
+              Home
+            </Link>
+              <Link href={"/account"} scroll={false}>
+                Account
+              </Link>
+          </HStack>
+        </Flex>
+      </Box>
+      </>
+    )
+  } else [
+    <></>
+  ]
   return (
     <>
-      <Flex mt={"2rem"} justifyContent={'center'} position={'absolute'}>
-        <Logo  mr={"1rem"}/>
-        <Box>{markup}</Box>
-      </Flex>
+      {markup}
     </>
   );
 }

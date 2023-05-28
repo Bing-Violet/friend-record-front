@@ -1,4 +1,4 @@
-import { Box, Flex, Spinner, useColorModeValue } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Center, useColorModeValue } from "@chakra-ui/react";
 import Head from "next/head";
 import { Suspense, useEffect, useState, useContext } from "react";
 import Navber from "./navber";
@@ -6,6 +6,9 @@ import ContextHandler from "./contexts/contextHandler";
 import Cookies from "universal-cookie";
 import CustomSpinner from "./spinner";
 import AppContext from "./globalContext";
+import NotLogin from "./homes/notLogin";
+import PcBackground from "./backgrounds/pcBackground";
+import MobileNavber from "./mobileNavber";
 
 export default function Layout({ children, router, pageProps }) {
   const cookies = new Cookies();
@@ -16,8 +19,15 @@ export default function Layout({ children, router, pageProps }) {
   const [path, setPath] = useState("");
 
   useEffect(() => {
-    console.log("LAYPIT");
+    console.log("LAYPIT",document.body.style.background);
     if (window !== "undefined") {
+      document.body.style.background = 'url("/images/background.png")'
+      document.body.style.layout = 'fill'
+      document.body.style.objectFit = 'content'
+      document.body.style.backgroundPosition = 'center'
+      document.body.style.backgroundSize = 'cover'
+      document.body.style.backgroundColor = '#F2F2F2'
+      document.body.style.overflowX = 'hidden'
       setUrl(document.URL);
       setPath(
         router.state.asPath === "/" ? "" : splitPath(router.state.asPath)
@@ -41,7 +51,7 @@ export default function Layout({ children, router, pageProps }) {
   };
 
   const bg = useColorModeValue(
-    "linear-gradient(to bottom, #6cd8e8, #001517)",
+    "#F2F2F2",
     "linear-gradient(to bottom, #232323 80%, #6cd8e8)"
   );
   return (
@@ -49,8 +59,8 @@ export default function Layout({ children, router, pageProps }) {
       // bg={bg}
       minW="100vw"
       minH="100vh"
-      flexDirection={"column"}
-      alignItems="center"
+      // flexDirection={"column"}
+      justifyContent={"center"}
     >
       <Head>
         <title>{`Nobuhiro-Portfolio${path}`}</title>
@@ -67,12 +77,18 @@ export default function Layout({ children, router, pageProps }) {
         <meta property="og:site_name" content={""} />
         <link rel="apple-touch-icon" href="/favicon.ico" sizes="180x180" />
       </Head>
-      <Box minH="50vh">
+      {/* <PcBackground /> */}
+      <Box minH="50vh" maxW={600} w={{base:'100%',md:600}} className={'base-width'}>
         <ContextHandler>
           <Navber />
-          {context.isLoading?(<CustomSpinner/>):(<Box pt='7rem'>{children}</Box>)}
+          {context.isLoading ? (
+            <CustomSpinner />
+          ) : (
+            <Box pt={{base:'0',md:"7rem"}}>{children}</Box>
+          )}
         </ContextHandler>
       </Box>
+      <MobileNavber/>
     </Flex>
   );
 }

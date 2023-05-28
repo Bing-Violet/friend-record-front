@@ -2,6 +2,7 @@ import axios from "axios";
 import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useRef, forwardRef, useContext } from "react";
 import {
   Button,
@@ -18,7 +19,9 @@ import {
   Stack,
   FormControl,
   FormLabel,
-  FormErrorMessage
+  FormErrorMessage,
+  InputGroup,
+  InputLeftElement
 } from "@chakra-ui/react";
 import {
   Popover,
@@ -38,7 +41,67 @@ import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import { useDisclosure } from "@chakra-ui/react";
 import { AiOutlineEdit } from "react-icons/ai";
 import AppContext from "./globalContext";
+import FriendCreate from "./friendCreate";
+import { FaSearchPlus } from "react-icons/fa";
+import { dateConvert } from "@/utils";
 
+function Wrapper({ children, toastFun }) {
+  const context = useContext(AppContext);
+  const ref = useRef()
+  useEffect(() => {
+    if(window!=='undefined') {
+      console.log('ref')
+      console.dir(ref.current.offsetHeight)
+      // addEventListener("resize", () => setInnerWidth(window.innerWidth));
+      // return () =>
+      //   window.removeEventListener("resize", () =>
+      //     setInnerWidth(window.innerWidth)
+      //   );
+    }
+  })
+  let image 
+  if(!context.friends.length) {
+    image = (
+      <>
+      <Text
+        color={"#1166EE"}
+        fontFamily={"Gill Sans"}
+        fontWeight="bold"
+        fontSize={"3rem"}
+      >
+        Create Friend
+      </Text>
+      <Box boxShadow="xl" w={"100%"} h={400} position="relative">
+        <Image
+          priority={true}
+          src={"/images/friend.jpg"}
+          layout="fill"
+          objectFit="cover"
+          alt={"asset"}
+        />
+      </Box></>
+    )
+  }
+  return (
+    <Flex
+      w={"100%"}
+      h={{base:'100vh',md:'auto'}}
+      minH={"200px"}
+      p={"1rem"}
+      alignItems={"center"}
+      flexDirection={"column"}
+      background={"rgb(255 191 220 / 42%)"}
+      border={"solid #a4bded"}
+      ref={ref}
+    >
+     {image}
+      <Box mt={"1rem"}>
+        <FriendCreate toastFun={toastFun} />
+      </Box>
+      {children}
+    </Flex>
+  );
+}
 function Search({ searchFriend, setSearchFriend, context }) {
   const [keyword, setKeyword] = useState("");
   const handleChange = (event) => {
@@ -46,39 +109,46 @@ function Search({ searchFriend, setSearchFriend, context }) {
     const searchedF = context.friends.filter((f) =>
       f.name.includes(event.target.value)
     );
-    if(context.friends.length) {
+    if (context.friends.length) {
       setSearchFriend([...searchedF]);
     }
   };
-  
-  return (
-    <>
-     <FormControl isInvalid={!context.friends.length}>
-        <FormLabel>Search</FormLabel>
-      <Input
-        value={keyword}
-        onChange={handleChange}
-        placeholder="search"
-        size="sm"
-      ></Input>
-      <FormErrorMessage>no friend to search.</FormErrorMessage>
-       </FormControl>
-    </>
-  );
+  let markup;
+  if (context.friends.length) {
+    markup = (
+      <>
+        <FormControl isInvalid={!context.friends.length} m={"1rem 0"}>
+          <InputGroup>
+            <InputLeftElement pointerEvents="none">
+              <FaSearchPlus fontSize={"1.3rem"} color="gray.300" />
+            </InputLeftElement>
+            <Input
+              value={keyword}
+              onChange={handleChange}
+              border={"solid #3a86e4"}
+              placeholder="Friend Search"
+              background={"rgb(204 246 255 / 62%)"}
+              size="md"
+            ></Input>
+          </InputGroup>
+          <FormErrorMessage>no friend to search.</FormErrorMessage>
+        </FormControl>
+      </>
+    );
+  }
+  return <>{markup}</>;
 }
 
 export default function FriendList({ User, toastFun }) {
   const context = useContext(AppContext);
   const [searchFriend, setSearchFriend] = useState([]);
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    // context.setIsLoading(true)
-    console.log("EFFECT", context.friends.length)
-    if(context.friends.length){
+    if (context.friends.length) {
       setSearchFriend([...context.friends]);
-      setMounted(true)
+      setMounted(true);
       // context.setIsLoading(false)
-    } 
+    }
   }, []);
   function dateCalculation(date) {
     const nowDate = new Date();
@@ -101,16 +171,25 @@ export default function FriendList({ User, toastFun }) {
 
   function DeletePopover({ id, eventName, toastFun }) {
     function deleteEvent() {
-      customAxios.delete(`/api/character/character-detail/${id}`)
+      customAxios
+        .delete(`/api/character/character-detail/${id}`)
         .then((res) => {
           //need to change character data
           const newEvents = searchFriend.filter((e) => e.id !== id);
           setSearchFriend([...newEvents]);
           context.setFriends([...newEvents]);
-          toastFun({title:'Your event is deleted!',description:`Your event ${eventName} is successfully deleted!`, status:'success' })
+          toastFun({
+            title: "Your event is deleted!",
+            description: `Your event ${eventName} is successfully deleted!`,
+            status: "success",
+          });
         })
         .catch((e) => {
-          toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
+          toastFun({
+            title: "Failed!",
+            description: `Something bad happened. Please try later!`,
+            status: "error",
+          });
         });
     }
     return (
@@ -159,12 +238,13 @@ export default function FriendList({ User, toastFun }) {
         setEditedEventName(event.target.value), setIsDisabled(false);
       };
       function saveFunc() {
-        console.log("I_SAVE")
-        customAxios.patch(`/api/character/character-detail/${id}`,{
-          name: !editedEventName ? eventName : editedEventName,
-        })
+        console.log("I_SAVE");
+        customAxios
+          .patch(`/api/character/character-detail/${id}`, {
+            name: !editedEventName ? eventName : editedEventName,
+          })
           .then((res) => {
-            console.log("THEM IN EDDIT", res.data)
+            console.log("THEM IN EDDIT", res.data);
             const updatedName = !editedEventName ? eventName : editedEventName;
 
             const newEvents = searchFriend.map((e) => {
@@ -176,12 +256,20 @@ export default function FriendList({ User, toastFun }) {
               }
             });
             setSearchFriend([...newEvents]);
-            toastFun({title:'Your event is updated!',description:`Your event ${eventName} is successfully updated!`, status:'success' })
+            toastFun({
+              title: "Your event is updated!",
+              description: `Your event ${eventName} is successfully updated!`,
+              status: "success",
+            });
             onCancel();
           })
           .catch((e) => {
-            console.log(e)
-            toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
+            console.log(e);
+            toastFun({
+              title: "Failed!",
+              description: `Something bad happened. Please try later!`,
+              status: "error",
+            });
           });
       }
       return (
@@ -233,18 +321,18 @@ export default function FriendList({ User, toastFun }) {
     );
   }
   return (
-    <>
+    <Wrapper toastFun={toastFun}>
       <Search
         searchFriend={searchFriend}
         setSearchFriend={setSearchFriend}
         context={context}
       />
-      {searchFriend.length&&mounted ? (
+      {searchFriend.length && mounted ? (
         <>
           {searchFriend.map((f, index) => (
-            <Card minW={"100%"} key={index}>
+            <Card w={"100%"} key={index} mb={'0.5rem'}>
               <DateAlert date={f.last_log} />
-              <EditPopover eventName={f.name} id={f.id} toastFun={toastFun} />
+              {/* <EditPopover eventName={f.name} id={f.id} toastFun={toastFun} /> */}
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
                   <Flex alignItems={"center"}>
@@ -252,17 +340,18 @@ export default function FriendList({ User, toastFun }) {
                     <VStack align="stretch">
                       <Text>Name:{f.name}</Text>
                       <Text>Sum:＄{f.sum}</Text>
+                      <Text>Last-Log:{dateConvert(f.last_log)}</Text>
                     </VStack>
                   </Flex>
                 </CardBody>
               </Link>
-              <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} />
+              {/* <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} /> */}
             </Card>
           ))}
         </>
       ) : (
         <></>
       )}
-    </>
+    </Wrapper>
   );
 }

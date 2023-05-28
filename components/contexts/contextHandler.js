@@ -118,6 +118,7 @@ export default function ContextHandler({ children }) {
     <>
       <AppContext.Provider
         value={{
+          useToast,
           friends,
           setFriends,
           user,

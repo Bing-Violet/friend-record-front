@@ -17,10 +17,10 @@ axios.defaults.baseURL = "http://127.0.0.1:8000/";
 
 const breakpoints = {
   sm: "480px",
-  md: "650px",
-  lg: "750px",
-  xl: "1200px",
-  "2xl": "1536px",
+  md: "600px",
+  // lg: "750px",
+  xl: "1025px",
+  "2xl": "1800px",
 };
 
 const theme = extendTheme({ breakpoints,fonts: {

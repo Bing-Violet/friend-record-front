@@ -47,23 +47,32 @@ export default function FriendCreate({ User, toastFun }) {
 
   function friendCreate() {
     if (context.user) {
-      customAxios.post("/api/character/character-create/",{
-        name: friendName,
-        user: context.user.UID,
-      })
+      customAxios
+        .post("/api/character/character-create/", {
+          name: friendName,
+          user: context.user.UID,
+        })
         .then((res) => {
           setClicked(false);
-          let newArray = context.friends.slice()
-          if(Array.isArray(newArray)) {
-            newArray.unshift(res.data)
+          let newArray = context.friends.slice();
+          if (Array.isArray(newArray)) {
+            newArray.unshift(res.data);
           } else {
-            newArray = [res.data]
+            newArray = [res.data];
           }
           context.setFriends(newArray); //update old array to new array
-          toastFun({title:'Friend created!',description:`Your friend ${friendName} is successfully created!`, status:'success' })
+          toastFun({
+            title: "Friend created!",
+            description: `Your friend ${friendName} is successfully created!`,
+            status: "success",
+          });
         })
         .catch((e) => {
-          toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
+          toastFun({
+            title: "Failed creation!",
+            description: `Something bad happened. Please try later!`,
+            status: "error",
+          });
         });
     }
   }
@@ -79,6 +88,8 @@ export default function FriendCreate({ User, toastFun }) {
     <>
       {!clicked ? (
         <Button
+          background={"#1166EE"}
+          color={"white"}
           onClick={() => {
             setClicked(true);
           }}
@@ -101,7 +112,7 @@ export default function FriendCreate({ User, toastFun }) {
             >
               Cancel
             </Button>
-              <Button onClick={formCheck}>Create</Button>
+            <Button onClick={formCheck}>Create</Button>
           </ButtonGroup>
         </>
       )}

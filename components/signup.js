@@ -132,13 +132,6 @@ export default function Signup({ setUser }) {
       .then((res) => {
         setIsloading(false);
         setEmailSent(true);
-        // const data = jwt(res.data.tokens.access_token);
-        // cookies.set("jwt-tokens", {
-        //   access_token: res.data.tokens.access_token,
-        //   refresh_token: res.data.tokens.refresh_token,
-        // });
-        // cookies.set("user", data.user_id);
-        // context.setUser(data.user_id);
         setUsername("");
         setEmail("");
         setPassword("");
@@ -160,9 +153,6 @@ export default function Signup({ setUser }) {
         }
       });
   }
-  // function abstractSetError(sub, state) {
-  //   setErrors({ ...errors, [sub]: state ? true : false });
-  // }
   function SubmitButton() {
     function emailFormCheck() {
       function checkValidEmail() {
@@ -209,8 +199,8 @@ export default function Signup({ setUser }) {
     }
     return (
       <Button
-        colorScheme="teal"
-        variant="solid"
+        colorScheme="blue"
+        variant='outline'
         type="submit"
         onClick={formCheck}
       >
