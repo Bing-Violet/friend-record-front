@@ -47,16 +47,20 @@ import { dateConvert } from "@/utils";
 
 function Wrapper({ children, toastFun }) {
   const context = useContext(AppContext);
+  const [wrapperHeight, setWrapperHeight] = useState(0)
+  const [innerHeight, setInnerHeight] = useState(0)
   const ref = useRef()
   useEffect(() => {
     if(window!=='undefined') {
       console.log('ref')
       console.dir(ref.current.offsetHeight)
-      // addEventListener("resize", () => setInnerWidth(window.innerWidth));
-      // return () =>
-      //   window.removeEventListener("resize", () =>
-      //     setInnerWidth(window.innerWidth)
-      //   );
+      setWrapperHeight(ref.current.offsetHeight)
+      setInnerHeight(window.innerWidth)
+      addEventListener("resize", () => setInnerHeight(window.innerWidth));
+      return () =>
+        removeEventListener("resize", () =>
+        setInnerHeight(window.innerWidth)
+        );
     }
   })
   let image 
@@ -71,7 +75,7 @@ function Wrapper({ children, toastFun }) {
       >
         Create Friend
       </Text>
-      <Box boxShadow="xl" w={"100%"} h={400} position="relative">
+      <Box boxShadow="xl" border={'solid #cf5701'} w={"100%"} h={400} position="relative">
         <Image
           priority={true}
           src={"/images/friend.jpg"}
@@ -87,7 +91,9 @@ function Wrapper({ children, toastFun }) {
       w={"100%"}
       h={{base:'100vh',md:'auto'}}
       minH={"200px"}
-      p={"1rem"}
+      maxH={{md:innerHeight}}
+      overflowY={'scroll'}
+      p={{base:'0.3rem',md:"1rem"}}
       alignItems={"center"}
       flexDirection={"column"}
       background={"rgb(255 191 220 / 42%)"}
@@ -238,7 +244,6 @@ export default function FriendList({ User, toastFun }) {
         setEditedEventName(event.target.value), setIsDisabled(false);
       };
       function saveFunc() {
-        console.log("I_SAVE");
         customAxios
           .patch(`/api/character/character-detail/${id}`, {
             name: !editedEventName ? eventName : editedEventName,
@@ -330,22 +335,22 @@ export default function FriendList({ User, toastFun }) {
       {searchFriend.length && mounted ? (
         <>
           {searchFriend.map((f, index) => (
-            <Card w={"100%"} key={index} mb={'0.5rem'}>
+            <Card w={"100%"} key={index} mb={'0.5rem'} color={'gray'}>
               <DateAlert date={f.last_log} />
               {/* <EditPopover eventName={f.name} id={f.id} toastFun={toastFun} /> */}
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
                   <Flex alignItems={"center"}>
-                    <Avatar mr={"1rem"} />
+                    <Avatar mr={"1rem"} border={'solid gray'}/>
                     <VStack align="stretch">
-                      <Text>Name:{f.name}</Text>
-                      <Text>Sum:＄{f.sum}</Text>
-                      <Text>Last-Log:{dateConvert(f.last_log)}</Text>
+                      <Text fontWeight={'bold'}>Name:{f.name}</Text>
+                      <Text fontWeight={'bold'}>Sum:＄{f.sum}</Text>
+                      <Text fontWeight={'bold'}>Last-Log:{dateConvert(f.last_log)}</Text>
                     </VStack>
                   </Flex>
                 </CardBody>
               </Link>
-              {/* <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} /> */}
+              <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} />
             </Card>
           ))}
         </>

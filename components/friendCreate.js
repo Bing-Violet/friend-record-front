@@ -1,7 +1,7 @@
 import axios from "axios";
 import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useRef, forwardRef, useContext } from "react";
 import {
   Button,
   ButtonGroup,
@@ -9,113 +9,145 @@ import {
   WrapItem,
   Center,
   Flex,
+  Box,
   Input,
   FormControl,
   FormLabel,
   FormErrorMessage,
   FormHelperText,
-  VStack,
+  Stack,
+} from "@chakra-ui/react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
+  Portal,
+  IconButton,
+  FocusLock,
+  useDisclosure,
 } from "@chakra-ui/react";
 import AppContext from "./globalContext";
 
-function Friend({ friendName, setValue, error, setError }) {
-  const subject = "friend";
-  const handleChange = (event) => {
-    setValue(event.target.value), setError(subject, event.target.value);
-  };
-  return (
-    <>
-      <FormControl isInvalid={!error}>
-        <FormLabel>friend-name</FormLabel>
-        <Input
-          value={friendName}
-          onChange={handleChange}
-          placeholder="enter friend-name"
-          size="sm"
-        />
-        <FormErrorMessage>friend-name is required</FormErrorMessage>
-      </FormControl>
-    </>
-  );
-}
-
 export default function FriendCreate({ User, toastFun }) {
   const context = useContext(AppContext);
-  const [friendName, setFriendName] = useState("");
   const [error, setError] = useState(true);
-  const [clicked, setClicked] = useState(false);
 
-  function friendCreate() {
-    if (context.user) {
-      customAxios
-        .post("/api/character/character-create/", {
-          name: friendName,
-          user: context.user.UID,
-        })
-        .then((res) => {
-          setClicked(false);
-          let newArray = context.friends.slice();
-          if (Array.isArray(newArray)) {
-            newArray.unshift(res.data);
-          } else {
-            newArray = [res.data];
-          }
-          context.setFriends(newArray); //update old array to new array
-          toastFun({
-            title: "Friend created!",
-            description: `Your friend ${friendName} is successfully created!`,
-            status: "success",
-          });
-        })
-        .catch((e) => {
-          toastFun({
-            title: "Failed creation!",
-            description: `Something bad happened. Please try later!`,
-            status: "error",
-          });
-        });
-    }
-  }
-  function formCheck() {
-    setError(friendName ? true : false);
-    if (friendName) {
-      friendCreate();
-    } else {
-      console.log("NO");
-    }
-  }
-  return (
-    <>
-      {!clicked ? (
-        <Button
-          background={"#1166EE"}
-          color={"white"}
-          onClick={() => {
-            setClicked(true);
-          }}
-        >
-          Create a friend
-        </Button>
-      ) : (
-        <>
-          <Friend
-            setValue={setFriendName}
-            friendName={friendName}
-            error={error}
-            setError={setError}
+  function EditPopover({ eventName }) {
+    const { onOpen, onClose, isOpen } = useDisclosure();
+    const firstFieldRef = useRef(null);
+    const TextInput = forwardRef((props, ref) => {
+      return (
+        <FormControl>
+          <FormLabel htmlFor={props.id}>{props.label}</FormLabel>
+          <Input ref={ref} id={props.id} {...props} />
+        </FormControl>
+      );
+    });
+    const Form = ({ firstFieldRef, onCancel }) => {
+      const [friendName, setFriendName] = useState("");
+      const [isDisabled, setIsDisabled] = useState(true);
+
+      const eventHandleChange = (event) => {
+        setFriendName(event.target.value), setIsDisabled(false);
+      };
+      function formCheck() {
+        setError(friendName ? true : false);
+        if (friendName) {
+          friendCreate();
+        } else {
+          console.log("NO");
+        }
+      }
+      function friendCreate() {
+        if (context.user) {
+          customAxios
+            .post("/api/character/character-create/", {
+              name: friendName,
+              user: context.user.UID,
+            })
+            .then((res) => {
+              let newArray = context.friends.slice();
+              if (Array.isArray(newArray)) {
+                newArray.unshift(res.data);
+              } else {
+                newArray = [res.data];
+              }
+              context.setFriends(newArray); //update old array to new array
+              toastFun({
+                title: "Friend created!",
+                description: `Your friend ${friendName} is successfully created!`,
+                status: "success",
+              });
+            })
+            .catch((e) => {
+              toastFun({
+                title: "Failed creation!",
+                description: `Something bad happened. Please try later!`,
+                status: "error",
+              });
+            });
+        }
+      }
+      return (
+        <Stack spacing={4}>
+          <TextInput
+            label="Friend Name"
+            id="first-name"
+            ref={firstFieldRef}
+            defaultValue={eventName}
+            onChange={eventHandleChange}
           />
-          <ButtonGroup>
-            <Button
-              onClick={() => {
-                setClicked(false);
-              }}
-            >
+          <ButtonGroup display="flex" justifyContent="flex-end">
+            <Button variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button onClick={formCheck}>Create</Button>
+            <Button
+              isDisabled={isDisabled}
+              onClick={formCheck}
+              colorScheme="blue"
+            >
+              Create
+            </Button>
           </ButtonGroup>
-        </>
-      )}
+        </Stack>
+      );
+    };
+    return (
+      <Box>
+        <Popover
+          isOpen={isOpen}
+          initialFocusRef={firstFieldRef}
+          onOpen={onOpen}
+          onClose={onClose}
+          closeOnBlur={false}
+        >
+          <PopoverTrigger>
+            <Button background={"#1166EE"} color={"white"}>
+              Create a friend
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent p={5}>
+            <FocusLock returnFocus persistentFocus={false}>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <Form firstFieldRef={firstFieldRef} onCancel={onClose} />
+            </FocusLock>
+          </PopoverContent>
+        </Popover>
+      </Box>
+    );
+  }
+
+  return (
+    <>
+      <EditPopover  />
+
     </>
   );
 }
