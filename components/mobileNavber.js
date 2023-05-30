@@ -40,7 +40,7 @@ export default function MobileNavber() {
           w={"100%"}
           bottom={"0"}
           position={"absolute"}
-          bg={"rgb(149 149 149 / 51%)"}
+          bg={"rgb(149 149 149 / 90%)"}
           zIndex={2}
           border={"0.2rem solid #d1f5fd"}
           borderRadius={"10px"}

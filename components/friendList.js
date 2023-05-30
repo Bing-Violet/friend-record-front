@@ -52,17 +52,17 @@ function Wrapper({ children, toastFun }) {
   const ref = useRef()
   useEffect(() => {
     if(window!=='undefined') {
-      console.log('ref')
+      console.log('ref', window.innerHeight)
       console.dir(ref.current.offsetHeight)
       setWrapperHeight(ref.current.offsetHeight)
-      setInnerHeight(window.innerWidth)
-      addEventListener("resize", () => setInnerHeight(window.innerWidth));
-      return () =>
-        removeEventListener("resize", () =>
-        setInnerHeight(window.innerWidth)
-        );
+      setInnerHeight(window.innerHeight -112 - 16) // 112 is navber height
+      // addEventListener("resize", () => setInnerHeight(window.innerHeight - 112));
+    //   return () =>
+    //     removeEventListener("resize", () =>
+    //     setInnerHeight(window.innerHeight)
+    //     );
     }
-  })
+  },[window.innerHeight])
   let image 
   if(!context.friends.length) {
     image = (

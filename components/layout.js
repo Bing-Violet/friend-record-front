@@ -20,7 +20,7 @@ export default function Layout({ children, router, pageProps }) {
 
   useEffect(() => {
     console.log("LAYPIT",document.body.style.background);
-    if (window !== "undefined") {
+    if (typeof window !== "undefined") {
       document.body.style.background = 'url("/images/background.png")'
       document.body.style.layout = 'fill'
       document.body.style.objectFit = 'content'
@@ -28,6 +28,8 @@ export default function Layout({ children, router, pageProps }) {
       document.body.style.backgroundSize = 'cover'
       document.body.style.backgroundColor = '#F2F2F2'
       document.body.style.overflowX = 'hidden'
+      document.body.style.overflowY = 'hidden'
+      document.body.style.maxHeight = '100vh'
       setUrl(document.URL);
       setPath(
         router.state.asPath === "/" ? "" : splitPath(router.state.asPath)

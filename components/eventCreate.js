@@ -1,7 +1,7 @@
 import axios from "axios";
 import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import {
   Button,
   ButtonGroup,
@@ -9,6 +9,7 @@ import {
   WrapItem,
   Center,
   Flex,
+  Box,
   Input,
   FormControl,
   FormLabel,
@@ -16,6 +17,7 @@ import {
   FormHelperText,
   VStack,
   Text,
+  position,
 } from "@chakra-ui/react";
 import {
   NumberInput,
@@ -28,19 +30,28 @@ import {
   SliderFilledTrack,
   SliderThumb,
 } from "@chakra-ui/react";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+} from "@chakra-ui/react";
 import AppContext from "./globalContext";
 
 function Money({ money, setValue, error, setError }) {
-  const subject = "eventName";
-  //   const handleChange = (event) => {
-  //     setValue(event.target.value), setError(subject, event.target.value);
-  //   };
   const handleChange = (value) => setValue(value);
   const format = (val) => `$ ` + val;
   const parse = (val) => val.replace(/^\$/, "");
 
   return (
-    <Flex mt={"1rem"} w={"600px"}>
+    <Flex
+      mt={"1rem"}
+      // w={{ base: "300px", md: "600px" }}
+    >
       <NumberInput
         maxW="120px"
         mr="2rem"
@@ -66,24 +77,23 @@ function Money({ money, setValue, error, setError }) {
         <SliderTrack>
           <SliderFilledTrack />
         </SliderTrack>
-        <SliderThumb fontSize="sm" boxSize="32px" children={money} />
+        <SliderThumb color={"gray"} fontSize="sm" boxSize="20px" />
       </Slider>
     </Flex>
   );
 }
 function Event({ eventName, setValue, error, setError }) {
-  const subject = "friend";
   const handleChange = (event) => {
-    setValue(event.target.value), setError(subject, event.target.value);
+    setValue(event.target.value), setError(event.target.value);
   };
   return (
     <>
       <FormControl isInvalid={!error}>
-        <FormLabel>event-name</FormLabel>
+        <FormLabel>Event-name</FormLabel>
         <Input
           value={eventName}
           onChange={handleChange}
-          placeholder="enter event-name"
+          placeholder="Enter Event-name"
           size="sm"
         />
         <FormErrorMessage>event-name is required</FormErrorMessage>
@@ -93,39 +103,51 @@ function Event({ eventName, setValue, error, setError }) {
 }
 
 export default function EventCreate({ slug, friend, events, setEvents }) {
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
   const [event, setEvent] = useState("");
   const [money, setMoney] = useState(0);
-
   const context = useContext(AppContext);
   const [error, setError] = useState(true);
-  const accessToken = context.accessToken
-  const toastFun = context.addToast
-  const cookies = new Cookies
+  const accessToken = context.accessToken;
+  const toastFun = context.addToast;
+  const cookies = new Cookies();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const initialRef = useRef(null);
+  const finalRef = useRef(null);
   function eventCreate() {
-    console.log("CALED")
-    customAxios.post("/api/event/event-create/",{
-      name: event,
-      money: money,
-      character: slug,
-    })
+    console.log("CALED");
+    customAxios
+      .post("/api/event/event-create/", {
+        name: event,
+        money: money,
+        character: slug,
+      })
       .then((res) => {
         // friend.sum += res.data.money;
         friend.last_log = res.data.created_on;
-        setIsOpen(false);
+        onClose();
         const newArray = events;
         newArray.unshift(res.data);
-        setEvents([...newArray]) //set new array.'
+        setEvents([...newArray]); //set new array.'
         context.friends.forEach((e) => {
-          if(e.id === friend.id) {
-            console.log(typeof e.sum, typeof money, money, e.sum)
-            e.sum += Number(money)
+          if (e.id === friend.id) {
+            console.log(typeof e.sum, typeof money, money, e.sum);
+            e.sum += Number(money);
           }
-        })
-        toastFun({title:'Event created!',description:`Your event ${event} is successfully created!`, status:'success' })
+        });
+        toastFun({
+          title: "Event created!",
+          description: `Your event ${event} is successfully created!`,
+          status: "success",
+        });
       })
       .catch((e) => {
-        toastFun({title:'Failed creation!',description:`Something bad happened. Please try later!`, status:'error' })
+        toastFun({
+          title: "Failed creation!",
+          description: `Something bad happened. Please try later!`,
+          status: "error",
+        });
       });
   }
   function formCheck() {
@@ -148,7 +170,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
       <>
         <Button
           onClick={() => {
-            setIsOpen(false);
+            onClose();
           }}
         >
           CANCEL
@@ -158,34 +180,42 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   }
 
   return (
-    <Flex flexDirection={"column"} alignItems={"center"}>
-      {isOpen ? (
-        <>
-          <Event
-            eventName={event}
-            setValue={setEvent}
-            error={error}
-            setError={setError}
-          />
-          <Money money={money} setValue={setMoney} />
-          <ButtonGroup mt={"1rem"}>
-            <Cancel />
-            <Create />
-          </ButtonGroup>
-        </>
-      ) : (
-        <>
-          <Text mt={"1rem"}>Do you wanna make an event??</Text>
-          <Button
-            onClick={() => {
-              setIsOpen(true);
-            }}
-            mt={"1rem"}
-          >
-            CREATE
-          </Button>
-        </>
-      )}
+    <Flex flexDirection={"column"} alignItems={"center"} position={"relative"}>
+      <Button
+        onClick={onOpen}
+        mt={"0.5rem"}
+        background={"#1166EE"}
+        color={"white"}
+      >
+        Create an Event
+      </Button>
+      <Modal
+        initialFocusRef={initialRef}
+        finalFocusRef={finalRef}
+        isOpen={isOpen}
+        onClose={onClose}
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton zIndex={1}/>
+          <ModalBody pb={6}>
+            <Flex flexDirection={"column"}>
+              <Event
+                eventName={event}
+                setValue={setEvent}
+                error={error}
+                setError={setError}
+              />
+              <Money money={money} setValue={setMoney} />
+              <ButtonGroup mt={"1rem"}>
+                <Cancel />
+                <Create />
+              </ButtonGroup>
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 }
