@@ -268,7 +268,7 @@ export default function FriendDetail() {
           });
           toastFun({
             title: "Your event is deleted!",
-            description: `Your event ${friendName} is successfully deleted!`,
+            description: `Your friend ${friendName} is successfully deleted!`,
             status: "success",
           });
         })
@@ -296,7 +296,7 @@ export default function FriendDetail() {
               <PopoverCloseButton />
               <PopoverBody>
                 <Flex alignItems={"center"}>
-                  <Text fontWeight={"bold"} flexBasis={"50%"}>Delete Friend?</Text>
+                  <Text fontWeight={"bold"} flexBasis={"50%"}>Delete {friendName}?</Text>
                   <Flex flexBasis={"50%"} justifyContent={'flex-end'}>
                     <Button bg={'white'} onClick={deleteEvent} colorScheme="red" variant='outline'>
                       Delete
