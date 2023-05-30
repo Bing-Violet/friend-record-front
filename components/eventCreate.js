@@ -2,6 +2,7 @@ import axios from "axios";
 import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
 import { useState, useEffect, useContext, useRef } from "react";
+import Image from "next/image";
 import {
   Button,
   ButtonGroup,
@@ -10,6 +11,8 @@ import {
   Center,
   Flex,
   Box,
+  Stack,
+  HStack,
   Input,
   FormControl,
   FormLabel,
@@ -161,7 +164,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   function Create() {
     return (
       <>
-        <Button onClick={formCheck}>CREATE</Button>
+        <Button onClick={formCheck} colorScheme='blue' >CREATE</Button>
       </>
     );
   }
@@ -172,13 +175,41 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
           onClick={() => {
             onClose();
           }}
+          colorScheme='red' variant='outline'
         >
           CANCEL
         </Button>
       </>
     );
   }
-
+  function CreateEvent() {
+  let image 
+  if(!events.length) {
+    image = (
+      <>
+      <Text
+        color={"#1166EE"}
+        fontFamily={"Gill Sans"}
+        fontWeight="bold"
+        fontSize={{base:'2rem',md:"3rem"}}
+      >
+        Create an First Event
+      </Text>
+      <Box boxShadow="xl" border={'solid #cf5701'} w={"100%"} h={400} position="relative">
+        <Image
+          priority={true}
+          src={"/images/event.jpg"}
+          layout="fill"
+          objectFit="cover"
+          alt={"asset"}
+        />
+      </Box></>
+    )
+  }
+    return(
+      <>{image}</>
+    )
+  }
   return (
     <Flex flexDirection={"column"} alignItems={"center"} position={"relative"}>
       <Button
@@ -189,6 +220,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
       >
         Create an Event
       </Button>
+      <CreateEvent/>
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
@@ -208,10 +240,12 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
                 setError={setError}
               />
               <Money money={money} setValue={setMoney} />
-              <ButtonGroup mt={"1rem"}>
+              <Flex mt={"1rem"} justifyContent={'flex-end'}>
+                <HStack spacing='24px'>
                 <Cancel />
                 <Create />
-              </ButtonGroup>
+                </HStack>
+              </Flex>
             </Flex>
           </ModalBody>
         </ModalContent>

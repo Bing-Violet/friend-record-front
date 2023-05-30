@@ -56,11 +56,6 @@ function Wrapper({ children, toastFun }) {
       console.dir(ref.current.offsetHeight)
       setWrapperHeight(ref.current.offsetHeight)
       setInnerHeight(window.innerHeight -112 - 16) // 112 is navber height
-      // addEventListener("resize", () => setInnerHeight(window.innerHeight - 112));
-    //   return () =>
-    //     removeEventListener("resize", () =>
-    //     setInnerHeight(window.innerHeight)
-    //     );
     }
   },[window.innerHeight])
   let image 
@@ -175,54 +170,54 @@ export default function FriendList({ User, toastFun }) {
     );
   }
 
-  function DeletePopover({ id, eventName, toastFun }) {
-    function deleteEvent() {
-      customAxios
-        .delete(`/api/character/character-detail/${id}`)
-        .then((res) => {
-          //need to change character data
-          const newEvents = searchFriend.filter((e) => e.id !== id);
-          setSearchFriend([...newEvents]);
-          context.setFriends([...newEvents]);
-          toastFun({
-            title: "Your event is deleted!",
-            description: `Your event ${eventName} is successfully deleted!`,
-            status: "success",
-          });
-        })
-        .catch((e) => {
-          toastFun({
-            title: "Failed!",
-            description: `Something bad happened. Please try later!`,
-            status: "error",
-          });
-        });
-    }
-    return (
-      <>
-        <Popover>
-          <PopoverTrigger>
-            <Button background={"red.700"} color={"red.100"}>
-              DELETE
-            </Button>
-          </PopoverTrigger>
-          <Portal>
-            <PopoverContent background={"pink.400"}>
-              <PopoverArrow />
-              <PopoverHeader>Confirmation</PopoverHeader>
-              <PopoverCloseButton />
-              <PopoverBody>are you sure?</PopoverBody>
-              <PopoverFooter textAlign={"center"}>
-                <Button onClick={deleteEvent} colorScheme="blue">
-                  Delete
-                </Button>
-              </PopoverFooter>
-            </PopoverContent>
-          </Portal>
-        </Popover>
-      </>
-    );
-  }
+  // function DeletePopover({ id, eventName, toastFun }) {
+  //   function deleteEvent() {
+  //     customAxios
+  //       .delete(`/api/character/character-detail/${id}`)
+  //       .then((res) => {
+  //         //need to change character data
+  //         const newEvents = searchFriend.filter((e) => e.id !== id);
+  //         setSearchFriend([...newEvents]);
+  //         context.setFriends([...newEvents]);
+  //         toastFun({
+  //           title: "Your event is deleted!",
+  //           description: `Your event ${eventName} is successfully deleted!`,
+  //           status: "success",
+  //         });
+  //       })
+  //       .catch((e) => {
+  //         toastFun({
+  //           title: "Failed!",
+  //           description: `Something bad happened. Please try later!`,
+  //           status: "error",
+  //         });
+  //       });
+  //   }
+  //   return (
+  //     <>
+  //       <Popover>
+  //         <PopoverTrigger>
+  //           <Button background={"red.700"} color={"red.100"}>
+  //             DELETE
+  //           </Button>
+  //         </PopoverTrigger>
+  //         <Portal>
+  //           <PopoverContent background={"pink.400"}>
+  //             <PopoverArrow />
+  //             <PopoverHeader>Confirmation</PopoverHeader>
+  //             <PopoverCloseButton />
+  //             <PopoverBody>are you sure?</PopoverBody>
+  //             <PopoverFooter textAlign={"center"}>
+  //               <Button onClick={deleteEvent} colorScheme="blue">
+  //                 Delete
+  //               </Button>
+  //             </PopoverFooter>
+  //           </PopoverContent>
+  //         </Portal>
+  //       </Popover>
+  //     </>
+  //   );
+  // }
 
   function EditPopover({ eventName, money, id, toastFun }) {
     const { onOpen, onClose, isOpen } = useDisclosure();
@@ -350,7 +345,7 @@ export default function FriendList({ User, toastFun }) {
                   </Flex>
                 </CardBody>
               </Link>
-              <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} />
+              {/* <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} /> */}
             </Card>
           ))}
         </>

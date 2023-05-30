@@ -149,10 +149,15 @@ export default function FriendDetail() {
               border={"solid #898686"}
               w={"100%"}
               overflow={"hidden"}
+              position={'relative'}
             >
+              <FriendDeletePopover id={friend.id} friendName={friend.name}/>
               <CardBody w={"100%"}>
-                <Stack divider={<StackDivider />} spacing="4">
-                  <Box w={"100%"} pt={"1rem"}>
+                <Stack
+                  divider={<StackDivider />}
+                  spacing={{ base: "1", md: "4" }}
+                >
+                  <Box w={"100%"} pt={"0.5rem"}>
                     <Center>
                       <VStack align="stretch" fontWeight={"bold"}>
                         <Text>Name : {friend.name}</Text>
@@ -166,7 +171,7 @@ export default function FriendDetail() {
                     flexDirection={"column"}
                   >
                     <Text fontSize={"1.5rem"}>TOALE : ${friend.sum}</Text>
-                    <Flex w={"100%"} mt={"1rem"}>
+                    <Flex w={"100%"} mt={{ md: "1rem" }}>
                       <Box textAlign={"center"} flexBasis={"50%"}>
                         <Text>I PAYED</Text>
                         <Text>$500</Text>
@@ -196,7 +201,7 @@ export default function FriendDetail() {
       if (typeof listRef !== "undefined") {
         const lisrect = listRef.current.getBoundingClientRect();
         console.log("rec", lisrect, window.innerHeight);
-        setMaxH(window.innerHeight - lisrect.top- 16)
+        setMaxH(window.innerHeight - lisrect.top - 16);
       }
     }, []);
     return (
@@ -207,6 +212,7 @@ export default function FriendDetail() {
         ref={listRef}
         maxH={maxH}
         overflowY={"scroll"}
+        overflowX={"hidden"}
       >
         {events.length ? (
           <>
@@ -247,7 +253,63 @@ export default function FriendDetail() {
       </Box>
     );
   }
-
+  function FriendDeletePopover({ id, friendName }) {
+    const router = useRouter();
+    function deleteEvent() {
+      customAxios
+        .delete(`/api/character/character-detail/${id}`)
+        .then((res) => {
+          //need to change character data
+          const newEvents =  context.friends.filter((e) => e.id !== id);
+          // setSearchFriend([...newEvents]);
+          context.setFriends([...newEvents]);
+          router.push({
+            pathname: "/",
+          });
+          toastFun({
+            title: "Your event is deleted!",
+            description: `Your event ${friendName} is successfully deleted!`,
+            status: "success",
+          });
+        })
+        .catch((e) => {console.log('Error',e)
+          toastFun({
+            title: "Failed!",
+            description: `Something bad happened. Please try later!`,
+            status: "error",
+          });
+        });
+    }
+    return (
+      <>
+        <Popover>
+          <PopoverTrigger>
+            <Flex  as={Flex} justifyContent={'flex-end'}>
+            <CloseButton color={'red'} size='md' />
+            </Flex>
+          </PopoverTrigger>
+          <Portal>
+          <PopoverContent bg='gray' color='white' border={'0.1rem solid #ff7070'}>
+              <PopoverHeader fontWeight={"bold"}>
+                Confirmation
+              </PopoverHeader>
+              <PopoverCloseButton />
+              <PopoverBody>
+                <Flex alignItems={"center"}>
+                  <Text fontWeight={"bold"} flexBasis={"50%"}>Delete Friend?</Text>
+                  <Flex flexBasis={"50%"} justifyContent={'flex-end'}>
+                    <Button bg={'white'} onClick={deleteEvent} colorScheme="red" variant='outline'>
+                      Delete
+                    </Button>
+                  </Flex>
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </Portal>
+        </Popover>
+      </>
+    );
+  }
   function DeletePopover({ id, eventName }) {
     function deleteEvent() {
       customAxios
@@ -292,16 +354,22 @@ export default function FriendDetail() {
             </Center>
           </PopoverTrigger>
           <Portal>
-            <PopoverContent background={"pink.400"}>
-              <PopoverArrow />
-              <PopoverHeader>Confirmation</PopoverHeader>
+            <PopoverContent bg='gray' color='white' border={'0.1rem solid #ff7070'}>
+              {/* <PopoverArrow /> */}
+              <PopoverHeader fontWeight={"bold"}>
+                Confirmation
+              </PopoverHeader>
               <PopoverCloseButton />
-              <PopoverBody>are you sure?</PopoverBody>
-              <PopoverFooter textAlign={"center"}>
-                <Button onClick={deleteEvent} colorScheme="blue">
-                  Delete
-                </Button>
-              </PopoverFooter>
+              <PopoverBody>
+                <Flex alignItems={"center"}>
+                  <Text fontWeight={"bold"} flexBasis={"50%"}>Are You Sure?</Text>
+                  <Flex flexBasis={"50%"} justifyContent={'flex-end'}>
+                    <Button bg={'white'} onClick={deleteEvent} colorScheme="red" variant='outline'>
+                      Delete
+                    </Button>
+                  </Flex>
+                </Flex>
+              </PopoverBody>
             </PopoverContent>
           </Portal>
         </Popover>
