@@ -85,7 +85,6 @@ export function LeftText({setButtonAttr, onOpen}) {
       position={"relative"}
       width={{ baee: innerWidth, xl: 500, "2xl": 900 }}
       h={{ base: 400, md: 600, xl: 500, "2xl": 900 }}
-      className={"mo"}
     >
       <Flex
         height={"100%"}
@@ -185,7 +184,6 @@ export default function NotLogin({ onOpen, setButtonAttr }) {
         width={"100vw"}
         height="calc(100vh - 7rem)"
         position={"relative"}
-        className={"chinko"}
       >
         <LeftAll onOpen={onOpen} setButtonAttr={setButtonAttr}/>
         <Right position={"absolute"} />

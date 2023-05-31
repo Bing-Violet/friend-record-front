@@ -144,7 +144,6 @@ export default function FriendDetail() {
       return (
         <Box w={"100%"} ref={outerRef}>
           <Flex
-            className={"base-relative-position"}
             position={"relative"}
             justifyContent={"center"}
             w={"100%"}
@@ -154,7 +153,6 @@ export default function FriendDetail() {
             </Box>
             <Box
               w={"100%"}
-              className={"absolute"}
               position={"absolute"}
               top={"50%"}
               ref={innerRef}
@@ -178,17 +176,21 @@ export default function FriendDetail() {
               position={"relative"}
             >
               <FriendDeletePopover id={friend.id} friendName={friend.name} />
-              <CardBody w={"100%"} className={"card-body"}>
+              <CardBody w={"100%"} pt={'0.2rem'}>
                 <Stack
                   divider={<StackDivider />}
                   spacing={{ base: "1", md: "4" }}
                 >
-                  <Flex w={"100%"} pt={"0.5rem"} justifyContent={"center"}>
-                    <VStack align="stretch" fontWeight={"bold"} spacing={'1rem'}>
+                  <Flex w={"100%"} justifyContent={"center"}>
+                    <VStack
+                      align="stretch"
+                      fontWeight={"bold"}
+                      spacing={"0.5rem"}
+                    >
                       <Flex alignItems={"center"}>
                         <Text mr={"0.3rem"}>Name :</Text>
-                        <Box w={'50%%'} h={'100%'}>
-                          <Flex className={'abso'} alignItems={'center'}  position={'absolute'}>
+                        <Box w={"50%%"} h={"100%"}>
+                          <Flex alignItems={"center"} position={"absolute"}>
                             <EditableField
                               friend={friend}
                               editIsOpen={editIsOpen}
@@ -197,7 +199,7 @@ export default function FriendDetail() {
                               onClick={() => {
                                 setEditIsOpen(!editIsOpen);
                               }}
-                              ml={'0.3rem'}
+                              ml={"0.3rem"}
                             />
                           </Flex>
                         </Box>
@@ -213,11 +215,11 @@ export default function FriendDetail() {
                     <Text fontSize={"1.5rem"}>TOALE : ${friend.sum}</Text>
                     <Flex w={"100%"} mt={{ md: "1rem" }}>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text>I PAYED</Text>
+                        <Text color={"#008dff"}>I PAYED</Text>
                         <Text>$500</Text>
                       </Box>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text>They PAYED</Text>
+                        <Text color={"#ff4d76"}>They PAYED</Text>
                         <Text>$500</Text>
                       </Box>
                     </Flex>
@@ -241,18 +243,26 @@ export default function FriendDetail() {
       if (typeof listRef !== "undefined") {
         const lisrect = listRef.current.getBoundingClientRect();
         console.log("rec", lisrect, window.innerHeight);
-        setMaxH(window.innerHeight - lisrect.top - 16);
+        setMaxH(window.innerHeight - lisrect.top - 48);
       }
     }, []);
+    function colorHandler(amount) {
+      if (amount > 0) {
+        return "#e4feff";
+      } else if (amount < 0) {
+        return "#ffddea";
+      } else {
+        return "#ffffe0";
+      }
+    }
     return (
       <Box
-        className={"list-container"}
         w={"99%"}
         fontWeight={"bold"}
         ref={listRef}
         maxH={maxH}
-        overflowY={"scroll"}
-        overflowX={"hidden"}
+        overflowY={events.length > 1?"scroll":'none'}
+        overflowX={events.length > 1?"hidden":'none'}
       >
         {events.length ? (
           <>
@@ -263,11 +273,12 @@ export default function FriendDetail() {
                 key={index}
                 mt={"0.3rem"}
                 minW={"100%"}
+                bg={colorHandler(e.money)}
               >
                 <EditPopover eventName={e.name} money={e.money} id={e.id} />
                 <CardBody>
                   <Flex alignItems={"center"}>
-                    <VStack align="stretch">
+                    <VStack align="stretch" color={"gray"}>
                       <Text>Event-Name : {e.name}</Text>
                       <Text>Ammount : ${e.money}</Text>
                       <Text>Created : {dateConvert(e.created_on)}</Text>
@@ -534,7 +545,7 @@ export default function FriendDetail() {
           initialFocusRef={firstFieldRef}
           onOpen={onOpen}
           onClose={onClose}
-          placement="right"
+          placement="left"
           closeOnBlur={false}
           isLazy
         >

@@ -84,7 +84,7 @@ function Wrapper({ children, toastFun }) {
   return (
     <Flex
       w={"100%"}
-      h={{base:'100vh',md:'auto'}}
+      h={{base:'calc(100vh - 44px)',md:'auto'}}
       minH={"200px"}
       maxH={{md:innerHeight}}
       overflowY={'scroll'}

@@ -118,8 +118,8 @@ export default function Account() {
     return (
       <>
         <Text fontWeight={'bold'} color={'gray'} fontSize={'1.5rem'}>Account Info</Text>
-        <Flex flexDirection={"column"} alignItems={"center"}>
-        <Stack spacing="4px" fontFamily={'"Gill Sans", sans-serif'}>
+        <Flex flexDirection={"column"} alignItems={"center"} justifyContent={'center'} h={'100%'}>
+        <Stack  spacing="4px" fontFamily={'"Gill Sans", sans-serif'}>
           <CustomField
             icon={<HiUser fontSize={"2rem"} color={"gray"} />}
             header={"USER NAME"}
@@ -144,11 +144,12 @@ export default function Account() {
     <>
       {context.user && mounted ? (
         <>
-          <Card minW={"100%"}>
+          <Card minW={"100%"} h={{base:'100vh', md:'auto'}}>
             <CardBody>
               <Stack
                 divider={<StackDivider />}
                 spacing={{ base: "1", md: "4" }}
+                // h={'100%'}
               >
                 <FriendInfo />
                 <UserInfo />

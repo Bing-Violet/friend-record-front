@@ -55,7 +55,7 @@ export default function Layout({ children, router, pageProps }) {
         position={"absolute"}
         w={"100vw"}
         h={"100vh"}
-        bg={'url("/images/background.png")'}
+        bg={user?'url("/images/background.png")':''}
         objectFit={'content'}
         layout={"fill"}
         backgroundSize={'cover'}
