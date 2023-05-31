@@ -1,4 +1,10 @@
-import { Box, Flex, Spinner, Center, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Spinner,
+  Center,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import Head from "next/head";
 import { Suspense, useEffect, useState, useContext } from "react";
 import Navber from "./navber";
@@ -17,23 +23,19 @@ export default function Layout({ children, router, pageProps }) {
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [path, setPath] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    console.log("LAYPIT",document.body.style.background);
+    console.log("LAYPIT", document.body.style.background);
     if (typeof window !== "undefined") {
-      document.body.style.background = user?'url("/images/background.png")':''
-      document.body.style.layout = 'fill'
-      document.body.style.objectFit = 'content'
-      document.body.style.backgroundPosition = 'center'
-      document.body.style.backgroundSize = 'cover'
-      document.body.style.backgroundColor = '#F2F2F2'
-      document.body.style.overflowX = 'hidden'
-      document.body.style.overflowY = 'hidden'
-      document.body.style.maxHeight = '100vh'
+      document.body.style.overflowX = "hidden";
+      document.body.style.overflowY = "hidden";
+      document.body.style.maxHeight = "100vh";
       setUrl(document.URL);
       setPath(
         router.state.asPath === "/" ? "" : splitPath(router.state.asPath)
       );
+      setMounted(true);
     }
   }, [router.state]);
   const splitPath = (path) => {
@@ -47,19 +49,59 @@ export default function Layout({ children, router, pageProps }) {
       })
       .join(separator);
   };
-
+  function AfterBG({ children }) {
+    return (
+      <Flex
+        position={"absolute"}
+        w={"100vw"}
+        h={"100vh"}
+        bg={'url("/images/background.png")'}
+        objectFit={'content'}
+        layout={"fill"}
+        backgroundSize={'cover'}
+        backgroundPosition={'center'}
+        justifyContent={"center"}
+        role="img" 
+        alt="background"
+      >
+        {children}
+      </Flex>
+    );
+  }
   const initialLetterToApperCase = (string) => {
     return string.replace(/\b[a-z]/g, (char) => char.toUpperCase());
   };
 
   const bg = useColorModeValue(
     "#F2F2F2",
-    "linear-gradient(to bottom, #232323 80%, #6cd8e8)"
+    '#232323'
+    // "linear-gradient(to bottom, #232323 80%, #6cd8e8)"
   );
-
+  let markup;
+  if (mounted) {
+    markup = (
+      <>
+        <Box
+          minH="50vh"
+          maxW={user ? 600 : "100%"}
+          w={{ base: "100%", md: user ? 600 : "100%" }}
+        >
+          <ContextHandler>
+            <Navber />
+            {context.isLoading ? (
+              <CustomSpinner />
+            ) : (
+              <Box pt={{ base: "0", md: "7rem" }}>{children}</Box>
+            )}
+          </ContextHandler>
+        </Box>
+        <MobileNavber />
+      </>
+    );
+  }
   return (
     <Flex
-      // bg={bg}
+      bg={bg}
       minW="100vw"
       minH="100vh"
       // flexDirection={"column"}
@@ -80,18 +122,7 @@ export default function Layout({ children, router, pageProps }) {
         <meta property="og:site_name" content={""} />
         <link rel="apple-touch-icon" href="/favicon.ico" sizes="180x180" />
       </Head>
-      {/* <PcBackground /> */}
-      <Box minH="50vh" maxW={user?600:'100%'} w={{base:'100%',md:user?600:'100%'}} className={'base-width'}>
-        <ContextHandler>
-          <Navber />
-          {context.isLoading ? (
-            <CustomSpinner />
-          ) : (
-            <Box pt={{base:'0',md:"7rem"}}>{children}</Box>
-          )}
-        </ContextHandler>
-      </Box>
-      <MobileNavber/>
+      <AfterBG>{markup}</AfterBG>
     </Flex>
   );
 }
