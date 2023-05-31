@@ -21,7 +21,7 @@ export default function Layout({ children, router, pageProps }) {
   useEffect(() => {
     console.log("LAYPIT",document.body.style.background);
     if (typeof window !== "undefined") {
-      document.body.style.background = 'url("/images/background.png")'
+      document.body.style.background = user?'url("/images/background.png")':''
       document.body.style.layout = 'fill'
       document.body.style.objectFit = 'content'
       document.body.style.backgroundPosition = 'center'
@@ -56,6 +56,7 @@ export default function Layout({ children, router, pageProps }) {
     "#F2F2F2",
     "linear-gradient(to bottom, #232323 80%, #6cd8e8)"
   );
+
   return (
     <Flex
       // bg={bg}
@@ -80,7 +81,7 @@ export default function Layout({ children, router, pageProps }) {
         <link rel="apple-touch-icon" href="/favicon.ico" sizes="180x180" />
       </Head>
       {/* <PcBackground /> */}
-      <Box minH="50vh" maxW={600} w={{base:'100%',md:600}} className={'base-width'}>
+      <Box minH="50vh" maxW={user?600:'100%'} w={{base:'100%',md:user?600:'100%'}} className={'base-width'}>
         <ContextHandler>
           <Navber />
           {context.isLoading ? (
