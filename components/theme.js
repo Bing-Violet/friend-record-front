@@ -17,7 +17,7 @@ export default function Theme() {
         toggleColorMode();
       }}
     >
-      <AnimatePresence >
+      <AnimatePresence mode={'wait'}>
         <motion.div
           key={useColorModeValue('light', 'dark')} // animation doesn't work without key. why??
           initial={{ y: -20, opacity: 0 }}

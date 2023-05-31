@@ -51,9 +51,34 @@ import { useDisclosure } from "@chakra-ui/react";
 import EventCreate from "@/components/eventCreate";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { AiOutlineEdit } from "react-icons/ai";
+import { CiEdit } from "react-icons/ci";
 import { RiCreativeCommonsZeroLine, RiSettings4Line } from "react-icons/ri";
 import AppContext from "@/components/globalContext";
+
+function EditableField({ friend, editIsOpen, setEditIsOpen }) {
+  const [editedName, setEditedName] = useState(friend.name);
+  const handleChange = (event) => {
+    setEditedName(event.target.value);
+  };
+  let markup;
+  if (editIsOpen) {
+    console.log("CHANGE");
+    markup = (
+      <>
+        <Input
+          value={editedName}
+          onChange={handleChange}
+          placeholder="enter username"
+          size="sm"
+          // padding={'0'}
+        />
+      </>
+    );
+  } else {
+    markup = friend.name;
+  }
+  return <>{markup}</>;
+}
 
 export default function FriendDetail() {
   const cookies = new Cookies();
@@ -140,6 +165,7 @@ export default function FriendDetail() {
         </Box>
       );
     }
+    const [editIsOpen, setEditIsOpen] = useState(false);
     return (
       <>
         {Object.keys(friend).length ? (
@@ -149,22 +175,36 @@ export default function FriendDetail() {
               border={"solid #898686"}
               w={"100%"}
               overflow={"hidden"}
-              position={'relative'}
+              position={"relative"}
             >
-              <FriendDeletePopover id={friend.id} friendName={friend.name}/>
-              <CardBody w={"100%"}>
+              <FriendDeletePopover id={friend.id} friendName={friend.name} />
+              <CardBody w={"100%"} className={"card-body"}>
                 <Stack
                   divider={<StackDivider />}
                   spacing={{ base: "1", md: "4" }}
                 >
-                  <Box w={"100%"} pt={"0.5rem"}>
-                    <Center>
-                      <VStack align="stretch" fontWeight={"bold"}>
-                        <Text>Name : {friend.name}</Text>
-                        <Text>Last_log : {dateConvert(friend.last_log)}</Text>
-                      </VStack>
-                    </Center>
-                  </Box>
+                  <Flex w={"100%"} pt={"0.5rem"} justifyContent={"center"}>
+                    <VStack align="stretch" fontWeight={"bold"} spacing={'1rem'}>
+                      <Flex alignItems={"center"}>
+                        <Text mr={"0.3rem"}>Name :</Text>
+                        <Box w={'50%%'} h={'100%'}>
+                          <Flex className={'abso'} alignItems={'center'}  position={'absolute'}>
+                            <EditableField
+                              friend={friend}
+                              editIsOpen={editIsOpen}
+                            />
+                            <CiEdit
+                              onClick={() => {
+                                setEditIsOpen(!editIsOpen);
+                              }}
+                              ml={'0.3rem'}
+                            />
+                          </Flex>
+                        </Box>
+                      </Flex>
+                      <Text>Last_log : {dateConvert(friend.last_log)}</Text>
+                    </VStack>
+                  </Flex>
                   <Flex
                     alignItems={"center"}
                     fontWeight={"bold"}
@@ -240,15 +280,6 @@ export default function FriendDetail() {
           </>
         ) : (
           <></>
-          // <Flex flexDirection={"column"} alignItems={"center"}>
-          //   <Text>No Event To Show</Text>
-          //   <EventCreate
-          //     slug={router.query.slug}
-          //     friend={friend}
-          //     events={events}
-          //     setEvents={setEvents}
-          //   />
-          // </Flex>
         )}
       </Box>
     );
@@ -260,7 +291,7 @@ export default function FriendDetail() {
         .delete(`/api/character/character-detail/${id}`)
         .then((res) => {
           //need to change character data
-          const newEvents =  context.friends.filter((e) => e.id !== id);
+          const newEvents = context.friends.filter((e) => e.id !== id);
           // setSearchFriend([...newEvents]);
           context.setFriends([...newEvents]);
           router.push({
@@ -272,7 +303,8 @@ export default function FriendDetail() {
             status: "success",
           });
         })
-        .catch((e) => {console.log('Error',e)
+        .catch((e) => {
+          console.log("Error", e);
           toastFun({
             title: "Failed!",
             description: `Something bad happened. Please try later!`,
@@ -284,21 +316,30 @@ export default function FriendDetail() {
       <>
         <Popover>
           <PopoverTrigger>
-            <Flex  as={Flex} justifyContent={'flex-end'}>
-            <CloseButton color={'red'} size='md' />
+            <Flex as={Flex} justifyContent={"flex-end"}>
+              <CloseButton color={"#ff7373"} size="md" />
             </Flex>
           </PopoverTrigger>
           <Portal>
-          <PopoverContent bg='gray' color='white' border={'0.1rem solid #ff7070'}>
-              <PopoverHeader fontWeight={"bold"}>
-                Confirmation
-              </PopoverHeader>
+            <PopoverContent
+              bg="gray"
+              color="white"
+              border={"0.1rem solid #ff7070"}
+            >
+              <PopoverHeader fontWeight={"bold"}>Confirmation</PopoverHeader>
               <PopoverCloseButton />
               <PopoverBody>
                 <Flex alignItems={"center"}>
-                  <Text fontWeight={"bold"} flexBasis={"50%"}>Delete {friendName}?</Text>
-                  <Flex flexBasis={"50%"} justifyContent={'flex-end'}>
-                    <Button bg={'white'} onClick={deleteEvent} colorScheme="red" variant='outline'>
+                  <Text fontWeight={"bold"} flexBasis={"50%"}>
+                    Delete {friendName}?
+                  </Text>
+                  <Flex flexBasis={"50%"} justifyContent={"flex-end"}>
+                    <Button
+                      bg={"white"}
+                      onClick={deleteEvent}
+                      colorScheme="red"
+                      variant="outline"
+                    >
                       Delete
                     </Button>
                   </Flex>
@@ -354,17 +395,26 @@ export default function FriendDetail() {
             </Center>
           </PopoverTrigger>
           <Portal>
-            <PopoverContent bg='gray' color='white' border={'0.1rem solid #ff7070'}>
+            <PopoverContent
+              bg="gray"
+              color="white"
+              border={"0.1rem solid #ff7070"}
+            >
               {/* <PopoverArrow /> */}
-              <PopoverHeader fontWeight={"bold"}>
-                Confirmation
-              </PopoverHeader>
+              <PopoverHeader fontWeight={"bold"}>Confirmation</PopoverHeader>
               <PopoverCloseButton />
               <PopoverBody>
                 <Flex alignItems={"center"}>
-                  <Text fontWeight={"bold"} flexBasis={"50%"}>Are You Sure?</Text>
-                  <Flex flexBasis={"50%"} justifyContent={'flex-end'}>
-                    <Button bg={'white'} onClick={deleteEvent} colorScheme="red" variant='outline'>
+                  <Text fontWeight={"bold"} flexBasis={"50%"}>
+                    Are You Sure?
+                  </Text>
+                  <Flex flexBasis={"50%"} justifyContent={"flex-end"}>
+                    <Button
+                      bg={"white"}
+                      onClick={deleteEvent}
+                      colorScheme="red"
+                      variant="outline"
+                    >
                       Delete
                     </Button>
                   </Flex>
