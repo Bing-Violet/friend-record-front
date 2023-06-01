@@ -1,4 +1,11 @@
-import { useState, useEffect, useRef, forwardRef, useContext } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useContext,
+  useMemo,
+} from "react";
 import { useRouter } from "next/router";
 import Cookies from "universal-cookie";
 import axios from "axios";
@@ -23,6 +30,7 @@ import {
   IconButton,
   StackDivider,
   CloseButton,
+  FormErrorMessage
 } from "@chakra-ui/react";
 
 import {
@@ -50,34 +58,80 @@ import { useDisclosure } from "@chakra-ui/react";
 
 import EventCreate from "@/components/eventCreate";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import { BsThreeDotsVertical, BsCheck2Square } from "react-icons/bs";
 import { CiEdit } from "react-icons/ci";
-import { RiCreativeCommonsZeroLine, RiSettings4Line } from "react-icons/ri";
+import {
+  RiCreativeCommonsZeroLine,
+  RiSettings4Line,
+  RiEdit2Line,
+} from "react-icons/ri";
 import AppContext from "@/components/globalContext";
 
-function EditableField({ friend, editIsOpen, setEditIsOpen }) {
-  const [editedName, setEditedName] = useState(friend.name);
+function EditableField({ friend, func }) {
+  const [editedName, setEditedName] = useState("");
+  const [editIsOpen, setEditIsOpen] = useState(false);
+  useEffect(() => {
+    console.log('go')
+    setEditedName(friend.name);
+  }, [editIsOpen]);
   const handleChange = (event) => {
-    setEditedName(event.target.value);
+    setEditedName(event.target.value), console.log(editedName);
   };
+  function editFunc() {
+    if(friend.name===editedName||!editedName) {
+      setEditIsOpen(!editIsOpen);
+    } else {
+      func({name:editedName, id:friend.id})
+      friend.name = editedName
+      setEditIsOpen(!editIsOpen);
+    }
+  }
+  const editOrCheckIcon = editIsOpen ? (
+    <BsCheck2Square
+      color={friend.name===editedName||!editedName?"#ef7a67":"#00b01a"}
+      onClick={() => {
+        editFunc()
+      }}
+    />
+  ) : (
+    <RiEdit2Line
+      color={"#00b01a"}
+      onClick={() => {
+        setEditIsOpen(!editIsOpen);
+      }}
+      ml={"0.3rem"}
+    />
+  );
   let markup;
   if (editIsOpen) {
     console.log("CHANGE");
     markup = (
       <>
-        <Input
+      <FormControl isInvalid={!editedName}>
+      <Input
           value={editedName}
           onChange={handleChange}
-          placeholder="enter username"
+          isInvalid={!editedName}
+          placeholder="Must not be empty!"
+          _placeholder={{'color':'red'}}
+          focusBorderColor={editedName?'':'red.300'}
           size="sm"
-          // padding={'0'}
         />
+      </FormControl>
+
+        {editOrCheckIcon}
       </>
     );
   } else {
-    markup = friend.name;
+    console.log("ELSE");
+    markup = (
+      <>
+        {friend.name}
+        {editOrCheckIcon}
+      </>
+    );
   }
-  return <>{markup}</>;
+  return markup;
 }
 
 export default function FriendDetail() {
@@ -114,7 +168,38 @@ export default function FriendDetail() {
       })
       .catch((e) => {});
   }
-
+  function friendNameEdit({...props}) {
+    console.log(props)
+    customAxios
+      .patch(`/api/character/character-detail/${props.id}`, {
+        name: props.name
+      })
+      .then((res) => {
+        console.log("THEM IN EDDIT", res.data);
+        const newEvents = context.friends.map((e) => {
+          if (e.id === props.id) {
+            e.name = props.name;
+            return e;
+          } else {
+            return e;
+          }
+        });
+        context.setFriends([...newEvents]);
+        toastFun({
+          title: "Your event is updated!",
+          description: `Your event ${friend.name} is successfully updated!`,
+          status: "success",
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+        toastFun({
+          title: "Failed!",
+          description: `Something bad happened. Please try later!`,
+          status: "error",
+        });
+      });
+  }
   function dateConvert(date) {
     const dateObj = new Date();
     const offset = dateObj.getTimezoneOffset();
@@ -142,46 +227,50 @@ export default function FriendDetail() {
     }, [innerRef.current]);
     function amountCalculation(eventList, sub) {
       // eventList is array, sub will be paied or bePaied
-      console.log(sub!=='paied')
-      const acceptedSubs = ['paied','bePaied']
-      let paied = 0
-      let bePaied = 0
+      console.log(sub !== "paied");
+      const acceptedSubs = ["paied", "bePaied"];
+      let paied = 0;
+      let bePaied = 0;
       eventList.forEach((e) => {
-        console.log(e)
-        const money = Number(e.money)
-        paied += money > 0?money:0
-        bePaied += money < 0?money:0
-      })
-      if(acceptedSubs.includes(sub)) {
-        return sub==='paied'?paied:bePaied
+        console.log(e);
+        const money = Number(e.money);
+        paied += money > 0 ? money : 0;
+        bePaied += money < 0 ? money : 0;
+      });
+      if (acceptedSubs.includes(sub)) {
+        return sub === "paied" ? paied : bePaied;
       } else {
-        throw 'sub must be paied or bePaied'
+        throw "sub must be paied or bePaied";
       }
     }
     function Header({ children }) {
       return (
         <Box w={"100%"} ref={outerRef}>
-          <Flex
-            position={"relative"}
-            justifyContent={"center"}
-            w={"100%"}
-          >
+          <Flex position={"relative"} justifyContent={"center"} w={"100%"}>
             <Box zIndex={1}>
               <Avatar size="lg" />
             </Box>
-            <Box
-              w={"100%"}
-              position={"absolute"}
-              top={"50%"}
-              ref={innerRef}
-            >
+            <Box w={"100%"} position={"absolute"} top={"50%"} ref={innerRef}>
               {children}
             </Box>
           </Flex>
         </Box>
       );
     }
-    const [editIsOpen, setEditIsOpen] = useState(false);
+    // const [editIsOpen, setEditIsOpen] = useState(false);
+    // let editOrCheckIcon = editIsOpen ? (
+    //   <BsCheck2Square color={'#ef7a67'} onClick={() => {
+    //     setEditIsOpen(!editIsOpen);
+    //   }}/>
+    // ) : (
+    //   <RiEdit2Line
+    //   color={'#00b01a'}
+    //     onClick={() => {
+    //       setEditIsOpen(!editIsOpen);
+    //     }}
+    //     ml={"0.3rem"}
+    //   />
+    // );
     return (
       <>
         {Object.keys(friend).length ? (
@@ -194,7 +283,7 @@ export default function FriendDetail() {
               position={"relative"}
             >
               <FriendDeletePopover id={friend.id} friendName={friend.name} />
-              <CardBody w={"100%"} pt={'0.2rem'}>
+              <CardBody w={"100%"} pt={"0.2rem"}>
                 <Stack
                   divider={<StackDivider />}
                   spacing={{ base: "1", md: "4" }}
@@ -209,16 +298,7 @@ export default function FriendDetail() {
                         <Text mr={"0.3rem"}>Name :</Text>
                         <Box w={"50%%"} h={"100%"}>
                           <Flex alignItems={"center"} position={"absolute"}>
-                            <EditableField
-                              friend={friend}
-                              editIsOpen={editIsOpen}
-                            />
-                            <CiEdit
-                              onClick={() => {
-                                setEditIsOpen(!editIsOpen);
-                              }}
-                              ml={"0.3rem"}
-                            />
+                            <EditableField friend={friend} func={friendNameEdit} />
                           </Flex>
                         </Box>
                       </Flex>
@@ -234,11 +314,11 @@ export default function FriendDetail() {
                     <Flex w={"100%"} mt={{ md: "1rem" }}>
                       <Box textAlign={"center"} flexBasis={"50%"}>
                         <Text color={"#008dff"}>I PAIED</Text>
-                        <Text>${amountCalculation(events, 'paied')}</Text>
+                        <Text>${amountCalculation(events, "paied")}</Text>
                       </Box>
                       <Box textAlign={"center"} flexBasis={"50%"}>
                         <Text color={"#ff4d76"}>They PAIED</Text>
-                        <Text>${amountCalculation(events, 'bePaied')}</Text>
+                        <Text>${amountCalculation(events, "bePaied")}</Text>
                       </Box>
                     </Flex>
                   </Flex>
@@ -258,9 +338,9 @@ export default function FriendDetail() {
     const listRef = useRef();
     const [maxH, setMaxH] = useState(0);
     useEffect(() => {
-      console.log('USE_effect in detail')
+      console.log("USE_effect in detail");
       if (typeof window !== "undefined") {
-        console.log("NOT UNDEFINED")
+        console.log("NOT UNDEFINED");
         const lisrect = listRef.current.getBoundingClientRect();
         console.log("rec", lisrect, window.innerHeight);
         setMaxH(window.innerHeight - lisrect.top - 48);
@@ -281,8 +361,8 @@ export default function FriendDetail() {
         fontWeight={"bold"}
         ref={listRef}
         maxH={maxH}
-        overflowY={events.length > 1?"scroll":'none'}
-        overflowX={events.length > 1?"hidden":'none'}
+        overflowY={events.length > 1 ? "scroll" : "none"}
+        overflowX={events.length > 1 ? "hidden" : "none"}
       >
         {events.length ? (
           <>

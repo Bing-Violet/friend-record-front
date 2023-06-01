@@ -170,156 +170,107 @@ export default function FriendList({ User, toastFun }) {
     );
   }
 
-  // function DeletePopover({ id, eventName, toastFun }) {
-  //   function deleteEvent() {
-  //     customAxios
-  //       .delete(`/api/character/character-detail/${id}`)
-  //       .then((res) => {
-  //         //need to change character data
-  //         const newEvents = searchFriend.filter((e) => e.id !== id);
-  //         setSearchFriend([...newEvents]);
-  //         context.setFriends([...newEvents]);
-  //         toastFun({
-  //           title: "Your event is deleted!",
-  //           description: `Your event ${eventName} is successfully deleted!`,
-  //           status: "success",
+  // function EditPopover({ eventName, money, id, toastFun }) {
+  //   const { onOpen, onClose, isOpen } = useDisclosure();
+  //   const firstFieldRef = useRef(null);
+  //   const TextInput = forwardRef((props, ref) => {
+  //     return (
+  //       <FormControl>
+  //         <FormLabel htmlFor={props.id}>{props.label}</FormLabel>
+  //         <Input ref={ref} id={props.id} {...props} />
+  //       </FormControl>
+  //     );
+  //   });
+
+  //   const Form = ({ firstFieldRef, onCancel }) => {
+  //     const [editedEventName, setEditedEventName] = useState("");
+  //     const [isDisabled, setIsDisabled] = useState(true);
+
+  //     const eventHandleChange = (event) => {
+  //       setEditedEventName(event.target.value), setIsDisabled(false);
+  //     };
+  //     function saveFunc() {
+  //       customAxios
+  //         .patch(`/api/character/character-detail/${id}`, {
+  //           name: !editedEventName ? eventName : editedEventName,
+  //         })
+  //         .then((res) => {
+  //           console.log("THEM IN EDDIT", res.data);
+  //           const updatedName = !editedEventName ? eventName : editedEventName;
+
+  //           const newEvents = searchFriend.map((e) => {
+  //             if (e.id === id) {
+  //               e.name = updatedName;
+  //               return e;
+  //             } else {
+  //               return e;
+  //             }
+  //           });
+  //           setSearchFriend([...newEvents]);
+  //           toastFun({
+  //             title: "Your event is updated!",
+  //             description: `Your event ${eventName} is successfully updated!`,
+  //             status: "success",
+  //           });
+  //           onCancel();
+  //         })
+  //         .catch((e) => {
+  //           console.log(e);
+  //           toastFun({
+  //             title: "Failed!",
+  //             description: `Something bad happened. Please try later!`,
+  //             status: "error",
+  //           });
   //         });
-  //       })
-  //       .catch((e) => {
-  //         toastFun({
-  //           title: "Failed!",
-  //           description: `Something bad happened. Please try later!`,
-  //           status: "error",
-  //         });
-  //       });
-  //   }
-  //   return (
-  //     <>
-  //       <Popover>
-  //         <PopoverTrigger>
-  //           <Button background={"red.700"} color={"red.100"}>
-  //             DELETE
+  //     }
+  //     return (
+  //       <Stack spacing={4}>
+  //         <TextInput
+  //           label="Event name"
+  //           id="first-name"
+  //           ref={firstFieldRef}
+  //           defaultValue={eventName}
+  //           onChange={eventHandleChange}
+  //         />
+  //         <ButtonGroup display="flex" justifyContent="flex-end">
+  //           <Button variant="outline" onClick={onCancel}>
+  //             Cancel
   //           </Button>
+  //           <Button
+  //             isDisabled={isDisabled}
+  //             onClick={saveFunc}
+  //             colorScheme="teal"
+  //           >
+  //             Save
+  //           </Button>
+  //         </ButtonGroup>
+  //       </Stack>
+  //     );
+  //   };
+  //   return (
+  //     <Box position={"absolute"} right={"0"}>
+  //       <Popover
+  //         isOpen={isOpen}
+  //         initialFocusRef={firstFieldRef}
+  //         onOpen={onOpen}
+  //         onClose={onClose}
+  //         placement="right"
+  //         closeOnBlur={false}
+  //       >
+  //         <PopoverTrigger>
+  //           <IconButton size="sm" icon={<AiOutlineEdit />} />
   //         </PopoverTrigger>
-  //         <Portal>
-  //           <PopoverContent background={"pink.400"}>
+  //         <PopoverContent p={5}>
+  //           <FocusLock returnFocus persistentFocus={false}>
   //             <PopoverArrow />
-  //             <PopoverHeader>Confirmation</PopoverHeader>
   //             <PopoverCloseButton />
-  //             <PopoverBody>are you sure?</PopoverBody>
-  //             <PopoverFooter textAlign={"center"}>
-  //               <Button onClick={deleteEvent} colorScheme="blue">
-  //                 Delete
-  //               </Button>
-  //             </PopoverFooter>
-  //           </PopoverContent>
-  //         </Portal>
+  //             <Form firstFieldRef={firstFieldRef} onCancel={onClose} />
+  //           </FocusLock>
+  //         </PopoverContent>
   //       </Popover>
-  //     </>
+  //     </Box>
   //   );
   // }
-
-  function EditPopover({ eventName, money, id, toastFun }) {
-    const { onOpen, onClose, isOpen } = useDisclosure();
-    const firstFieldRef = useRef(null);
-    const TextInput = forwardRef((props, ref) => {
-      return (
-        <FormControl>
-          <FormLabel htmlFor={props.id}>{props.label}</FormLabel>
-          <Input ref={ref} id={props.id} {...props} />
-        </FormControl>
-      );
-    });
-
-    const Form = ({ firstFieldRef, onCancel }) => {
-      const [editedEventName, setEditedEventName] = useState("");
-      const [isDisabled, setIsDisabled] = useState(true);
-
-      const eventHandleChange = (event) => {
-        setEditedEventName(event.target.value), setIsDisabled(false);
-      };
-      function saveFunc() {
-        customAxios
-          .patch(`/api/character/character-detail/${id}`, {
-            name: !editedEventName ? eventName : editedEventName,
-          })
-          .then((res) => {
-            console.log("THEM IN EDDIT", res.data);
-            const updatedName = !editedEventName ? eventName : editedEventName;
-
-            const newEvents = searchFriend.map((e) => {
-              if (e.id === id) {
-                e.name = updatedName;
-                return e;
-              } else {
-                return e;
-              }
-            });
-            setSearchFriend([...newEvents]);
-            toastFun({
-              title: "Your event is updated!",
-              description: `Your event ${eventName} is successfully updated!`,
-              status: "success",
-            });
-            onCancel();
-          })
-          .catch((e) => {
-            console.log(e);
-            toastFun({
-              title: "Failed!",
-              description: `Something bad happened. Please try later!`,
-              status: "error",
-            });
-          });
-      }
-      return (
-        <Stack spacing={4}>
-          <TextInput
-            label="Event name"
-            id="first-name"
-            ref={firstFieldRef}
-            defaultValue={eventName}
-            onChange={eventHandleChange}
-          />
-          <ButtonGroup display="flex" justifyContent="flex-end">
-            <Button variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button
-              isDisabled={isDisabled}
-              onClick={saveFunc}
-              colorScheme="teal"
-            >
-              Save
-            </Button>
-          </ButtonGroup>
-        </Stack>
-      );
-    };
-    return (
-      <Box position={"absolute"} right={"0"}>
-        <Popover
-          isOpen={isOpen}
-          initialFocusRef={firstFieldRef}
-          onOpen={onOpen}
-          onClose={onClose}
-          placement="right"
-          closeOnBlur={false}
-        >
-          <PopoverTrigger>
-            <IconButton size="sm" icon={<AiOutlineEdit />} />
-          </PopoverTrigger>
-          <PopoverContent p={5}>
-            <FocusLock returnFocus persistentFocus={false}>
-              <PopoverArrow />
-              <PopoverCloseButton />
-              <Form firstFieldRef={firstFieldRef} onCancel={onClose} />
-            </FocusLock>
-          </PopoverContent>
-        </Popover>
-      </Box>
-    );
-  }
   return (
     <Wrapper toastFun={toastFun}>
       <Search
