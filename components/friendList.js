@@ -51,7 +51,7 @@ function Wrapper({ children, toastFun }) {
   const [innerHeight, setInnerHeight] = useState(0)
   const ref = useRef()
   useEffect(() => {
-    if(window!=='undefined') {
+    if(typeof window!=='undefined') {
       console.log('ref', window.innerHeight)
       console.dir(ref.current.offsetHeight)
       setWrapperHeight(ref.current.offsetHeight)

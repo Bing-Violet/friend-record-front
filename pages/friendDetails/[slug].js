@@ -140,6 +140,24 @@ export default function FriendDetail() {
           innerRef.current.offsetHeight + 32 + "px"; //32 is half of the image
       }
     }, [innerRef.current]);
+    function amountCalculation(eventList, sub) {
+      // eventList is array, sub will be paied or bePaied
+      console.log(sub!=='paied')
+      const acceptedSubs = ['paied','bePaied']
+      let paied = 0
+      let bePaied = 0
+      eventList.forEach((e) => {
+        console.log(e)
+        const money = Number(e.money)
+        paied += money > 0?money:0
+        bePaied += money < 0?money:0
+      })
+      if(acceptedSubs.includes(sub)) {
+        return sub==='paied'?paied:bePaied
+      } else {
+        throw 'sub must be paied or bePaied'
+      }
+    }
     function Header({ children }) {
       return (
         <Box w={"100%"} ref={outerRef}>
@@ -212,15 +230,15 @@ export default function FriendDetail() {
                     fontWeight={"bold"}
                     flexDirection={"column"}
                   >
-                    <Text fontSize={"1.5rem"}>TOALE : ${friend.sum}</Text>
+                    <Text fontSize={"1.5rem"}>TOTAL : ${friend.sum}</Text>
                     <Flex w={"100%"} mt={{ md: "1rem" }}>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text color={"#008dff"}>I PAYED</Text>
-                        <Text>$500</Text>
+                        <Text color={"#008dff"}>I PAIED</Text>
+                        <Text>${amountCalculation(events, 'paied')}</Text>
                       </Box>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text color={"#ff4d76"}>They PAYED</Text>
-                        <Text>$500</Text>
+                        <Text color={"#ff4d76"}>They PAIED</Text>
+                        <Text>${amountCalculation(events, 'bePaied')}</Text>
                       </Box>
                     </Flex>
                   </Flex>
@@ -240,7 +258,9 @@ export default function FriendDetail() {
     const listRef = useRef();
     const [maxH, setMaxH] = useState(0);
     useEffect(() => {
-      if (typeof listRef !== "undefined") {
+      console.log('USE_effect in detail')
+      if (typeof window !== "undefined") {
+        console.log("NOT UNDEFINED")
         const lisrect = listRef.current.getBoundingClientRect();
         console.log("rec", lisrect, window.innerHeight);
         setMaxH(window.innerHeight - lisrect.top - 48);

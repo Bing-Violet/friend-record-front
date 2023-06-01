@@ -133,9 +133,9 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         const newArray = events;
         newArray.unshift(res.data);
         setEvents([...newArray]); //set new array.'
+        friend.sum +=  Number(money);
         context.friends.forEach((e) => {
           if (e.id === friend.id) {
-            console.log(typeof e.sum, typeof money, money, e.sum);
             e.sum += Number(money);
           }
         });
