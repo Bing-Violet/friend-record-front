@@ -65,13 +65,14 @@ import {
   RiSettings4Line,
   RiEdit2Line,
 } from "react-icons/ri";
+import SlideIcons from "@/components/events/slideIcons";
+import { eventIcons } from "@/components/events/icons";
 import AppContext from "@/components/globalContext";
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
   const [editIsOpen, setEditIsOpen] = useState(false);
   useEffect(() => {
-    console.log('go')
     setEditedName(friend.name);
   }, [editIsOpen]);
   const handleChange = (event) => {
@@ -682,6 +683,7 @@ export default function FriendDetail() {
               setEvents={setEvents}
             />
             <EventList />
+            <SlideIcons icons={eventIcons}/>
           </Flex>
         </Center>
       ) : (
