@@ -50,11 +50,6 @@ export default function Home() {
     const markup = buttonAttr==='signup'?(<Signup />):(<Login />)
     return (
       <>
-        {/* <Button onClick={onOpen}>Open Modal</Button>
-        <Button ml={4} ref={finalRef}>
-          I'll receive focus on close
-        </Button> */}
-  
         <Modal
           initialFocusRef={initialRef}
           finalFocusRef={finalRef}
@@ -112,7 +107,7 @@ export default function Home() {
   }
   return (
     <>
-    {markup}
+    {!context.isLoading?(<>{markup}</>):(<CustomSpinner/>)}
     </>
   );
 }

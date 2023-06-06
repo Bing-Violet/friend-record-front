@@ -190,7 +190,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   }
   function CreateEvent() {
   let image 
-  if(!events.length) {
+  if(!events.length&&!context.isLoading) {
     image = (
       <>
       <Text

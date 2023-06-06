@@ -67,6 +67,7 @@ import {
 import AppContext from "@/components/globalContext";
 import { eventIcons } from "@/components/events/icons";
 import SlideIcons from "@/components/events/slideIcons";
+import CustomSpinner from "@/components/spinner";
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -144,9 +145,15 @@ export default function FriendDetail() {
   const [slug, setSlug] = useState("");
   const toastFun = context.addToast;
   useEffect(() => {
-    if (context.user && router.query.slug) {
+    console.log("EFECT IN",context)
+    if (context.user && router.query.slug && context) {
+      console.log('user,slug')
       if (!context.friends.length) {
-        getFriend();
+        const asyncGetFriend = async () => {
+          context.setIsLoading(true)
+          await getFriend().then(() =>context.setIsLoading(false), console.log("DONE"))
+        }
+        asyncGetFriend()
       } else {
         const f = context.friends.find((f) => f.id == router.query.slug);
         setFriend(f);
@@ -155,8 +162,8 @@ export default function FriendDetail() {
     } else if (!slug) {
       setSlug(router.query.slug);
     }
-    setMounted(true);
-  }, [router.query.slug]); //why set router? this is for reloading.
+    return setMounted(true);
+  }, []); //why set router? this is for reloading.
 
   async function getFriend() {
     customAxios
@@ -164,6 +171,7 @@ export default function FriendDetail() {
       .then((res) => {
         setFriend(res.data);
         setEvents(res.data.event);
+        console.log("DONE_FROM_GETFRIEND")
       })
       .catch((e) => {});
   }
@@ -316,7 +324,6 @@ export default function FriendDetail() {
           </Header>
         ) : (
           <>
-            <Spinner />
           </>
         )}
       </>
@@ -333,11 +340,8 @@ export default function FriendDetail() {
       };
     };
     useEffect(() => {
-      console.log("USE_effect in detail");
       if (typeof window !== "undefined") {
-        console.log("NOT UNDEFINED");
         const lisrect = listRef.current.getBoundingClientRect();
-        console.log("rec", lisrect, window.innerHeight);
         setMaxH(window.innerHeight - lisrect.top - 48);
       }
     }, []);
@@ -705,10 +709,8 @@ export default function FriendDetail() {
       </>
     );
   }
-  return (
-    <>
-      {mounted ? (
-        <Center width={"100%"}>
+let markup = (
+  <Center width={"100%"}>
           <Flex w={"100%"} alignItems={"center"} flexDirection={"column"}>
             <FriendInfo />
             <EventCreate
@@ -720,9 +722,11 @@ export default function FriendDetail() {
             <EventList />
           </Flex>
         </Center>
-      ) : (
-        <></>
-      )}
+)
+
+  return (
+    <>
+      {!context.isLoading&&Object.keys(friend).length?(<>{markup}</>):(<CustomSpinner/>)}
     </>
   );
 }

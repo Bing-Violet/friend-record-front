@@ -44,6 +44,7 @@ import AppContext from "./globalContext";
 import FriendCreate from "./friendCreate";
 import { FaSearchPlus } from "react-icons/fa";
 import { dateConvert } from "@/utils";
+import CustomSpinner from "./spinner";
 
 function Wrapper({ children, toastFun }) {
   const context = useContext(AppContext);
@@ -296,7 +297,6 @@ export default function FriendList({ User, toastFun }) {
                   </Flex>
                 </CardBody>
               </Link>
-              {/* <DeletePopover id={f.id} eventName={f.name} toastFun={toastFun} /> */}
             </Card>
           ))}
         </>
