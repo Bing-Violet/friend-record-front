@@ -44,6 +44,8 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import AppContext from "./globalContext";
+import SlideIcons from "./events/slideIcons";
+
 
 function Money({ money, setValue, error, setError }) {
   const handleChange = (value) => setValue(value);
@@ -111,6 +113,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const [money, setMoney] = useState(0);
   const context = useContext(AppContext);
   const [error, setError] = useState(true);
+  const [icon, setIcon] = useState({});
   const accessToken = context.accessToken;
   const toastFun = context.addToast;
   const cookies = new Cookies();
@@ -119,7 +122,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const initialRef = useRef(null);
   const finalRef = useRef(null);
   function eventCreate() {
-    console.log("CALED");
+    console.log("CALED", icon);
     customAxios
       .post("/api/event/event-create/", {
         name: event,
@@ -220,7 +223,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
       >
         Create an Event
       </Button>
-      <CreateEvent/>
+      <CreateEvent />
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
@@ -233,6 +236,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
           <ModalCloseButton zIndex={1}/>
           <ModalBody pb={6}>
             <Flex flexDirection={"column"}>
+            <SlideIcons setIcon={setIcon}/>
               <Event
                 eventName={event}
                 setValue={setEvent}
