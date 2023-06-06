@@ -114,6 +114,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const context = useContext(AppContext);
   const [error, setError] = useState(true);
   const [icon, setIcon] = useState({});
+  const iconRef = useRef(null)
   const accessToken = context.accessToken;
   const toastFun = context.addToast;
   const cookies = new Cookies();
@@ -123,11 +124,13 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const finalRef = useRef(null);
   function eventCreate() {
     console.log("CALED", icon);
+    const iconName = icon.name
     customAxios
       .post("/api/event/event-create/", {
         name: event,
         money: money,
         character: slug,
+        icon:iconName
       })
       .then((res) => {
         // friend.sum += res.data.money;
@@ -196,7 +199,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         fontWeight="bold"
         fontSize={{base:'2rem',md:"3rem"}}
       >
-        Create an First Event
+        Create a First Event
       </Text>
       <Box boxShadow="xl" border={'solid #cf5701'} w={"100%"} h={400} position="relative">
         <Image

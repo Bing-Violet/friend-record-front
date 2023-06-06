@@ -30,7 +30,7 @@ import {
   IconButton,
   StackDivider,
   CloseButton,
-  FormErrorMessage
+  FormErrorMessage,
 } from "@chakra-ui/react";
 
 import {
@@ -59,13 +59,14 @@ import { useDisclosure } from "@chakra-ui/react";
 import EventCreate from "@/components/eventCreate";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import { BsThreeDotsVertical, BsCheck2Square } from "react-icons/bs";
-import { CiEdit } from "react-icons/ci";
 import {
   RiCreativeCommonsZeroLine,
   RiSettings4Line,
   RiEdit2Line,
 } from "react-icons/ri";
 import AppContext from "@/components/globalContext";
+import { eventIcons } from "@/components/events/icons";
+import SlideIcons from "@/components/events/slideIcons";
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -77,19 +78,19 @@ function EditableField({ friend, func }) {
     setEditedName(event.target.value), console.log(editedName);
   };
   function editFunc() {
-    if(friend.name===editedName||!editedName) {
+    if (friend.name === editedName || !editedName) {
       setEditIsOpen(!editIsOpen);
     } else {
-      func({name:editedName, id:friend.id})
-      friend.name = editedName
+      func({ name: editedName, id: friend.id });
+      friend.name = editedName;
       setEditIsOpen(!editIsOpen);
     }
   }
   const editOrCheckIcon = editIsOpen ? (
     <BsCheck2Square
-      color={friend.name===editedName||!editedName?"#ef7a67":"#00b01a"}
+      color={friend.name === editedName || !editedName ? "#ef7a67" : "#00b01a"}
       onClick={() => {
-        editFunc()
+        editFunc();
       }}
     />
   ) : (
@@ -106,17 +107,17 @@ function EditableField({ friend, func }) {
     console.log("CHANGE");
     markup = (
       <>
-      <FormControl isInvalid={!editedName}>
-      <Input
-          value={editedName}
-          onChange={handleChange}
-          isInvalid={!editedName}
-          placeholder="Must not be empty!"
-          _placeholder={{'color':'red'}}
-          focusBorderColor={editedName?'':'red.300'}
-          size="sm"
-        />
-      </FormControl>
+        <FormControl isInvalid={!editedName}>
+          <Input
+            value={editedName}
+            onChange={handleChange}
+            isInvalid={!editedName}
+            placeholder="Must not be empty!"
+            _placeholder={{ color: "red" }}
+            focusBorderColor={editedName ? "" : "red.300"}
+            size="sm"
+          />
+        </FormControl>
 
         {editOrCheckIcon}
       </>
@@ -144,7 +145,6 @@ export default function FriendDetail() {
   const toastFun = context.addToast;
   useEffect(() => {
     if (context.user && router.query.slug) {
-      console.log("event", context.friends, router.query.slug);
       if (!context.friends.length) {
         getFriend();
       } else {
@@ -167,11 +167,11 @@ export default function FriendDetail() {
       })
       .catch((e) => {});
   }
-  function friendNameEdit({...props}) {
-    console.log(props)
+  function friendNameEdit({ ...props }) {
+    console.log(props);
     customAxios
       .patch(`/api/character/character-detail/${props.id}`, {
-        name: props.name
+        name: props.name,
       })
       .then((res) => {
         console.log("THEM IN EDDIT", res.data);
@@ -256,20 +256,6 @@ export default function FriendDetail() {
         </Box>
       );
     }
-    // const [editIsOpen, setEditIsOpen] = useState(false);
-    // let editOrCheckIcon = editIsOpen ? (
-    //   <BsCheck2Square color={'#ef7a67'} onClick={() => {
-    //     setEditIsOpen(!editIsOpen);
-    //   }}/>
-    // ) : (
-    //   <RiEdit2Line
-    //   color={'#00b01a'}
-    //     onClick={() => {
-    //       setEditIsOpen(!editIsOpen);
-    //     }}
-    //     ml={"0.3rem"}
-    //   />
-    // );
     return (
       <>
         {Object.keys(friend).length ? (
@@ -297,7 +283,10 @@ export default function FriendDetail() {
                         <Text mr={"0.3rem"}>Name :</Text>
                         <Box w={"50%%"} h={"100%"}>
                           <Flex alignItems={"center"} position={"absolute"}>
-                            <EditableField friend={friend} func={friendNameEdit} />
+                            <EditableField
+                              friend={friend}
+                              func={friendNameEdit}
+                            />
                           </Flex>
                         </Box>
                       </Flex>
@@ -336,6 +325,13 @@ export default function FriendDetail() {
   function EventList() {
     const listRef = useRef();
     const [maxH, setMaxH] = useState(0);
+    const props = () => {
+      return {
+        w: "50px",
+        h: "50px",
+        fontSize: "3rem",
+      };
+    };
     useEffect(() => {
       console.log("USE_effect in detail");
       if (typeof window !== "undefined") {
@@ -353,6 +349,12 @@ export default function FriendDetail() {
       } else {
         return "#ffffe0";
       }
+    }
+    function getIcons(iconName) {
+      return eventIcons.find((e) => e().name === iconName)(props()).icon;
+    }
+    function getIconsObj(iconName) {
+      return eventIcons.find((e) => e().name === iconName);
     }
     return (
       <Box
@@ -374,9 +376,34 @@ export default function FriendDetail() {
                 minW={"100%"}
                 bg={colorHandler(e.money)}
               >
-                <EditPopover eventName={e.name} money={e.money} id={e.id} />
+                <Flex position={"absolute"} right={0}>
+                  <DeletePopover id={e.id} eventName={e.name} />
+                  <EditPopover
+                    eventName={e.name}
+                    money={e.money}
+                    id={e.id}
+                    defaultIcon={getIconsObj(e.icon)}
+                  />
+                </Flex>
                 <CardBody>
                   <Flex alignItems={"center"}>
+                    <Box mr={"0.5rem"}>
+                      {e.icon ? (
+                        <Flex
+                          border={"solid #818181"}
+                          borderRadius={"20px"}
+                          p={"0.4rem"}
+                          boxShadow='2xl'
+                          justifyContent={"center"}
+                          bg={'#ffffffbf'}
+                          alignItems={"center"}
+                        >
+                          {getIcons(e.icon)}
+                        </Flex>
+                      ) : (
+                        <Avatar size="md" />
+                      )}
+                    </Box>
                     <VStack align="stretch" color={"gray"}>
                       <Text>Event-Name : {e.name}</Text>
                       <Text>Ammount : ${e.money}</Text>
@@ -384,7 +411,6 @@ export default function FriendDetail() {
                     </VStack>
                   </Flex>
                 </CardBody>
-                <DeletePopover id={e.id} eventName={e.name} />
               </Card>
             ))}
           </>
@@ -493,15 +519,11 @@ export default function FriendDetail() {
         <Popover>
           <PopoverTrigger>
             <Center>
-              <Button
-                variant="outline"
-                colorScheme="red"
-                mt={"-1.2rem"}
-                mb={"0.3rem"}
-                w={"5rem"}
-              >
-                delete
-              </Button>
+              <CloseButton
+                color={"#ff7373"}
+                size="md"
+                _hover={{ bg: "none" }}
+              />
             </Center>
           </PopoverTrigger>
           <Portal>
@@ -537,7 +559,7 @@ export default function FriendDetail() {
     );
   }
 
-  function EditPopover({ eventName, money, id }) {
+  function EditPopover({ eventName, money, id, defaultIcon }) {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const firstFieldRef = useRef(null);
     const TextInput = forwardRef((props, ref) => {
@@ -553,7 +575,15 @@ export default function FriendDetail() {
       const [editedEventName, setEditedEventName] = useState("");
       const [editedMoney, setEditedMoney] = useState("default");
       const [isDisabled, setIsDisabled] = useState(true);
-
+      const [icon, setIcon] = useState({});
+      useEffect(() => {
+        if(typeof icon !== 'undefined'&&Object.keys(icon).length) {
+          console.log("CH",defaultIcon().name,icon.name)
+          if(defaultIcon().name!==icon.name) {
+            setIsDisabled(false);
+          } 
+        }
+      },[icon])
       const eventHandleChange = (event) => {
         setEditedEventName(event.target.value), setIsDisabled(false);
       };
@@ -561,10 +591,13 @@ export default function FriendDetail() {
         setEditedMoney(event), setIsDisabled(false);
       };
       function saveFunc() {
+        console.log("IC", icon);
+        const iconName = icon.name;
         customAxios
           .patch(`/api/event/event-detail/${id}`, {
             name: !editedEventName ? eventName : editedEventName,
             money: editedMoney !== "default" ? editedMoney : money,
+            icon: iconName,
           })
           .then((res) => {
             const updatedName = !editedEventName ? eventName : editedEventName;
@@ -576,6 +609,7 @@ export default function FriendDetail() {
               if (e.id === id) {
                 (e.name = updatedName),
                   (e.money = editedMoney !== "default" ? editedMoney : money);
+                e.icon = iconName;
                 return e;
               } else {
                 return e;
@@ -601,6 +635,7 @@ export default function FriendDetail() {
       }
       return (
         <Stack spacing={4}>
+          <SlideIcons setIcon={setIcon} defaultIcon={defaultIcon} />
           <TextInput
             label="Event name"
             id="first-name"
@@ -638,7 +673,7 @@ export default function FriendDetail() {
     };
 
     return (
-      <Box position={"absolute"} right={"0"}>
+      <>
         <Popover
           isOpen={isOpen}
           initialFocusRef={firstFieldRef}
@@ -649,13 +684,15 @@ export default function FriendDetail() {
           isLazy
         >
           <PopoverTrigger>
-            <IconButton
-              color={"gray"}
-              bg={"none"}
-              size="md"
-              _hover={{ bg: "none", color: "darkgray" }}
-              icon={<RiSettings4Line />}
-            />
+            <Box mt={"0.5rem"} mr={"0.5rem"}>
+              <RiSettings4Line
+                cursor={"pointer"}
+                color={"gray"}
+                bg={"none"}
+                m={0}
+                _hover={{ bg: "none", color: "darkgray" }}
+              />
+            </Box>
           </PopoverTrigger>
           <PopoverContent p={5}>
             <FocusLock returnFocus persistentFocus={false}>
@@ -665,7 +702,7 @@ export default function FriendDetail() {
             </FocusLock>
           </PopoverContent>
         </Popover>
-      </Box>
+      </>
     );
   }
   return (

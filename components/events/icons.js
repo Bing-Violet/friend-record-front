@@ -7,6 +7,7 @@ import { IoRestaurantOutline, IoBeerSharp } from "react-icons/io5";
 import { RiCake2Fill } from "react-icons/ri";
 import { BiMoviePlay } from "react-icons/bi";
 import { GiCog } from "react-icons/gi";
+const defaultColor = "red"
 const eventIcons = [
   (props) => {
     const color = 'red'
