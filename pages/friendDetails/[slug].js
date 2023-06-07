@@ -6,6 +6,7 @@ import {
   useContext,
   useMemo,
 } from "react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import Cookies from "universal-cookie";
 import axios from "axios";
@@ -64,10 +65,14 @@ import {
   RiSettings4Line,
   RiEdit2Line,
 } from "react-icons/ri";
+import { BiEdit } from "react-icons/bi";
 import AppContext from "@/components/globalContext";
-import { eventIcons } from "@/components/events/icons";
-import SlideIcons from "@/components/events/slideIcons";
+import { eventIcons } from "@/components/iconsSlides/icons";
+import SlideIcons from "@/components/iconsSlides/slideIcons";
 import CustomSpinner from "@/components/spinner";
+import { getAvaterObj } from "@/components/iconsSlides/avatars";
+import { avatars } from "@/components/iconsSlides/avatars";
+
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -145,15 +150,17 @@ export default function FriendDetail() {
   const [slug, setSlug] = useState("");
   const toastFun = context.addToast;
   useEffect(() => {
-    console.log("EFECT IN",context)
     if (context.user && router.query.slug && context) {
-      console.log('user,slug')
+      console.log("user,slug");
       if (!context.friends.length) {
         const asyncGetFriend = async () => {
-          context.setIsLoading(true)
-          await getFriend().then(() =>context.setIsLoading(false), console.log("DONE"))
-        }
-        asyncGetFriend()
+          context.setIsLoading(true);
+          await getFriend().then(
+            () => context.setIsLoading(false),
+            console.log("DONE")
+          );
+        };
+        asyncGetFriend();
       } else {
         const f = context.friends.find((f) => f.id == router.query.slug);
         setFriend(f);
@@ -171,7 +178,7 @@ export default function FriendDetail() {
       .then((res) => {
         setFriend(res.data);
         setEvents(res.data.event);
-        console.log("DONE_FROM_GETFRIEND")
+        console.log("DONE_FROM_GETFRIEND");
       })
       .catch((e) => {});
   }
@@ -251,11 +258,55 @@ export default function FriendDetail() {
       }
     }
     function Header({ children }) {
+      const { onOpen, onClose, isOpen } = useDisclosure();
+      const [avatar, setAvatar] = useState('')
       return (
         <Box w={"100%"} ref={outerRef}>
           <Flex position={"relative"} justifyContent={"center"} w={"100%"}>
             <Box zIndex={1}>
-              <Avatar size="lg" />
+              <Box
+                position={"relative"}
+                w={"70px"}
+                h={"70px"}
+                mr={"1rem"}
+                border={"solid gray"}
+                borderRadius={"50vh"}
+                bg={"#cfcfcf"}
+              >
+                {getAvaterObj(friend.avatar)().icon}
+                <Popover
+                  isOpen={isOpen}
+                  onOpen={onOpen}
+                  onClose={onClose}
+                  placement="right"
+                  closeOnBlur={false}
+                >
+                  <PopoverTrigger zIndex={90}>
+                    <Box
+                      as={BiEdit}
+                      position={"absolute"}
+                      right={-2}
+                      bottom={0}
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent p={5}>
+                      <PopoverCloseButton />
+                      <SlideIcons iconArray={avatars} setIcon={setAvatar}/>
+                    <ButtonGroup display="flex" justifyContent="flex-end">
+                      <Button variant="outline" onClick={onClose}>
+                        Cancel
+                      </Button>
+                      <Button
+                        // isDisabled={isDisabled}
+                        // onClick={saveFunc}
+                        colorScheme="teal"
+                      >
+                        Save
+                      </Button>
+                    </ButtonGroup>
+                  </PopoverContent>
+                </Popover>
+              </Box>
             </Box>
             <Box w={"100%"} position={"absolute"} top={"50%"} ref={innerRef}>
               {children}
@@ -323,8 +374,7 @@ export default function FriendDetail() {
             </Card>
           </Header>
         ) : (
-          <>
-          </>
+          <></>
         )}
       </>
     );
@@ -397,9 +447,9 @@ export default function FriendDetail() {
                           border={"solid #818181"}
                           borderRadius={"20px"}
                           p={"0.4rem"}
-                          boxShadow='2xl'
+                          boxShadow="2xl"
                           justifyContent={"center"}
-                          bg={'#ffffffbf'}
+                          bg={"#ffffffbf"}
                           alignItems={"center"}
                         >
                           {getIcons(e.icon)}
@@ -454,12 +504,12 @@ export default function FriendDetail() {
     }
     return (
       <>
-        <Popover>
-          <PopoverTrigger>
-            <Flex as={Flex} justifyContent={"flex-end"}>
+        <Popover placement="left">
+          <Flex as={Flex} justifyContent={"flex-end"}>
+            <PopoverTrigger>
               <CloseButton color={"#ff7373"} size="md" />
-            </Flex>
-          </PopoverTrigger>
+            </PopoverTrigger>
+          </Flex>
           <Portal>
             <PopoverContent
               bg="gray"
@@ -581,13 +631,13 @@ export default function FriendDetail() {
       const [isDisabled, setIsDisabled] = useState(true);
       const [icon, setIcon] = useState({});
       useEffect(() => {
-        if(typeof icon !== 'undefined'&&Object.keys(icon).length) {
-          console.log("CH",defaultIcon().name,icon.name)
-          if(defaultIcon().name!==icon.name) {
+        if (typeof icon !== "undefined" && Object.keys(icon).length) {
+          console.log("CH", defaultIcon().name, icon.name);
+          if (defaultIcon().name !== icon.name) {
             setIsDisabled(false);
-          } 
+          }
         }
-      },[icon])
+      }, [icon]);
       const eventHandleChange = (event) => {
         setEditedEventName(event.target.value), setIsDisabled(false);
       };
@@ -639,22 +689,27 @@ export default function FriendDetail() {
       }
       return (
         <Stack spacing={4}>
-          <SlideIcons setIcon={setIcon} defaultIcon={defaultIcon} />
+          <SlideIcons
+            iconArray={eventIcons}
+            setIcon={setIcon}
+            defaultIcon={defaultIcon}
+          />
           <TextInput
-            label="Event name"
+            // label="Event name"
             id="first-name"
             ref={firstFieldRef}
             defaultValue={eventName}
             onChange={eventHandleChange}
           />
-          <Box>Money</Box>
+          {/* <Text>Money</Text> */}
           <NumberInput
             size="md"
             maxW={40}
+            m={0}
             onChange={moneyHandleChange}
             defaultValue={money}
           >
-            <NumberInputField />
+            <NumberInputField top={0} />
             <NumberInputStepper>
               <NumberIncrementStepper />
               <NumberDecrementStepper />
@@ -709,24 +764,29 @@ export default function FriendDetail() {
       </>
     );
   }
-let markup = (
-  <Center width={"100%"}>
-          <Flex w={"100%"} alignItems={"center"} flexDirection={"column"}>
-            <FriendInfo />
-            <EventCreate
-              slug={router.query.slug}
-              friend={friend}
-              events={events}
-              setEvents={setEvents}
-            />
-            <EventList />
-          </Flex>
-        </Center>
-)
+
+  let markup = (
+    <Center width={"100%"}>
+      <Flex w={"100%"} alignItems={"center"} flexDirection={"column"}>
+        <FriendInfo />
+        <EventCreate
+          slug={router.query.slug}
+          friend={friend}
+          events={events}
+          setEvents={setEvents}
+        />
+        <EventList />
+      </Flex>
+    </Center>
+  );
 
   return (
     <>
-      {!context.isLoading&&Object.keys(friend).length?(<>{markup}</>):(<CustomSpinner/>)}
+      {!context.isLoading && Object.keys(friend).length ? (
+        <>{markup}</>
+      ) : (
+        <CustomSpinner />
+      )}
     </>
   );
 }

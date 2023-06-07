@@ -10,30 +10,36 @@ import {
 import { useEffect, useState, useRef, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { wrap } from "popmotion";
-import { eventIcons } from "./icons";
 
-function SlideItems({ setIcon, imageIndex, setSelectedIcon, props }) {
-  const [array, setArray] = useState([]);
-  const [mounted, setMounted] = useState(false);
+function SlideItems({
+  iconArray,
+  setIcon,
+  eachSlideWidth,
+  setSelectedIcon,
+  props,
+}) {
+  // const [array, setArray] = useState([]);
+  // const [mounted, setMounted] = useState(false);
   const clickAction = (icon) => {
-    console.log("FROM CLICK ACTION")
-    setIcon(icon)
-    setSelectedIcon(icon)
-  }
+    setIcon(icon);
+    setSelectedIcon(icon);
+  };
   let markup;
-  if (eventIcons.length) {
-    console.log("EV", imageIndex);
+  if (iconArray.length) {
     markup = (
-      <Flex>
-        {eventIcons.map((file, index) => {
+      <Flex >
+        {iconArray.map((file, index) => {
           return (
             <Box
+              h={eachSlideWidth + "px"}
+              w={eachSlideWidth + "px"}
               key={index}
+              borderRadius={'15px'}
               _hover={{ bg: "#ececec" }}
-              transition={'.3s'}
+              transition={".3s"}
               position="relative"
               onClick={() => {
-               clickAction(file);
+                clickAction(file);
               }}
             >
               {file(props).icon}
@@ -45,16 +51,14 @@ function SlideItems({ setIcon, imageIndex, setSelectedIcon, props }) {
   }
   return <>{markup}</>;
 }
-function Slide({ setIcon, eachSlideWidth, setSelectedIcon, props }) {
-  const shadowColor = useColorModeValue("white", "rgb(26,32,44)");
-  // const AllowColorScheme = useColorModeValue("pink", "red");
+function Slide({ iconArray, setIcon, eachSlideWidth, setSelectedIcon, props }) {
   const [[page, direction], setPage] = useState([0, 0]);
-  const imageIndex = wrap(0, eventIcons.length, page);
+  const imageIndex = wrap(0, iconArray.length, page);
   const [animateWidth, setAnimateWidth] = useState(0);
   const [edge, setEdge] = useState(false);
   const [edgeAnime, setEdgeAnime] = useState(0);
   const paginate = (newDirection) => {
-    const stopLength = eventIcons.length - 3;
+    const stopLength = iconArray.length - 3;
     if (stopLength === imageIndex) {
       if (newDirection === -1) {
         setEdge(false);
@@ -88,7 +92,7 @@ function Slide({ setIcon, eachSlideWidth, setSelectedIcon, props }) {
     setPage([page + newDirection, newDirection]);
   };
   let markup;
-  if (eventIcons.length) {
+  if (iconArray.length) {
     markup = (
       <Flex
         // w={{ base: "100vw", lg: "80vw" }}
@@ -136,12 +140,10 @@ function Slide({ setIcon, eachSlideWidth, setSelectedIcon, props }) {
           >
             <motion.div animate={{ x: animateWidth }}>
               <SlideItems
-              setIcon={setIcon}
-                eachSlideWidth={eachSlideWidth}
-                page={page}
+                iconArray={iconArray}
+                setIcon={setIcon}
                 props={props}
-                direction={direction}
-                imageIndex={imageIndex}
+                eachSlideWidth={eachSlideWidth}
                 setSelectedIcon={setSelectedIcon}
               />
             </motion.div>
@@ -165,9 +167,7 @@ function Slide({ setIcon, eachSlideWidth, setSelectedIcon, props }) {
           _hover={{ bg: "rgba(0,0,0,.7)" }}
           onClick={() => (edge ? "" : paginate(1))}
         >
-          <Box >
-          {"❯"}
-          </Box>
+          <Box>{"❯"}</Box>
         </Flex>
       </Flex>
     );
@@ -176,7 +176,6 @@ function Slide({ setIcon, eachSlideWidth, setSelectedIcon, props }) {
 }
 
 function SlectedIcon({ selectedIcon }) {
-  console.log("FROM S_ICON");
   return (
     <>
       <Flex fontSize={"2rem"} mr={"1rem"} alignItems={"center"}>
@@ -187,6 +186,7 @@ function SlectedIcon({ selectedIcon }) {
           borderRadius={"50vh"}
           justifyContent={"center"}
           alignItems={"center"}
+          position={'relative'}
         >
           {selectedIcon.icon}
         </Flex>
@@ -195,35 +195,32 @@ function SlectedIcon({ selectedIcon }) {
   );
 }
 
-export default function SlideIcons({ icons, setIcon, defaultIcon }) {
+export default function SlideIcons({ iconArray, setIcon, defaultIcon }) {
   const [selectedIcon, setSelectedIcon] = useState("");
   const [eachSlideWidth, setEachSlideWidth] = useState(56);
   const props = {
-    // h: eachSlideWidth,
-    // w: eachSlideWidth,
+    h: eachSlideWidth,
+    w: eachSlideWidth,
     fontSize: eachSlideWidth,
   };
   useEffect(() => {
-    console.log('EFFE',typeof defaultIcon)
-    if(typeof defaultIcon !== 'undefined') {
-      console.log("NOT UNB")
-      setIcon(defaultIcon())
-      setSelectedIcon(() => defaultIcon())
+    if (typeof defaultIcon !== "undefined") {
+      setIcon(defaultIcon());
+      setSelectedIcon(() => defaultIcon());
     } else {
-      setSelectedIcon(() => eventIcons[0]())
-      setIcon(eventIcons[0]())
+      setSelectedIcon(() => iconArray[0]());
+      setIcon(() => iconArray[0]());
     }
-  },[])
+  }, []);
   return (
     <>
-    <Text fontWeight={500}>Icon</Text>
       <Flex w={"100%"} h={"100%"} alignItems={"center"} className={"out"}>
         <SlectedIcon selectedIcon={selectedIcon} />
 
         <Slide
-        setIcon={setIcon}
+          iconArray={iconArray}
+          setIcon={setIcon}
           eachSlideWidth={eachSlideWidth}
-          fileArray={eventIcons}
           props={props}
           setSelectedIcon={setSelectedIcon}
         />

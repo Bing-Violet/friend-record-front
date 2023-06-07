@@ -44,7 +44,9 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import AppContext from "./globalContext";
-import SlideIcons from "./events/slideIcons";
+import SlideIcons from "./iconsSlides/slideIcons";
+import { eventIcons } from "./iconsSlides/icons";
+import { avatars } from "./iconsSlides/avatars";
 
 
 function Money({ money, setValue, error, setError }) {
@@ -239,7 +241,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
           <ModalCloseButton zIndex={1}/>
           <ModalBody pb={6}>
             <Flex flexDirection={"column"}>
-            <SlideIcons setIcon={setIcon}/>
+            <SlideIcons iconArray={eventIcons} setIcon={setIcon}/>
               <Event
                 eventName={event}
                 setValue={setEvent}

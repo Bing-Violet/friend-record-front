@@ -10,6 +10,7 @@ import {
   Center,
   Flex,
   Box,
+  Text,
   Input,
   FormControl,
   FormLabel,
@@ -33,7 +34,9 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import AppContext from "./globalContext";
-
+import SlideIcons from "./iconsSlides/slideIcons";
+import { avatars } from "./iconsSlides/avatars";
+import { eventIcons } from "./iconsSlides/icons";
 export default function FriendCreate({ User, toastFun }) {
   const context = useContext(AppContext);
   const [error, setError] = useState(true);
@@ -52,7 +55,7 @@ export default function FriendCreate({ User, toastFun }) {
     const Form = ({ firstFieldRef, onCancel }) => {
       const [friendName, setFriendName] = useState("");
       const [isDisabled, setIsDisabled] = useState(true);
-
+      const [avatar, setAvatar] = useState('');
       const eventHandleChange = (event) => {
         setFriendName(event.target.value), setIsDisabled(false);
       };
@@ -66,10 +69,13 @@ export default function FriendCreate({ User, toastFun }) {
       }
       function friendCreate() {
         if (context.user) {
+          console.log('chakava',avatar)
+          const avatarName = avatar.name
           customAxios
             .post("/api/character/character-create/", {
               name: friendName,
               user: context.user.UID,
+              avatar: avatarName
             })
             .then((res) => {
               let newArray = context.friends.slice();
@@ -96,6 +102,7 @@ export default function FriendCreate({ User, toastFun }) {
       }
       return (
         <Stack spacing={4}>
+          <SlideIcons iconArray={avatars} setIcon={setAvatar}/>
           <TextInput
             label="Friend Name"
             id="first-name"
