@@ -4,23 +4,16 @@ import {
   useRef,
   forwardRef,
   useContext,
-  useMemo,
 } from "react";
-import Image from "next/legacy/image";
 import { useRouter } from "next/router";
 import Cookies from "universal-cookie";
-import axios from "axios";
 import { customAxios } from "@/components/customAxios";
 import {
   Button,
   ButtonGroup,
-  Wrap,
-  WrapItem,
   Center,
   VStack,
   Flex,
-  Spinner,
-  Avatar,
   Text,
   Box,
   Stack,
@@ -28,10 +21,8 @@ import {
   FormControl,
   FormLabel,
   Input,
-  IconButton,
   StackDivider,
   CloseButton,
-  FormErrorMessage,
 } from "@chakra-ui/react";
 
 import {
@@ -58,20 +49,17 @@ import {
 import { useDisclosure } from "@chakra-ui/react";
 
 import EventCreate from "@/components/eventCreate";
-import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
-import { BsThreeDotsVertical, BsCheck2Square } from "react-icons/bs";
+import { Card, CardBody } from "@chakra-ui/react";
+import { BsCheck2Square } from "react-icons/bs";
 import {
-  RiCreativeCommonsZeroLine,
   RiSettings4Line,
   RiEdit2Line,
 } from "react-icons/ri";
-import { BiEdit } from "react-icons/bi";
 import AppContext from "@/components/globalContext";
-import { eventIcons } from "@/components/iconsSlides/icons";
+import { eventIcons, getIconObj } from "@/components/iconsSlides/icons";
 import SlideIcons from "@/components/iconsSlides/slideIcons";
 import CustomSpinner from "@/components/spinner";
-import { getAvaterObj } from "@/components/iconsSlides/avatars";
-import { avatars } from "@/components/iconsSlides/avatars";
+import { avatars, getAvaterObj } from "@/components/iconsSlides/avatars";
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -80,7 +68,7 @@ function EditableField({ friend, func }) {
     setEditedName(friend.name);
   }, [editIsOpen]);
   const handleChange = (event) => {
-    setEditedName(event.target.value), console.log(editedName);
+    setEditedName(event.target.value);
   };
   function editFunc() {
     if (friend.name === editedName || !editedName) {
@@ -109,7 +97,6 @@ function EditableField({ friend, func }) {
   );
   let markup;
   if (editIsOpen) {
-    console.log("CHANGE");
     markup = (
       <>
         <FormControl isInvalid={!editedName}>
@@ -128,7 +115,6 @@ function EditableField({ friend, func }) {
       </>
     );
   } else {
-    console.log("ELSE");
     markup = (
       <>
         {friend.name}
@@ -150,13 +136,11 @@ export default function FriendDetail() {
   const toastFun = context.addToast;
   useEffect(() => {
     if (context.user && router.query.slug && context) {
-      console.log("user,slug");
       if (!context.friends.length) {
         const asyncGetFriend = async () => {
           context.setIsLoading(true);
           await getFriend().then(
             () => context.setIsLoading(false),
-            console.log("DONE")
           );
         };
         asyncGetFriend();
@@ -177,7 +161,6 @@ export default function FriendDetail() {
       .then((res) => {
         setFriend(res.data);
         setEvents(res.data.event);
-        console.log("DONE_FROM_GETFRIEND");
       })
       .catch((e) => {});
   }
@@ -187,12 +170,10 @@ export default function FriendDetail() {
     customAxios
       .patch(`/api/character/character-detail/${id}`, props)
       .then((res) => {
-        console.log("THEM IN EDDIT", res.data);
         const newEvents = context.friends.map((e) => {
           if (e.id === id) {
-            console.log('KO',res.data, e)
-            e = res.data
-            friend.avatar = props.avatar?props.avatar:friend.avatar
+            e = res.data;
+            friend.avatar = props.avatar ? props.avatar : friend.avatar;
             return e;
           } else {
             return e;
@@ -206,7 +187,6 @@ export default function FriendDetail() {
         });
       })
       .catch((e) => {
-        console.log(e);
         toastFun({
           title: "Failed!",
           description: `Something bad happened. Please try later!`,
@@ -241,12 +221,10 @@ export default function FriendDetail() {
     }, [innerRef.current]);
     function amountCalculation(eventList, sub) {
       // eventList is array, sub will be paied or bePaied
-      console.log(sub !== "paied");
       const acceptedSubs = ["paied", "bePaied"];
       let paied = 0;
       let bePaied = 0;
       eventList.forEach((e) => {
-        console.log(e);
         const money = Number(e.money);
         paied += money > 0 ? money : 0;
         bePaied += money < 0 ? money : 0;
@@ -318,7 +296,9 @@ export default function FriendDetail() {
                       </Button>
                       <Button
                         isDisabled={isDisabled}
-                        onClick={()=>friendNameEdit({avatar:avatar.name, id:friend.id})}
+                        onClick={() =>
+                          friendNameEdit({ avatar: avatar.name, id: friend.id })
+                        }
                         colorScheme="teal"
                       >
                         Save
@@ -424,12 +404,6 @@ export default function FriendDetail() {
         return "#ffffe0";
       }
     }
-    function getIcons(iconName) {
-      return eventIcons.find((e) => e().name === iconName)(props()).icon;
-    }
-    function getIconsObj(iconName) {
-      return eventIcons.find((e) => e().name === iconName);
-    }
     return (
       <Box
         w={"99%"}
@@ -456,31 +430,29 @@ export default function FriendDetail() {
                     eventName={e.name}
                     money={e.money}
                     id={e.id}
-                    defaultIcon={getIconsObj(e.icon)}
+                    defaultIcon={getIconObj(e.icon)}
                   />
                 </Flex>
                 <CardBody>
                   <Flex alignItems={"center"}>
-                    <Box mr={"0.5rem"}>
-                      {e.icon ? (
-                        <Flex
-                          border={"solid #818181"}
-                          borderRadius={"20px"}
-                          p={"0.4rem"}
-                          boxShadow="2xl"
-                          justifyContent={"center"}
-                          bg={"#ffffffbf"}
-                          alignItems={"center"}
-                        >
-                          {getIcons(e.icon)}
-                        </Flex>
-                      ) : (
-                        <Avatar size="md" />
-                      )}
-                    </Box>
+                    <Flex
+                      w={"50px"}
+                      h={"50px"}
+                      position={"relative"}
+                      border={"solid #818181"}
+                      borderRadius={"20px"}
+                      boxShadow="2xl"
+                      mr={'0.5rem'}
+                      justifyContent={"center"}
+                      bg={"#ffffffbf"}
+                      alignItems={"center"}
+                    >
+                      {getIconObj(e.icon)().icon}
+                    </Flex>
+
                     <VStack align="stretch" color={"gray"}>
                       <Text>Event-Name : {e.name}</Text>
-                      <Text>Ammount : ${e.money}</Text>
+                      <Text>Amount : ${e.money}</Text>
                       <Text>Created : {dateConvert(e.created_on)}</Text>
                     </VStack>
                   </Flex>
@@ -514,7 +486,6 @@ export default function FriendDetail() {
           });
         })
         .catch((e) => {
-          console.log("Error", e);
           toastFun({
             title: "Failed!",
             description: `Something bad happened. Please try later!`,
@@ -652,7 +623,6 @@ export default function FriendDetail() {
       const [icon, setIcon] = useState({});
       useEffect(() => {
         if (typeof icon !== "undefined" && Object.keys(icon).length) {
-          console.log("CH", defaultIcon().name, icon.name);
           if (defaultIcon().name !== icon.name) {
             setIsDisabled(false);
           }
@@ -665,7 +635,6 @@ export default function FriendDetail() {
         setEditedMoney(event), setIsDisabled(false);
       };
       function saveFunc() {
-        console.log("IC", icon);
         const iconName = icon.name;
         customAxios
           .patch(`/api/event/event-detail/${id}`, {
@@ -698,8 +667,6 @@ export default function FriendDetail() {
             onCancel();
           })
           .catch((e) => {
-            console.log("ERROR", e);
-            // context.getAccessTokenFromRefreshToken(e, saveFunc)
             toastFun({
               title: "Failed!",
               description: `Something bad happened. Please try later!`,
