@@ -126,7 +126,6 @@ function EditableField({ friend, func }) {
 }
 
 export default function FriendDetail() {
-  const cookies = new Cookies();
   const router = useRouter();
   const context = useContext(AppContext);
   const [friend, setFriend] = useState("");
@@ -753,7 +752,7 @@ export default function FriendDetail() {
   }
 
   let markup = (
-    <Center width={"100%"}>
+    <Center width={"100%"} overflow={'hidden'}>
       <Flex w={"100%"} alignItems={"center"} flexDirection={"column"}>
         <FriendInfo />
         <EventCreate

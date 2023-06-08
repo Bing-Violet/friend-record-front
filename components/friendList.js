@@ -164,13 +164,16 @@ export default function FriendList({ User, toastFun }) {
   }
   function DateAlert({ date }) {
     return (
-      <Box w={"100%"} color={"red.500"} position={"absolute"} t={"0"} r={"0"}>
+      <Flex w={"100%"} color={"red.500"} position={"absolute"} justifyContent={'flex-end'}>
         {dateCalculation(date) >= 30 ? (
-          <Box textAlign={"left"}>chach up!</Box>
+          <Flex alignItems={'center'} mr={'0.5rem'}>
+            <Image  src={`/svgs/clock.svg`} width={'30px'} height={'30px'}/>
+            <Text fontWeight={'bold'}>Chach up!</Text>
+          </Flex>
         ) : (
           <></>
         )}
-      </Box>
+      </Flex>
     );
   }
   return (

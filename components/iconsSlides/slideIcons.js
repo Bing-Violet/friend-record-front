@@ -182,8 +182,9 @@ function SlectedIcon({ selectedIcon }) {
         <Flex
           w={"50px"}
           h={"50px"}
-          border={"solid #aeaeae"}
-          borderRadius={"50vh"}
+          border={"solid #eeeeee"}
+          borderRadius={"5px"}
+          bg={'#c2bfbfa1'}
           justifyContent={"center"}
           alignItems={"center"}
           position={'relative'}

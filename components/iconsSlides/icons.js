@@ -3,13 +3,13 @@ import Image from "next/legacy/image";
 export const eventSvgArray = [
   "beer.svg",
   "car.svg",
-  "cog.svg",
+  "coffee.svg",
   "heart.svg",
   "movie.svg",
-  "present.svg",
-  "restaurant.svg",
+  "gift.svg",
+  "cutlery.svg",
   "shopping.svg",
-  "tea.svg",
+  "cog.svg",
 ];
 
 const eventIcons = eventSvgArray.map((a) => {
