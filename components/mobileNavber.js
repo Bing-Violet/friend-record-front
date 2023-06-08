@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import AppContext from "./globalContext";
 import Cookies from "universal-cookie";
 import {

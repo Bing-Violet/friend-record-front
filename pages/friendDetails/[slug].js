@@ -6,7 +6,7 @@ import {
   useContext,
   useMemo,
 } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useRouter } from "next/router";
 import Cookies from "universal-cookie";
 import axios from "axios";
@@ -72,7 +72,6 @@ import SlideIcons from "@/components/iconsSlides/slideIcons";
 import CustomSpinner from "@/components/spinner";
 import { getAvaterObj } from "@/components/iconsSlides/avatars";
 import { avatars } from "@/components/iconsSlides/avatars";
-
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -183,16 +182,17 @@ export default function FriendDetail() {
       .catch((e) => {});
   }
   function friendNameEdit({ ...props }) {
-    console.log(props);
+    const id = props.id;
+    delete props.id;
     customAxios
-      .patch(`/api/character/character-detail/${props.id}`, {
-        name: props.name,
-      })
+      .patch(`/api/character/character-detail/${id}`, props)
       .then((res) => {
         console.log("THEM IN EDDIT", res.data);
         const newEvents = context.friends.map((e) => {
-          if (e.id === props.id) {
-            e.name = props.name;
+          if (e.id === id) {
+            console.log('KO',res.data, e)
+            e = res.data
+            friend.avatar = props.avatar?props.avatar:friend.avatar
             return e;
           } else {
             return e;
@@ -200,8 +200,8 @@ export default function FriendDetail() {
         });
         context.setFriends([...newEvents]);
         toastFun({
-          title: "Your event is updated!",
-          description: `Your event ${friend.name} is successfully updated!`,
+          title: "Your friend is updated!",
+          description: `Your friend ${friend.name} is successfully updated!`,
           status: "success",
         });
       })
@@ -259,7 +259,17 @@ export default function FriendDetail() {
     }
     function Header({ children }) {
       const { onOpen, onClose, isOpen } = useDisclosure();
-      const [avatar, setAvatar] = useState('')
+      const [avatar, setAvatar] = useState("");
+      const [isDisabled, setIsDisabled] = useState(true);
+      useEffect(() => {
+        if (avatar) {
+          if (friend.avatar !== avatar.name) {
+            setIsDisabled(false);
+          } else {
+            setIsDisabled(true);
+          }
+        }
+      }, [avatar]);
       return (
         <Box w={"100%"} ref={outerRef}>
           <Flex position={"relative"} justifyContent={"center"} w={"100%"}>
@@ -278,27 +288,37 @@ export default function FriendDetail() {
                   isOpen={isOpen}
                   onOpen={onOpen}
                   onClose={onClose}
-                  placement="right"
                   closeOnBlur={false}
                 >
-                  <PopoverTrigger zIndex={90}>
+                  <PopoverTrigger>
                     <Box
-                      as={BiEdit}
                       position={"absolute"}
-                      right={-2}
+                      right={-6}
                       bottom={0}
-                    />
+                      border={"solid gray"}
+                      borderRadius={"4px"}
+                      p={"0 0.2rem"}
+                      fontSize={"0.5rem"}
+                      transition={".3s"}
+                      _hover={{ bg: "#dadada", color: "gray" }}
+                    >
+                      Edit
+                    </Box>
                   </PopoverTrigger>
                   <PopoverContent p={5}>
-                      <PopoverCloseButton />
-                      <SlideIcons iconArray={avatars} setIcon={setAvatar}/>
+                    <PopoverCloseButton />
+                    <SlideIcons
+                      iconArray={avatars}
+                      setIcon={setAvatar}
+                      defaultIcon={getAvaterObj(friend.avatar)}
+                    />
                     <ButtonGroup display="flex" justifyContent="flex-end">
                       <Button variant="outline" onClick={onClose}>
                         Cancel
                       </Button>
                       <Button
-                        // isDisabled={isDisabled}
-                        // onClick={saveFunc}
+                        isDisabled={isDisabled}
+                        onClick={()=>friendNameEdit({avatar:avatar.name, id:friend.id})}
                         colorScheme="teal"
                       >
                         Save

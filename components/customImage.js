@@ -1,5 +1,5 @@
 import { Flex, Skeleton } from "@chakra-ui/react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useState } from "react";
 export default function CustomImage({ props }) {
   //props contain image props like below

@@ -2,7 +2,7 @@ import axios from "axios";
 import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
 import { useState, useEffect, useContext, useRef } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import {
   Button,
   ButtonGroup,

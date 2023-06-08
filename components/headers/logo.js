@@ -1,5 +1,5 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 // import { GiPlantSeed } from "react-icons/gi";
 import styled from "@emotion/styled";
 import Link from "next/link";
