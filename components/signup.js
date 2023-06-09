@@ -7,12 +7,14 @@ import {
   InputGroup,
   Button,
   IconButton,
+  Text,
   FormControl,
   FormLabel,
   FormErrorMessage,
   FormHelperText,
   InputRightElement,
   VStack,
+  Spinner
 } from "@chakra-ui/react";
 import axios from "axios";
 import Cookies from "universal-cookie";
@@ -89,7 +91,6 @@ function Email({ email, setValue, emailErrorObj, setEmailErrorObj }) {
 
 
 export default function Signup({ setUser }) {
-  console.log("FROM_SIGNUP")
   const context = useContext(AppContext);
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -97,8 +98,15 @@ export default function Signup({ setUser }) {
   const [password, setPassword] = useState("");
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const [isLoading, setIsloading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  // const [passwordFormCheck,setPasswordFormCheck] = useState('')
+  const [sentConfirmation, setSentConfirmation] = useState("");
+  const sendingProcessStates = {
+    NOT_READY: "NOT_READY",
+    SENDIND: "SENDIND",
+    SENT: "SENT",
+  };
+  useEffect(() => {
+    setSentConfirmation(sendingProcessStates.NOT_READY);
+  }, []);
   const [emailErrorObj, setEmailErrorObj] = useState({
     isError: false,
     isEmpty: false,
@@ -119,7 +127,7 @@ export default function Signup({ setUser }) {
     useState(false);
   const cookies = new Cookies();
   function userCreate() {
-    setIsloading(true);
+    setSentConfirmation(sendingProcessStates.SENDIND)
     axios({
       method: "post",
       url: "/api/user/user-create/",
@@ -131,7 +139,7 @@ export default function Signup({ setUser }) {
     })
       .then((res) => {
         setIsloading(false);
-        setEmailSent(true);
+        setSentConfirmation(sendingProcessStates.SENT)
         setUsername("");
         setEmail("");
         setPassword("");
@@ -208,11 +216,14 @@ export default function Signup({ setUser }) {
       </Button>
     );
   }
-  return (
-    <Flex w={"90%"}>
-      {!isLoading ? (
-        <>
-          {!emailSent ? (
+  let markup;
+  if (
+    sentConfirmation !== sendingProcessStates.SENDIND &&
+    sentConfirmation !== sendingProcessStates.SENT
+  ) {
+    markup = (
+      <>
+        <Flex w={"90%"}>
             <FormControl isRequired>
               <VStack spacing={"1rem"}>
                 <Username
@@ -243,15 +254,19 @@ export default function Signup({ setUser }) {
                 <SubmitButton />
               </Center>
             </FormControl>
-          ) : (
-            <>SENT</>
-          )}
-        </>
-      ) : (
-        <>
-          <CustomSpinner />
-        </>
-      )}
+         
+     
     </Flex>
+      </>
+    );
+  } else if(sentConfirmation === sendingProcessStates.SENDIND) {
+    markup = (<><Spinner size='lg' /></>)
+  } else if(sentConfirmation === sendingProcessStates.SENT) {
+    markup = (<><Text fontSize={'1.2rem'} fontWeight={'bold'}>Sent email to your address.</Text></>)
+  }
+  return (
+    <>
+    {markup}
+    </>
   );
 }
