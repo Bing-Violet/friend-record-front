@@ -34,16 +34,14 @@ export default function Account() {
   const [mounted, setMounted] = useState(false);
   const addToast = context.addToast;
   useEffect(() => {
+    console.log("from account effeft")
     if (context) {
       console.log("account", context.user);
-      if (Object.keys(router.query).length) {
-        addToast({
-          title: "Logged in!",
-          description: `You are successfully logged in!`,
-          status: "success",
-        });
+      if (Object.keys(router.query).length&&!mounted) {
+        toastAction(router.query.code)
       }
-      setMounted(true);
+      router.query = ''
+      return setMounted(true);
       // console.log("router", Object.keys(router.query), context.user.UID);
       // axios({
       //   method: "get",
@@ -62,6 +60,17 @@ export default function Account() {
       //   .catch((e) => {});
     }
   }, []);
+  function toastAction(query) {
+    // 'password-change'
+    // 'login'
+    console.log('CH',query)
+    const obj = {
+      title:query==='login'? "Logged in!":"Password changed!",
+      description:query==='login'? "You are successfully logged in!":"Password is successfully changed!",
+      status: "success",
+    }
+    addToast(obj);
+  }
   function CustomField({ icon, header, text }) {
     return (
       <>
@@ -149,7 +158,6 @@ export default function Account() {
               <Stack
                 divider={<StackDivider />}
                 spacing={{ base: "1", md: "4" }}
-                // h={'100%'}
               >
                 <FriendInfo />
                 <UserInfo />

@@ -19,8 +19,8 @@ import MobileNavber from "./mobileNavber";
 export default function Layout({ children, router, pageProps }) {
   const cookies = new Cookies();
   const context = useContext(AppContext);
-  const [user, setUser] = useState(cookies.get("user"));
-  const [description, setDescription] = useState("");
+  const [user, setUser] = useState({});
+  const [rerender, setRerender] = useState("");
   const [url, setUrl] = useState("");
   const [path, setPath] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -28,6 +28,7 @@ export default function Layout({ children, router, pageProps }) {
   useEffect(() => {
     console.log("LAYPIT", document.body.style.background);
     if (typeof window !== "undefined") {
+      setUser(cookies.get("user"))
       document.body.style.overflowX = "hidden";
       document.body.style.overflowY = "hidden";
       document.body.style.maxHeight = "100vh";

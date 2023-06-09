@@ -438,12 +438,12 @@ export default function FriendDetail() {
                       w={"50px"}
                       h={"50px"}
                       position={"relative"}
-                      border={"solid #818181"}
+                      border={"solid #69696B"}
                       borderRadius={"20px"}
                       boxShadow="2xl"
                       mr={'0.5rem'}
                       justifyContent={"center"}
-                      bg={"#ffffffbf"}
+                      bg={"#919191bf"}
                       alignItems={"center"}
                     >
                       {getIconObj(e.icon)().icon}

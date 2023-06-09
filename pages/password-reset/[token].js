@@ -23,6 +23,7 @@ import {
   FormHelperText,
   InputRightElement,
   VStack,
+  Box
 } from "@chakra-ui/react";
 
 
@@ -121,14 +122,14 @@ export default function PasswordReset({ user }) {
     );
   }
   return (
-    <>
+    <Box w={'100%'} mt={'1rem'}>
       <Center>
+      <Flex w={'600px'}  flexDirection={'column'} alignItems={'center'}>
         <Text color={"red"} fontSize={"1.6rem"}>
           Reset your password!
         </Text>
-      </Center>
-      <FormControl isRequired>
-        <VStack spacing={"1rem"}>
+      <FormControl isRequired w={'90%'}>
+        <VStack spacing={"1rem"} >
           <CustomConfPassWithPass
             confirmationPassword={confirmationPassword}
             setConf={setConfirmationPassword}
@@ -144,6 +145,8 @@ export default function PasswordReset({ user }) {
           <SubmitButton />
         </Center>
       </FormControl>
-    </>
+    </Flex>
+      </Center>
+    </Box>
   );
 }

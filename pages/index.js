@@ -29,7 +29,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 
-export default function Home() {
+export default function Home({setRerender}) {
   console.log("FROM_HOME")
   const context = useContext(AppContext);
   const [mounted, setMounted] = useState("");
@@ -47,7 +47,7 @@ export default function Home() {
     const initialRef = useRef(null)
     const finalRef = useRef(null)
     const mainText = buttonAttr==='signup'?'Create your account':'Login your account'
-    const markup = buttonAttr==='signup'?(<Signup />):(<Login />)
+    const markup = buttonAttr==='signup'?(<Signup />):(<Login setRerender={setRerender} />)
     return (
       <>
         <Modal
