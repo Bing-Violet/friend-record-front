@@ -166,7 +166,7 @@ export default function FriendList({ User, toastFun }) {
     return (
       <Flex w={"100%"} color={"red.500"} position={"absolute"} justifyContent={'flex-end'}>
         {dateCalculation(date) >= 30 ? (
-          <Flex alignItems={'center'} mr={'0.5rem'}>
+          <Flex alignItems={'center'} mr={'0.5rem'} borderRadius={'4px'} bg={'#c05e5e4d'} mt={'0.5rem'} pr={'0.5rem'} border={'solid #fa95f6'} >
             <Image  src={`/svgs/clock.svg`} width={'30px'} height={'30px'}/>
             <Text fontWeight={'bold'}>Chach up!</Text>
           </Flex>

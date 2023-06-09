@@ -1,13 +1,17 @@
 import { FiSun, FiMoon } from "react-icons/fi";
 import { Box, useColorMode, useColorModeValue } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
-
+import { useEffect, useState } from "react";
 
 export default function Theme() {
   const { colorMode, toggleColorMode } = useColorMode();
   const bg = useColorModeValue("rgb(255, 235, 197)","purple.500")
   const hover = useColorModeValue({bg:"orange", color:"white"}, {bg:"purple"})
-
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    console.log("theme",mounted)
+    return setMounted(true)
+  },[])
   return (
     <Box
       position="absolute"
@@ -17,12 +21,12 @@ export default function Theme() {
         toggleColorMode();
       }}
     >
-      <AnimatePresence mode={'wait'}>
+      <AnimatePresence mode='wait'>
         <motion.div
-          key={useColorModeValue('light', 'dark')} // animation doesn't work without key. why??
+          key={useColorModeValue(colorMode)} 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -20, opacity: 0 }}
+          exit={{ x: -20, opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
           <Box

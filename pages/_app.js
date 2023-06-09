@@ -20,7 +20,8 @@ const breakpoints = {
   md: "600px",
   // lg: "750px",
   xl: "1025px",
-  "2xl": "1800px",
+  "2xl": "1550px",
+  "3xl": "1800px",
 };
 
 const theme = extendTheme({ breakpoints,fonts: {

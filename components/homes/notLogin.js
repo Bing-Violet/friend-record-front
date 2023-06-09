@@ -17,9 +17,7 @@ import Right from "./right";
 function LeftAll({ onOpen, setButtonAttr }) {
   const [innerWidth, setInnerWidth] = useState(0);
   useEffect(() => {
-    console.log("KO");
     if (window !== "undefined") {
-      console.log("NOTUN");
       addEventListener(
         "resize",
         () => setInnerWidth(window.innerWidth),
@@ -48,8 +46,8 @@ function LeftDownImage() {
     <Box
       position={"absolute"}
       bottom="0"
-      w={{ md: 200, xl: 200, "2xl": 350 }}
-      h={{ md: 200, xl: 200, "2xl": 350 }}
+      w={{ md: 200, xl: 300, "2xl": 350 }}
+      h={{ md: 200, xl: 300, "2xl": 350 }}
     >
       <Image
         priority={true}
@@ -66,8 +64,8 @@ function LeftBackground() {
   return (
     <Box
       position={"absolute"}
-      w={{ base: innerWidth, md: 600, xl: 500, "2xl": 900 }}
-      h={{ base: 500, md: 600, xl: 500, "2xl": 900 }}
+      w={{ base: innerWidth, md: 600, xl: 800, "2xl": 900 }}
+      h={{ base: 500, md: 600, xl: 800, "2xl": 900 }}
     >
       <Image
         priority={true}
@@ -83,8 +81,8 @@ export function LeftText({setButtonAttr, onOpen}) {
   return (
     <Box
       position={"relative"}
-      width={{ baee: innerWidth, xl: 500, "2xl": 900 }}
-      h={{ base: 400, md: 600, xl: 500, "2xl": 900 }}
+      width={{ baee: innerWidth, xl: 800, "2xl": 900 }}
+      h={{ base: 400, md: 600, xl: 800, "2xl": 900 }}
     >
       <Flex
         height={"100%"}
@@ -95,7 +93,7 @@ export function LeftText({setButtonAttr, onOpen}) {
       >
         <LeftBackground />
         <Heading
-          fontSize={{ base: "4rem", xl: "5rem", "2xl": "7rem" }}
+          fontSize={{ base: "4rem", xl: "6rem", "2xl": "7rem" }}
           color={"#1166EE"}
         >
           Tally Book
@@ -131,15 +129,11 @@ function Buttons({onOpen,setButtonAttr}) {
             fontSize={{
               base: "1.2rem",
               md: "2rem",
-              xl: "1.5rem",
-              "2xl": "2rem",
             }}
-            width={{ base: "5rem", md: "8rem", xl: "6rem", "2xl": "8rem" }}
+            width={{ base: "5rem", md: "8rem"}}
             height={{
               base: "2.5rem",
               md: "4rem",
-              xl: "3rem",
-              "2xl": "4rem",
             }}
           >
             SignUp
@@ -148,20 +142,22 @@ function Buttons({onOpen,setButtonAttr}) {
             onClick={() => {
               onOpen(), setButtonAttr("login");
             }}
-            background={"#1166EE"}
-            color={"white"}
+            variant='outline'
+            colorScheme='#1166EE'
+            color={"#1166EE"}
+            border='2px'
+            bg={'#f3f3f3'}
+            _hover={{color:'gray',colorScheme:'gray' }}
+            transition={'.3s'}
             fontSize={{
               base: "1.2rem",
               md: "2rem",
-              xl: "1.5rem",
-              "2xl": "2rem",
+              xl: "2rem",
             }}
-            width={{ base: "5rem", md: "8rem", xl: "6rem", "2xl": "8rem" }}
+            width={{ base: "5rem", md: "8rem" }}
             height={{
               base: "2.5rem",
               md: "4rem",
-              xl: "3rem",
-              "2xl": "4rem",
             }}
           >
             Login
@@ -182,11 +178,12 @@ export default function NotLogin({ onOpen, setButtonAttr }) {
     <>
       <Flex
         width={"100vw"}
-        height="calc(100vh - 7rem)"
-        position={"relative"}
+        height={{base:'100vh', }}
+        position={"absolute"}
+        top={0}
       >
         <LeftAll onOpen={onOpen} setButtonAttr={setButtonAttr}/>
-        <Right position={"absolute"} />
+        <Right/>
       </Flex>
     </>
   );
