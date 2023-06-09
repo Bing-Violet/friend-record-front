@@ -146,6 +146,8 @@ export default function Signup({ setUser }) {
         setConfirmationPassword("");
       })
       .catch((e) => {
+        console.log("error",e)
+        setSentConfirmation(sendingProcessStates.NOT_READY)
         if (e.response.data.message === "this email is already in use.") {
           setEmailErrorObj({
             ...passwordErrorObj,
