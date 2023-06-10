@@ -1,9 +1,10 @@
 import { customAxios } from "@/components/customAxios";
 import Cookies from "universal-cookie";
 import { useState, useEffect, useContext, useRef } from "react";
-import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
+import { Card, CardHeader, CardBody, CardFooter,useEditableControls } from "@chakra-ui/react";
 import {
   Button,
+  IconButton,
   ButtonGroup,
   Wrap,
   WrapItem,
@@ -34,6 +35,7 @@ import {
   PopoverAnchor,
   Portal,
 } from "@chakra-ui/react";
+
 import Logout from "@/components/logout";
 import AppContext from "@/components/globalContext";
 import { useRouter } from "next/router";
@@ -42,6 +44,7 @@ import { HiUsers, HiUser, HiMail, HiOutlineLockClosed } from "react-icons/hi";
 import Theme from "@/components/theme";
 import { getAvaterObj, avatars } from "@/components/iconsSlides/avatars";
 import SlideIcons from "@/components/iconsSlides/slideIcons";
+import { EditableInput } from "@/components/customForms/editableInput";
 
 export default function Account() {
   const context = useContext(AppContext);
@@ -88,6 +91,13 @@ export default function Account() {
       })
       .catch((e) => {});
   }
+  const ref = useRef(null)
+  function editUser() {
+    console.log("FROM_EDITUSER", ref);
+    // context.setUser((user) => ({...user, avatar:avatar.name}))
+    // user.avatar = avatar.name
+    
+  }
   function EditIcon() {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [avatar, setAvatar] = useState("");
@@ -103,12 +113,6 @@ export default function Account() {
         }
       }
     }, [avatar]);
-    // function editUser({ ...props }) {
-    //   console.log("FROM_EDITUSER", props, avatar.name);
-    //   context.setUser((user) => ({...user, avatar:avatar.name}))
-    //   user.avatar = avatar.name
-      
-    // }
     return (
       <Box w={"100%"}>
         <Flex position={"relative"} justifyContent={"center"} w={"100%"}>
@@ -129,7 +133,7 @@ export default function Account() {
               ) : (
                 <>{getAvaterObj(user.avatar)().icon}</>
               )}
-              <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+              <Popover  isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
                 <PopoverTrigger>
                   <Box
                     position={"absolute"}
@@ -151,7 +155,7 @@ export default function Account() {
                   <SlideIcons
                     iconArray={avatars}
                     setIcon={setAvatar}
-                    // defaultIcon={getAvaterObj(friend.avatar)}
+                    defaultIcon={getAvaterObj(user.avatar)}
                   />
                   <ButtonGroup display="flex" justifyContent="flex-end">
                     <Button variant="outline" onClick={onClose}>
@@ -176,18 +180,21 @@ export default function Account() {
       </Box>
     );
   }
+  
   function CustomField({ icon, header, text }) {
     return (
       <>
-        <Flex mt={"0.5rem"}>
+        <Flex w={'100%'} mt={"0.5rem"}>
           <Flex alignItems={"center"} justifyContent={"center"} mr={"1rem"}>
             {icon}
           </Flex>
-          <Stack spacing="-8px">
+          <Stack w={'100%'} spacing="-8px">
             <Text fontWeight={"bold"}>{header}</Text>
-            <Text ml={"0.5rem"} color={"gray"}>
+            <Box height={'20px'}>
+            <Text w={'40%'} color={"gray"}position={'absolute'} >
               {text}
             </Text>
+            </Box>
           </Stack>
         </Flex>
       </>
@@ -248,7 +255,8 @@ export default function Account() {
             <CustomField
               icon={<HiUser fontSize={"2rem"} color={"gray"} />}
               header={"USER NAME"}
-              text={user.username}
+              // text={user.username}
+              text={<EditableInput ref={ref} value={user.username} func={editUser}/>}
             />
             <CustomField
               icon={<HiMail fontSize={"2rem"} color={"gray"} />}
@@ -269,7 +277,7 @@ export default function Account() {
     <>
       {mounted ? (
         <>
-          <Card minW={"100%"} h={{ base: "100vh", md: "auto" }}>
+          <Card minW={"100%"} h={{ base: "100vh", md: "auto" }} overflow={'hidden'}>
             <CardBody>
               <Stack
                 divider={<StackDivider />}

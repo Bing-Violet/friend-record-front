@@ -61,6 +61,8 @@ import SlideIcons from "@/components/iconsSlides/slideIcons";
 import CustomSpinner from "@/components/spinner";
 import { avatars, getAvaterObj } from "@/components/iconsSlides/avatars";
 import { dateConvert } from "@/utils";
+import { EditableInput } from "@/components/customForms/editableInput";
+
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -133,6 +135,7 @@ export default function FriendDetail() {
   const [events, setEvents] = useState("");
   const [mounted, setMounted] = useState(false);
   const [slug, setSlug] = useState("");
+  const editableInputRef = useRef(null)
   const toastFun = context.addToast;
   useEffect(() => {
     if (context.user && router.query.slug && context) {
@@ -164,16 +167,16 @@ export default function FriendDetail() {
       })
       .catch((e) => {});
   }
-  function friendNameEdit({ ...props }) {
-    const id = props.id;
-    delete props.id;
+  function friendUpdate({ ...props }) {
+    const id = friend.id
     customAxios
-      .patch(`/api/character/character-detail/${id}`, props)
+      .patch(`/api/character/character-detail/${friend.id}`, props)
       .then((res) => {
         const newEvents = context.friends.map((e) => {
           if (e.id === id) {
             e = res.data;
             friend.avatar = props.avatar ? props.avatar : friend.avatar;
+            friend.name = props.name ? props.name : friend.name;
             return e;
           } else {
             return e;
@@ -218,6 +221,9 @@ export default function FriendDetail() {
       } else {
         throw "sub must be paied or bePaied";
       }
+    }
+    function friendNameUpdate() {
+      friendUpdate({name:editableInputRef.current})
     }
     function Header({ children }) {
       const { onOpen, onClose, isOpen } = useDisclosure();
@@ -280,7 +286,7 @@ export default function FriendDetail() {
                       <Button
                         isDisabled={isDisabled}
                         onClick={() =>
-                          friendNameEdit({ avatar: avatar.name, id: friend.id })
+                          friendUpdate({ avatar: avatar.name})
                         }
                         colorScheme="teal"
                       >
@@ -325,10 +331,11 @@ export default function FriendDetail() {
                         <Text mr={"0.3rem"}>Name :</Text>
                         <Box w={"50%%"} h={"100%"}>
                           <Flex alignItems={"center"} position={"absolute"}>
-                            <EditableField
+                          <EditableInput ref={editableInputRef} value={friend.name} func={friendNameUpdate}/>
+                            {/* <EditableField
                               friend={friend}
-                              func={friendNameEdit}
-                            />
+                              func={friendUpdate}
+                            /> */}
                           </Flex>
                         </Box>
                       </Flex>
