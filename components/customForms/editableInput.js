@@ -49,7 +49,7 @@ export const EditableInput = forwardRef(({ value, func }, ref) => {
       <Flex alignItems={"center"} w={"100%"} position={"relative"}>
         <FormControl isInvalid={!editedValue}>
           <Input
-            // ref={ref}
+          maxLength={20}
             bg={"#ebebeb"}
             border={"solid #f864ea"}
             value={editedValue}

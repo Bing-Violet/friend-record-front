@@ -1,7 +1,13 @@
 import { customAxios } from "@/components/customAxios";
 import Cookies from "universal-cookie";
 import { useState, useEffect, useContext, useRef } from "react";
-import { Card, CardHeader, CardBody, CardFooter,useEditableControls } from "@chakra-ui/react";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  useEditableControls,
+} from "@chakra-ui/react";
 import {
   Button,
   IconButton,
@@ -50,13 +56,14 @@ export default function Account() {
   const context = useContext(AppContext);
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState('')
+  const [user, setUser] = useState("");
   const addToast = context.addToast;
+  const userNameRef = useRef(null);
   useEffect(() => {
     console.log("from account effeft");
     if (context) {
       console.log("account", context.user);
-      setUser(context.user)
+      setUser(context.user);
       if (Object.keys(router.query).length && !mounted) {
         toastAction(router.query.code);
       }
@@ -78,25 +85,30 @@ export default function Account() {
     };
     addToast(obj);
   }
-  async function updateUser({...props}) {
-    const UID = props.UID;
-    delete props.UID;
-    console.log('props',props)
+  async function updateUser({ ...props }) {
+    console.log("props", props);
     customAxios
-      .patch( `/api/user/user-detail/${UID}`, props)
+      .patch(`/api/user/user-detail/${user.UID}`, props)
       .then((res) => {
         setUser(res.data);
-        const cookies = new Cookies()
+        const cookies = new Cookies();
         cookies.set("user", res.data, { path: "/" });
+        addToast({
+          title: "Your account is updated!",
+          description: `Your account ${user.username} is successfully updated!`,
+          status: "success",
+        });
       })
-      .catch((e) => {});
+      .catch((e) => {
+        addToast({
+          title: "Failed!",
+          description: `Something bad happened. Please try later!`,
+          status: "error",
+        });
+      });
   }
-  const ref = useRef(null)
   function editUser() {
-    console.log("FROM_EDITUSER", ref);
-    // context.setUser((user) => ({...user, avatar:avatar.name}))
-    // user.avatar = avatar.name
-    
+    updateUser({ username: userNameRef.current });
   }
   function EditIcon() {
     const { onOpen, onClose, isOpen } = useDisclosure();
@@ -133,7 +145,7 @@ export default function Account() {
               ) : (
                 <>{getAvaterObj(user.avatar)().icon}</>
               )}
-              <Popover  isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+              <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
                 <PopoverTrigger>
                   <Box
                     position={"absolute"}
@@ -164,7 +176,7 @@ export default function Account() {
                     <Button
                       isDisabled={isDisabled}
                       onClick={() =>
-                        updateUser({"UID":user.UID,"avatar":avatar.name})
+                        updateUser({ UID: user.UID, avatar: avatar.name })
                       }
                       colorScheme="teal"
                     >
@@ -180,20 +192,20 @@ export default function Account() {
       </Box>
     );
   }
-  
+
   function CustomField({ icon, header, text }) {
     return (
       <>
-        <Flex w={'100%'} mt={"0.5rem"}>
+        <Flex w={"100%"} mt={"0.5rem"}>
           <Flex alignItems={"center"} justifyContent={"center"} mr={"1rem"}>
             {icon}
           </Flex>
-          <Stack w={'100%'} spacing="-8px">
+          <Stack w={"100%"} spacing="-8px">
             <Text fontWeight={"bold"}>{header}</Text>
-            <Box height={'20px'}>
-            <Text w={'40%'} color={"gray"}position={'absolute'} >
-              {text}
-            </Text>
+            <Box height={"20px"}>
+              <Text w={"40%"} color={"gray"} position={"absolute"}>
+                {text}
+              </Text>
             </Box>
           </Stack>
         </Flex>
@@ -256,7 +268,13 @@ export default function Account() {
               icon={<HiUser fontSize={"2rem"} color={"gray"} />}
               header={"USER NAME"}
               // text={user.username}
-              text={<EditableInput ref={ref} value={user.username} func={editUser}/>}
+              text={
+                <EditableInput
+                  ref={userNameRef}
+                  value={user.username}
+                  func={editUser}
+                />
+              }
             />
             <CustomField
               icon={<HiMail fontSize={"2rem"} color={"gray"} />}
@@ -277,7 +295,11 @@ export default function Account() {
     <>
       {mounted ? (
         <>
-          <Card minW={"100%"} h={{ base: "100vh", md: "auto" }} overflow={'hidden'}>
+          <Card
+            minW={"100%"}
+            h={{ base: "100vh", md: "auto" }}
+            overflow={"hidden"}
+          >
             <CardBody>
               <Stack
                 divider={<StackDivider />}
