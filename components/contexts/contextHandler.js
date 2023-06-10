@@ -20,7 +20,6 @@ export default function ContextHandler({ children }) {
     console.log("inGET", userUid);
     setIsLoading(true)
     if (userUid) {
-      console.log("inGETUSER", user);
       axios({
         method: "post",
         url: "/api/character/user-character/",

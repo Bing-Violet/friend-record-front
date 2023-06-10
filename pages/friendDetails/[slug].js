@@ -250,7 +250,6 @@ export default function FriendDetail() {
                   isOpen={isOpen}
                   onOpen={onOpen}
                   onClose={onClose}
-                  closeOnBlur={false}
                 >
                   <PopoverTrigger>
                     <Box
@@ -710,7 +709,6 @@ export default function FriendDetail() {
           onOpen={onOpen}
           onClose={onClose}
           placement="left"
-          closeOnBlur={false}
           isLazy
         >
           <PopoverTrigger>

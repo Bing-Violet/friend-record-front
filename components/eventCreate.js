@@ -146,6 +146,8 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
           if (e.id === friend.id) {
             e.sum += Number(money);
           }
+          setEvent('')
+          setMoney(0)
         });
         toastFun({
           title: "Event created!",
