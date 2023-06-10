@@ -1,10 +1,7 @@
-function dateConvert(date) {
-    const dateObj = new Date();
-    const offset = dateObj.getTimezoneOffset();
-    let dt = new Date(date);
-    const localTime = dt.setMinutes(offset * -1 + dt.getMinutes());
 
-    dt = new Date(localTime);
+
+function dateConvert(date) {
+    const dt = new Date(date);
     const stringDT = dt.toLocaleString([], {
       year: "numeric",
       month: "2-digit",

@@ -60,6 +60,7 @@ import { eventIcons, getIconObj } from "@/components/iconsSlides/icons";
 import SlideIcons from "@/components/iconsSlides/slideIcons";
 import CustomSpinner from "@/components/spinner";
 import { avatars, getAvaterObj } from "@/components/iconsSlides/avatars";
+import { dateConvert } from "@/utils";
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -192,22 +193,6 @@ export default function FriendDetail() {
           status: "error",
         });
       });
-  }
-  function dateConvert(date) {
-    const dateObj = new Date();
-    const offset = dateObj.getTimezoneOffset();
-    let dt = new Date(date);
-    const localTime = dt.setMinutes(offset * -1 + dt.getMinutes());
-
-    dt = new Date(localTime);
-    const stringDT = dt.toLocaleString([], {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    return stringDT.replace(/\//g, "-");
   }
   function FriendInfo() {
     const outerRef = useRef();
