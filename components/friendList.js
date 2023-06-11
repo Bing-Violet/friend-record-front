@@ -269,6 +269,9 @@ export default function FriendList({ User, toastFun }) {
       </Flex>
     );
   }
+  function spentOrReceive(amount) {
+    return amount >= 0?'I owe them':'They owe me'
+  }
   return (
     <Wrapper toastFun={toastFun}>
       {searchFriend.length && mounted ? (
@@ -305,11 +308,11 @@ export default function FriendList({ User, toastFun }) {
                       <Text position={"absolute"} bottom={-6} fontWeight={'bold'}>{f.name}</Text>
                     </Flex>
                     <VStack align="stretch">
-                      <Text fontWeight={"bold"}>Sum:＄{f.sum}</Text>
-                      <Text fontWeight={"bold"}>Total-Events:{f.event_length}</Text>
-                      <Text fontWeight={"bold"}>
-                        Last-Log:{dateConvert(f.last_log)}
-                      </Text>
+                      <Flex color={f.sum>=0?'#c0fafb':'#ff9393'} w={'100%'} fontWeight={"bold"}>{spentOrReceive(f.sum)}<Text m={'0 0.2em'}>:</Text>＄{f.sum>=0?f.sum:f.sum*-1}</Flex>
+                      <Flex w={'100%'} fontWeight={"bold"}>Number of events<Text m={'0 0.2em'}>:</Text>{f.event_length}</Flex>
+                      <Flex w={'100%'} fontWeight={"bold"}>
+                      Last interaction<Text m={'0 0.2em'}>:</Text>{dateConvert(f.last_log)}
+                      </Flex>
                     </VStack>
                   </Flex>
                 </CardBody>

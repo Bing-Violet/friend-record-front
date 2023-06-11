@@ -217,7 +217,7 @@ export default function FriendDetail() {
         bePaied += money < 0 ? money : 0;
       });
       if (acceptedSubs.includes(sub)) {
-        return sub === "paied" ? paied : bePaied;
+        return sub === "paied" ? paied : bePaied * -1;
       } else {
         throw "sub must be paied or bePaied";
       }
@@ -339,7 +339,7 @@ export default function FriendDetail() {
                           </Flex>
                         </Box>
                       </Flex>
-                      <Text>Last_log : {dateConvert(friend.last_log)}</Text>
+                      <Text>Last interaction : {dateConvert(friend.last_log)}</Text>
                     </VStack>
                   </Flex>
                   <Flex
@@ -350,11 +350,11 @@ export default function FriendDetail() {
                     <Text fontSize={"1.5rem"}>TOTAL : ${friend.sum}</Text>
                     <Flex w={"100%"} mt={{ md: "1rem" }}>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text color={"#008dff"}>I PAIED</Text>
+                        <Text color={"#008dff"}>I PAID</Text>
                         <Text>${amountCalculation(events, "paied")}</Text>
                       </Box>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text color={"#ff4d76"}>They PAIED</Text>
+                        <Text color={"#ff4d76"}>They PAID</Text>
                         <Text>${amountCalculation(events, "bePaied")}</Text>
                       </Box>
                     </Flex>
@@ -441,7 +441,7 @@ export default function FriendDetail() {
                     </Flex>
 
                     <VStack align="stretch" color={"gray"}>
-                      <Text>Event-Name : {e.name}</Text>
+                      <Text>Event Name : {e.name}</Text>
                       <Text>Amount : ${e.money}</Text>
                       <Text>Created : {dateConvert(e.created_on)}</Text>
                     </VStack>

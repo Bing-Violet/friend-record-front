@@ -5,10 +5,6 @@ import { useState, useEffect, forwardRef } from "react";
 
 //parent of this component should be absolute.
 
-export const ThreeContainer = forwardRef(({ children }, ref) => {
-  const i = "";
-  return <></>;
-});
 
 export const EditableInput = forwardRef(({ value, func }, ref) => {
   const [editedValue, setEditedValue] = useState("");

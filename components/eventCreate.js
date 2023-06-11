@@ -1,7 +1,7 @@
 import axios from "axios";
 import { customAxios } from "./customAxios";
 import Cookies from "universal-cookie";
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, forwardRef } from "react";
 import Image from "next/legacy/image";
 import {
   Button,
@@ -43,6 +43,7 @@ import {
   ModalCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Radio, RadioGroup } from '@chakra-ui/react'
 import AppContext from "./globalContext";
 import SlideIcons from "./iconsSlides/slideIcons";
 import { eventIcons } from "./iconsSlides/icons";
@@ -77,7 +78,7 @@ function Money({ money, setValue, error, setError }) {
         value={money}
         onChange={handleChange}
         defaultValue={500}
-        min={-1000}
+        min={0}
         max={1000}
         step={1}
       >
@@ -96,18 +97,34 @@ function Event({ eventName, setValue, error, setError }) {
   return (
     <>
       <FormControl isInvalid={!error}>
-        <FormLabel>Event-name</FormLabel>
+        <FormLabel>Event Name</FormLabel>
         <Input
           value={eventName}
           onChange={handleChange}
           placeholder="Enter Event-name"
           size="sm"
         />
-        <FormErrorMessage>event-name is required</FormErrorMessage>
+        <FormErrorMessage>Event Name is required</FormErrorMessage>
       </FormControl>
     </>
   );
 }
+const Who = forwardRef(({}, ref) => {
+  const [val, setVal] = useState('0') // 0 means +, 1 means -
+  function setValue(e) {
+    console.log(ref,e)
+    setVal(e)
+    ref.current = e
+  }
+  return (
+    <RadioGroup mt={'0.5rem'} onChange={ setValue} value={val}>
+      <Stack direction='row'>
+        <Radio value={'0'}>You Paid</Radio>
+        <Radio value={'1'}>They Paid</Radio>
+      </Stack>
+    </RadioGroup>
+  )
+})
 
 export default function EventCreate({ slug, friend, events, setEvents }) {
   // const [isOpen, setIsOpen] = useState(false);
@@ -116,21 +133,25 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const context = useContext(AppContext);
   const [error, setError] = useState(true);
   const [icon, setIcon] = useState({});
+  const [who, setWho] = useState(1);
   const iconRef = useRef(null)
   const accessToken = context.accessToken;
   const toastFun = context.addToast;
   const cookies = new Cookies();
+  const whoRef = useRef(null)
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const initialRef = useRef(null);
   const finalRef = useRef(null);
   function eventCreate() {
-    console.log("CALED", icon);
+    console.log("CALED", icon, Number(whoRef.current));
+    const customMoney = !Number(whoRef.current)?money:money*-1
     const iconName = icon.name
+    console.log("MONEY", customMoney)
     customAxios
       .post("/api/event/event-create/", {
         name: event,
-        money: money,
+        money: customMoney,
         character: slug,
         icon:iconName
       })
@@ -141,10 +162,10 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         const newArray = events;
         newArray.unshift(res.data);
         setEvents([...newArray]); //set new array.'
-        friend.sum +=  Number(money);
+        friend.sum +=  Number(customMoney);
         context.friends.forEach((e) => {
           if (e.id === friend.id) {
-            e.sum += Number(money);
+            e.sum += Number(customMoney);
           }
           setEvent('')
           setMoney(0)
@@ -250,6 +271,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
                 error={error}
                 setError={setError}
               />
+              <Who ref={whoRef}/>
               <Money money={money} setValue={setMoney} />
               <Flex mt={"1rem"} justifyContent={'flex-end'}>
                 <HStack spacing='24px'>
