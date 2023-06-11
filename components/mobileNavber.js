@@ -58,6 +58,7 @@ export default function MobileNavber() {
               flexDirection={"column"}
               alignItems={"center"}
               transition={".3s"}
+              borderRight={'solid #d1f5fd'}
               _hover={{
                 background: "rgb(240 240 240 / 70%)",
                 color: "gray",
@@ -72,6 +73,7 @@ export default function MobileNavber() {
               flexDirection={"column"}
               alignItems={"center"}
               transition={".3s"}
+              borderLeft={'solid #d1f5fd'}
               _hover={{
                 background: "rgb(240 240 240 / 70%)",
                 color: "gray",

@@ -46,7 +46,7 @@ export default function Navber() {
               Home
             </Link>
               <Link href={"/account"} scroll={false}>
-                Account
+                My account
               </Link>
           </HStack>
         </Flex>
