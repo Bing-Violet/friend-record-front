@@ -55,70 +55,6 @@ import { dateConvert } from "@/utils";
 import { EditableInput } from "@/components/customForms/editableInput";
 import { Who } from "@/components/eventCreate";
 
-function EditableField({ friend, func }) {
-  const [editedName, setEditedName] = useState("");
-  const [editIsOpen, setEditIsOpen] = useState(false);
-  useEffect(() => {
-    setEditedName(friend.name);
-  }, [editIsOpen]);
-  const handleChange = (event) => {
-    setEditedName(event.target.value);
-  };
-  function editFunc() {
-    if (friend.name === editedName || !editedName) {
-      setEditIsOpen(!editIsOpen);
-    } else {
-      func({ name: editedName, id: friend.id });
-      friend.name = editedName;
-      setEditIsOpen(!editIsOpen);
-    }
-  }
-  const editOrCheckIcon = editIsOpen ? (
-    <BsCheck2Square
-      color={friend.name === editedName || !editedName ? "#ef7a67" : "#00b01a"}
-      onClick={() => {
-        editFunc();
-      }}
-    />
-  ) : (
-    <RiEdit2Line
-      color={"#00b01a"}
-      onClick={() => {
-        setEditIsOpen(!editIsOpen);
-      }}
-      ml={"0.3rem"}
-    />
-  );
-  let markup;
-  if (editIsOpen) {
-    markup = (
-      <>
-        <FormControl isInvalid={!editedName}>
-          <Input
-            value={editedName}
-            onChange={handleChange}
-            isInvalid={!editedName}
-            placeholder="Must not be empty!"
-            _placeholder={{ color: "red" }}
-            focusBorderColor={editedName ? "" : "red.300"}
-            size="sm"
-          />
-        </FormControl>
-
-        {editOrCheckIcon}
-      </>
-    );
-  } else {
-    markup = (
-      <>
-        {friend.name}
-        {editOrCheckIcon}
-      </>
-    );
-  }
-  return markup;
-}
-
 export default function FriendDetail() {
   const router = useRouter();
   const context = useContext(AppContext);
@@ -287,6 +223,9 @@ export default function FriendDetail() {
         </Box>
       );
     }
+    const totalAmountColor = (amont) => {
+      return amont > 0 ? "#c0fafb" : "#ff9393";
+    };
     return (
       <>
         {Object.keys(friend).length ? (
@@ -319,10 +258,6 @@ export default function FriendDetail() {
                               value={friend.name}
                               func={friendNameUpdate}
                             />
-                            {/* <EditableField
-                              friend={friend}
-                              func={friendUpdate}
-                            /> */}
                           </Flex>
                         </Box>
                       </Flex>
@@ -336,14 +271,18 @@ export default function FriendDetail() {
                     fontWeight={"bold"}
                     flexDirection={"column"}
                   >
-                    <Text fontSize={"1.5rem"}>TOTAL : ${friend.sum}</Text>
+                    <Flex color={totalAmountColor(friend.sum)} alignItems={"center"} fontSize={"1.5rem"}>
+                      <Text>TOTAL</Text>
+                      <Text m={'0 0.2rem'}>:</Text>
+                      <Text>${friend.sum}</Text>
+                    </Flex>
                     <Flex w={"100%"} mt={{ md: "1rem" }}>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text color={"#008dff"}>I PAID</Text>
+                        <Text color={"#008dff"}>I Paid</Text>
                         <Text>${amountCalculation(events, "paied")}</Text>
                       </Box>
                       <Box textAlign={"center"} flexBasis={"50%"}>
-                        <Text color={"#ff4d76"}>They PAID</Text>
+                        <Text color={"#ff4d76"}>They Paid</Text>
                         <Text>${amountCalculation(events, "bePaied")}</Text>
                       </Box>
                     </Flex>
@@ -361,13 +300,6 @@ export default function FriendDetail() {
   function EventList() {
     const listRef = useRef();
     const [maxH, setMaxH] = useState(0);
-    const props = () => {
-      return {
-        w: "50px",
-        h: "50px",
-        fontSize: "3rem",
-      };
-    };
     useEffect(() => {
       if (typeof window !== "undefined") {
         const lisrect = listRef.current.getBoundingClientRect();
@@ -382,6 +314,9 @@ export default function FriendDetail() {
       } else {
         return "#ffffe0";
       }
+    }
+    function spentOrReceive(amount) {
+      return amount >= 0 ? "I owe them" : "They owe me";
     }
     return (
       <Box
@@ -431,7 +366,10 @@ export default function FriendDetail() {
 
                     <VStack align="stretch" color={"gray"}>
                       <Text>Event Name : {e.name}</Text>
-                      <Text>Amount : ${e.money}</Text>
+                      <Text>
+                        {spentOrReceive(e.money)} : $
+                        {e.money >= 0 ? e.money : e.money * -1}
+                      </Text>
                       <Text>Created : {dateConvert(e.created_on)}</Text>
                     </VStack>
                   </Flex>
@@ -617,25 +555,31 @@ export default function FriendDetail() {
       function saveFunc() {
         const iconName = icon.name;
         function moneyCalculation() {
-          if(editedMoney !== "default") {
-            if(whoRef.current !== null) {
-              if(Number(whoRef.current)===0 && money <= 0||Number(whoRef.current)===1 && money >= 0) {
-                return money >= 0?editedMoney*-1:editedMoney
+          if (editedMoney !== "default") {
+            if (whoRef.current !== null) {
+              if (
+                (Number(whoRef.current) === 0 && money <= 0) ||
+                (Number(whoRef.current) === 1 && money >= 0)
+              ) {
+                return money >= 0 ? editedMoney * -1 : editedMoney;
               } else {
-                return editedMoney
+                return editedMoney;
               }
             } else {
-              return editedMoney
+              return editedMoney;
             }
           } else {
-            if(whoRef.current !== null) {
-              if(Number(whoRef.current)===0 && money <= 0||Number(whoRef.current)===1 && money >= 0) {
-                return money*-1
+            if (whoRef.current !== null) {
+              if (
+                (Number(whoRef.current) === 0 && money <= 0) ||
+                (Number(whoRef.current) === 1 && money >= 0)
+              ) {
+                return money * -1;
               } else {
-                return money
+                return money;
               }
             } else {
-              return money
+              return money;
             }
           }
         }
@@ -647,12 +591,11 @@ export default function FriendDetail() {
           })
           .then((res) => {
             const updatedName = !editedEventName ? eventName : editedEventName;
-            friend.sum += res.data.money - money
+            friend.sum += res.data.money - money;
 
             const newEvents = events.map((e) => {
               if (e.id === id) {
-                (e.name = updatedName),
-                  (e.money = moneyCalculation());
+                (e.name = updatedName), (e.money = moneyCalculation());
                 e.icon = iconName;
                 return e;
               } else {
@@ -682,20 +625,24 @@ export default function FriendDetail() {
             setIcon={setIcon}
             defaultIcon={defaultIcon}
           />
-          <Box position={'relative'}>
-            <Box position={'absolute'} top={-6}>
-            <TextInput
-            // label="Event name"
-            id="first-name"
-            ref={firstFieldRef}
-            defaultValue={eventName}
-            onChange={eventHandleChange}
-          />
+          <Box position={"relative"}>
+            <Box position={"absolute"} top={-6}>
+              <TextInput
+                // label="Event name"
+                id="first-name"
+                ref={firstFieldRef}
+                defaultValue={eventName}
+                onChange={eventHandleChange}
+              />
             </Box>
           </Box>
-          <Box position={'relative'} h={'1.5rem'}>
-            <Box position={'absolute'} top={1.5}>
-            <Who disabledFun={setIsDisabled} defaultVal={money>=0?'0':'1'} ref={whoRef} />
+          <Box position={"relative"} h={"1.5rem"}>
+            <Box position={"absolute"} top={1.5}>
+              <Who
+                disabledFun={setIsDisabled}
+                defaultVal={money >= 0 ? "0" : "1"}
+                ref={whoRef}
+              />
             </Box>
           </Box>
           <NumberInput
@@ -703,7 +650,7 @@ export default function FriendDetail() {
             maxW={40}
             m={0}
             onChange={moneyHandleChange}
-            defaultValue={money <=0?money*-1:money}
+            defaultValue={money <= 0 ? money * -1 : money}
           >
             <NumberInputField top={0} />
             <NumberInputStepper>
