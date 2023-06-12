@@ -31,12 +31,14 @@ import { FaSearchPlus } from "react-icons/fa";
 import { FiChevronDown } from "react-icons/fi";
 import { dateConvert } from "@/utils";
 import { getAvaterObj } from "./iconsSlides/avatars";
+import { wrap } from "popmotion";
+
 const sortOptionStates = {
   LOW_AMOUNT: "Low Amount",
   HIGH_AMOUNT: "High Amount",
   LATEST: "Latest",
   OLDEST: "Oldest",
-  Name:"Name A to Z",
+  Name: "Name A to Z",
   EVENT: "Event",
 };
 function Wrapper({ children, toastFun }) {
@@ -104,33 +106,37 @@ function Wrapper({ children, toastFun }) {
 }
 function Selector({ searchFriend, setSearchFriend, context }) {
   const [currentOption, setCurrentOption] = useState("");
-  const sortBy = 'Sort By'
+  const sortBy = "Sort By";
   function sortFunc(option) {
-    setCurrentOption(option)
-    const copiedFriends = searchFriend.slice()
-    switch(option){
+    setCurrentOption(option);
+    const copiedFriends = searchFriend.slice();
+    switch (option) {
       case sortOptionStates.HIGH_AMOUNT:
         copiedFriends.sort((a, b) => b.sum - a.sum);
         setSearchFriend([...copiedFriends]);
-        break
+        break;
       case sortOptionStates.EVENT:
         copiedFriends.sort((a, b) => b.event_length - a.event_length);
         setSearchFriend([...copiedFriends]);
-        break
+        break;
       case sortOptionStates.LOW_AMOUNT:
         copiedFriends.sort((a, b) => a.sum - b.sum);
         setSearchFriend([...copiedFriends]);
-        break
+        break;
       case sortOptionStates.LATEST:
-        copiedFriends.sort((a, b) => new Date(b.last_log) - new Date(a.last_log))
+        copiedFriends.sort(
+          (a, b) => new Date(b.last_log) - new Date(a.last_log)
+        );
         setSearchFriend([...copiedFriends]);
-        break
+        break;
       case sortOptionStates.OLDEST:
-        copiedFriends.sort((a, b) => new Date(a.last_log) - new Date(b.last_log))
+        copiedFriends.sort(
+          (a, b) => new Date(a.last_log) - new Date(b.last_log)
+        );
         setSearchFriend([...copiedFriends]);
-        break
+        break;
       case sortOptionStates.Name:
-        console.log("NAME")
+        console.log("NAME");
         copiedFriends.sort((a, b) => {
           if (a.name > b.name) {
             return 1;
@@ -139,7 +145,7 @@ function Selector({ searchFriend, setSearchFriend, context }) {
           }
         });
         setSearchFriend([...copiedFriends]);
-        break
+        break;
     }
   }
   return (
@@ -152,9 +158,9 @@ function Selector({ searchFriend, setSearchFriend, context }) {
         rightIcon={<FiChevronDown />}
       >
         <Flex>
-        <Text fontWeight={'bold'}>{sortBy}</Text>
-        <Text p={'0 0.2rem'}>:</Text>
-        {currentOption}
+          <Text fontWeight={"bold"}>{sortBy}</Text>
+          <Text p={"0 0.2rem"}>:</Text>
+          {currentOption}
         </Flex>
       </MenuButton>
       <MenuList>
@@ -242,12 +248,52 @@ export default function FriendList({ User, toastFun }) {
     const diffDays = parseInt(diffMilliSec / 1000 / 60 / 60 / 24);
     return diffDays;
   }
+  function birthDateCalculation(date) {
+    if (date) {
+      const nowDate = new Date();
+      const bDate = new Date(date);
+      const deffMonth = nowDate.getMonth() - bDate.getMonth();
+      const deffDate = nowDate.getDate() - bDate.getDate();
+      if(deffMonth===0) {
+        return true
+      } else if(deffMonth===-1||deffMonth===11) {
+        if(deffDate >= 0) {
+          return true
+        }
+      }
+    }
+  }
+  function BirthdayAlert({ date }) {
+    return (
+      <Flex
+        w={"100%"}
+        color={"red.500"}
+        justifyContent={"flex-end"}
+      >
+        {birthDateCalculation(date) ? (
+          <Flex
+            alignItems={"center"}
+            mr={"0.5rem"}
+            borderRadius={"4px"}
+            bg={"#c05e5e4d"}
+            mt={"0.5rem"}
+            pr={"0.5rem"}
+            border={"solid #fa95f6"}
+          >
+            <Image src={`/svgs/events/gift.svg`} width={"30px"} height={"30px"} />
+            <Text fontWeight={"bold"}>Birthday is Soon!</Text>
+          </Flex>
+        ) : (
+          <></>
+        )}
+      </Flex>
+    );
+  }
   function DateAlert({ date }) {
     return (
       <Flex
         w={"100%"}
         color={"red.500"}
-        position={"absolute"}
         justifyContent={"flex-end"}
       >
         {dateCalculation(date) >= 30 ? (
@@ -270,7 +316,7 @@ export default function FriendList({ User, toastFun }) {
     );
   }
   function spentOrReceive(amount) {
-    return amount >= 0?'I owe them':'They owe me'
+    return amount >= 0 ? "I owe them" : "They owe me";
   }
   return (
     <Wrapper toastFun={toastFun}>
@@ -281,22 +327,25 @@ export default function FriendList({ User, toastFun }) {
       />
       {searchFriend.length && mounted ? (
         <>
-      <Flex w={"100%"} mb={"0.5rem"} justifyContent={"flex-end"}>
-        <Selector
-          searchFriend={searchFriend}
-          setSearchFriend={setSearchFriend}
-          context={context}
-        />
-      </Flex>
+          <Flex w={"100%"} mb={"0.5rem"} justifyContent={"flex-end"}>
+            <Selector
+              searchFriend={searchFriend}
+              setSearchFriend={setSearchFriend}
+              context={context}
+            />
+          </Flex>
           {searchFriend.map((f, index) => (
             <Card w={"100%"} key={index} mb={"0.5rem"} color={"gray"}>
+              <Flex  position={"absolute"} flexDirection={'column'} right={0}>
               <DateAlert date={f.last_log} />
+              <BirthdayAlert date={f.birthday} />
+              </Flex>
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
                   <Flex alignItems={"center"}>
                     <Flex
                       position={"relative"}
-                      justifyContent={'center'}
+                      justifyContent={"center"}
                       w={"70px"}
                       h={"70px"}
                       mr={"1rem"}
@@ -305,13 +354,31 @@ export default function FriendList({ User, toastFun }) {
                       bg={"#bebebe4a"}
                     >
                       {getAvaterObj(f.avatar)().icon}
-                      <Text position={"absolute"} bottom={-6} fontWeight={'bold'}>{f.name}</Text>
+                      <Text
+                        position={"absolute"}
+                        bottom={-6}
+                        fontWeight={"bold"}
+                      >
+                        {f.name}
+                      </Text>
                     </Flex>
                     <VStack align="stretch">
-                      <Flex color={f.sum>=0?'#c0fafb':'#ff9393'} w={'100%'} fontWeight={"bold"}>{spentOrReceive(f.sum)}<Text m={'0 0.2em'}>:</Text>＄{f.sum>=0?f.sum:f.sum*-1}</Flex>
-                      <Flex w={'100%'} fontWeight={"bold"}>Number of events<Text m={'0 0.2em'}>:</Text>{f.event_length}</Flex>
-                      <Flex w={'100%'} fontWeight={"bold"}>
-                      Last interaction<Text m={'0 0.2em'}>:</Text>{dateConvert(f.last_log)}
+                      <Flex
+                        color={f.sum >= 0 ? "#c0fafb" : "#ff9393"}
+                        w={"100%"}
+                        fontWeight={"bold"}
+                      >
+                        {spentOrReceive(f.sum)}
+                        <Text m={"0 0.2em"}>:</Text>＄
+                        {f.sum >= 0 ? f.sum : f.sum * -1}
+                      </Flex>
+                      <Flex w={"100%"} fontWeight={"bold"}>
+                        Number of events<Text m={"0 0.2em"}>:</Text>
+                        {f.event_length}
+                      </Flex>
+                      <Flex w={"100%"} fontWeight={"bold"}>
+                        Last interaction<Text m={"0 0.2em"}>:</Text>
+                        {dateConvert(f.last_log)}
                       </Flex>
                     </VStack>
                   </Flex>

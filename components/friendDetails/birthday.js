@@ -1,24 +1,13 @@
 import { useState, useEffect, useRef, forwardRef, useContext } from "react";
-import { useRouter } from "next/router";
-import Cookies from "universal-cookie";
-import { customAxios } from "@/components/customAxios";
 import {
   Button,
-  ButtonGroup,
   Center,
-  VStack,
   Flex,
   Text,
   Box,
-  Stack,
   FocusLock,
-  FormControl,
-  FormLabel,
-  Input,
-  StackDivider,
-  CloseButton,
-  IconButton,
   useBoolean,
+  useDisclosure,
 } from "@chakra-ui/react";
 
 import {
@@ -46,32 +35,25 @@ import {
   SliderTrack,
   SliderFilledTrack,
   SliderThumb,
-  SliderMark,
 } from "@chakra-ui/react";
-import { useDisclosure } from "@chakra-ui/react";
 
-import EventCreate from "@/components/eventCreate";
-import { Card, CardBody } from "@chakra-ui/react";
 import { FaBirthdayCake } from "react-icons/fa";
-import { RiSettings4Line, RiEdit2Line } from "react-icons/ri";
-import AppContext from "@/components/globalContext";
-import { eventIcons, getIconObj } from "@/components/iconsSlides/icons";
-import SlideIcons from "@/components/iconsSlides/slideIcons";
-import CustomSpinner from "@/components/spinner";
-import { avatars, getAvaterObj } from "@/components/iconsSlides/avatars";
-import { dateConvert } from "@/utils";
-import { EditableInput } from "@/components/customForms/editableInput";
-import { Who } from "@/components/eventCreate";
+import { customAxios } from "../customAxios";
+import AppContext from "../globalContext";
 
-const date = new Date(Date.now())
+const date = new Date(Date.now());
 
-const Year = forwardRef(({}, ref) => {
+const Year = forwardRef(({setIsReady}, ref) => {
   const [year, setYear] = useState(date.getFullYear());
   const handleChange = (value) => setVal(value);
   const setVal = (val) => {
     setYear(val);
-    ref.current = val;
+    ref.current = Number(val);
+    setIsReady(true)
   };
+  useEffect(() => {
+    ref.current = date.getFullYear()
+  },[])
   return (
     <Flex mt={"1rem"} h={"50px"} alignItems={"center"} position={"relative"}>
       <Text position={"absolute"} top={"-4"} left={5}>
@@ -84,7 +66,7 @@ const Year = forwardRef(({}, ref) => {
         onChange={handleChange}
         defaultValue={year}
         value={year}
-        min={1960}
+        min={1940}
         max={date.getFullYear()}
         step={1}
         mr={"0.5rem"}
@@ -98,7 +80,7 @@ const Year = forwardRef(({}, ref) => {
         maxW="90px"
         mr="1rem"
         max={date.getFullYear()}
-        min={1960}
+        min={1940}
         value={year}
         onChange={handleChange}
       >
@@ -112,13 +94,17 @@ const Year = forwardRef(({}, ref) => {
   );
 });
 
-const Month = forwardRef(({}, ref) => {
-  const [month, setMonth] = useState(date.getMonth()+1);
+const Month = forwardRef(({setIsReady}, ref) => {
+  const [month, setMonth] = useState(date.getMonth() + 1);
   const handleChange = (value) => setVal(value);
   const setVal = (val) => {
     setMonth(val);
-    ref.current = val;
+    ref.current = Number(val);
+    setIsReady(true)
   };
+  useEffect(() => {
+    ref.current = date.getMonth() + 1
+  },[])
   return (
     <Flex
       mt={"1rem"}
@@ -146,13 +132,17 @@ const Month = forwardRef(({}, ref) => {
     </Flex>
   );
 });
-const Day = forwardRef(({}, ref) => {
+const Day = forwardRef(({setIsReady}, ref) => {
   const [day, setDay] = useState(date.getDate());
   const handleChange = (value) => setVal(value);
   const setVal = (val) => {
     setDay(val);
-    ref.current = val;
+    ref.current = Number(val);
+    setIsReady(true)
   };
+  useEffect(() => {
+    ref.current = date.getDate()
+  },[])
   return (
     <Flex mt={"1rem"} h={"50px"} alignItems={"center"} position={"relative"}>
       <Text position={"absolute"} top={"-4"} left={0}>
@@ -175,20 +165,47 @@ const Day = forwardRef(({}, ref) => {
   );
 });
 
-export default function Birthday({ slug, friend, events, setEvents }) {
+export default function Birthday({ friend, setFriend}) {
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [isEditing, setIsEditing] = useBoolean();
   const yearRef = useRef(null);
   const monthRef = useRef(null);
   const dayRef = useRef(null);
-  const firstFieldRef = useRef(null);
+  const firstFieldRef = useRef(null)
+  const context = useContext(AppContext)
+  const toastFun = context.addToast
+  const [isReady, setIsReady] = useState(false)
   function birthdayUpdate() {
     const year = yearRef.current;
     const month = monthRef.current;
     const day = dayRef.current;
-    console.log("clicked", date,year, month, day);
+    const friendiId = friend.id;
+    customAxios
+      .post("/api/character/birthday-update/", {
+        year: year,
+        month: month,
+        day: day,
+        id:friendiId
+      })
+      .then((res) => {
+        console.log(res.data)
+        setFriend(res.data)
+        toastFun({
+          title: "Friend updated!",
+          description: `Your friend ${friend.name}is successfully updated!`,
+          status: "success",
+        });
+      })
+      .catch((e) => {
+        toastFun({
+          title: "Failed creation!",
+          description: `Something bad happened. Please try later!`,
+          status: "error",
+        });
+      });
+    console.log("clicked", date, year, month, day);
   }
-  const DateForm = ({ firstFieldRef, onCancel }) => {
+  const DateForm = () => {
     function formCheck() {
       setError(friendName ? true : false);
       if (friendName) {
@@ -197,44 +214,11 @@ export default function Birthday({ slug, friend, events, setEvents }) {
         console.log("NO");
       }
     }
-    //   function friendCreate() {
-    //     if (context.user) {
-    //       console.log('chakava',avatar)
-    //       const avatarName = avatar.name
-    //       customAxios
-    //         .post("/api/character/character-create/", {
-    //           name: friendName,
-    //           user: context.user.UID,
-    //           avatar: avatarName
-    //         })
-    //         .then((res) => {
-    //           let newArray = context.friends.slice();
-    //           if (Array.isArray(newArray)) {
-    //             newArray.unshift(res.data);
-    //           } else {
-    //             newArray = [res.data];
-    //           }
-    //           context.setFriends(newArray); //update old array to new array
-    //           toastFun({
-    //             title: "Friend created!",
-    //             description: `Your friend ${friendName} is successfully created!`,
-    //             status: "success",
-    //           });
-    //         })
-    //         .catch((e) => {
-    //           toastFun({
-    //             title: "Failed creation!",
-    //             description: `Something bad happened. Please try later!`,
-    //             status: "error",
-    //           });
-    //         });
-    //     }
-    //   }
     return (
       <Flex>
-        <Year ref={yearRef} />
-        <Month ref={monthRef} />
-        <Day ref={dayRef} />
+        <Year ref={yearRef} setIsReady={setIsReady}/>
+        <Month ref={monthRef} setIsReady={setIsReady}/>
+        <Day ref={dayRef} setIsReady={setIsReady}/>
       </Flex>
     );
   };
@@ -242,7 +226,6 @@ export default function Birthday({ slug, friend, events, setEvents }) {
     <Box>
       <Popover
         isOpen={isEditing}
-        initialFocusRef={firstFieldRef}
         onOpen={setIsEditing.on}
         onClose={setIsEditing.off}
         closeOnBlur={false}
@@ -252,6 +235,7 @@ export default function Birthday({ slug, friend, events, setEvents }) {
             <Button
               w={"60%"}
               colorScheme="twitter"
+              isDisabled={!isReady&&isEditing}
               leftIcon={<FaBirthdayCake />}
               onClick={isEditing ? birthdayUpdate : () => {}}
             >

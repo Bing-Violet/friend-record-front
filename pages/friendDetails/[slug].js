@@ -225,9 +225,31 @@ export default function FriendDetail() {
         </Box>
       );
     }
-    const totalAmountColor = (amont) => {
-      return amont > 0 ? "#c0fafb" : "#ff9393";
+    const totalAmountColor = (amount) => {
+      function chack() {
+        if(amount === 0){
+          return ''
+        } else if(amount > 0) {
+          return "#c0fafb"
+        } else {
+          return "#ff9393"
+        }
+      }
+      return chack()
     };
+    let birthday;
+    if (!friend.birthday) {
+      birthday = <Birthday friend={friend} setFriend={setFriend} />;
+    }
+    let birthdayDisplay;
+    if (friend.birthday) {
+      birthdayDisplay = (
+        <Flex alignItems={"center"}>
+          <Text mr={"0.3rem"}>Birthday :</Text>
+          <Text>{friend.birthday}</Text>
+        </Flex>
+      );
+    }
     return (
       <>
         {Object.keys(friend).length ? (
@@ -263,10 +285,11 @@ export default function FriendDetail() {
                           </Flex>
                         </Box>
                       </Flex>
+                      {birthdayDisplay}
                       <Text>
                         Last interaction : {dateConvert(friend.last_log)}
                       </Text>
-                      <Birthday/>
+                      {birthday}
                     </VStack>
                   </Flex>
                   <Flex
