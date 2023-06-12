@@ -274,13 +274,13 @@ export default function FriendList({ User, toastFun }) {
   }
   return (
     <Wrapper toastFun={toastFun}>
-      {searchFriend.length && mounted ? (
-        <>
-        <Search
+      <Search
         searchFriend={searchFriend}
         setSearchFriend={setSearchFriend}
         context={context}
       />
+      {searchFriend.length && mounted ? (
+        <>
       <Flex w={"100%"} mb={"0.5rem"} justifyContent={"flex-end"}>
         <Selector
           searchFriend={searchFriend}

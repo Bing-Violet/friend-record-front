@@ -152,7 +152,7 @@ export default function Login() {
           if (e.response.data.user_exist) {
             console.log("USER>EX");
             setErrorMessage(
-              "Password is wrong!. Please confirm your password!"
+              "Password is wrong! or your email is not verify. Please confirm your password!"
             );
             setUserExist(true);
           } else {

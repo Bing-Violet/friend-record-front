@@ -17,6 +17,7 @@ import {
   Input,
   StackDivider,
   CloseButton,
+  IconButton,
 } from "@chakra-ui/react";
 
 import {
@@ -44,7 +45,7 @@ import { useDisclosure } from "@chakra-ui/react";
 
 import EventCreate from "@/components/eventCreate";
 import { Card, CardBody } from "@chakra-ui/react";
-import { BsCheck2Square } from "react-icons/bs";
+import { FaBirthdayCake } from "react-icons/fa";
 import { RiSettings4Line, RiEdit2Line } from "react-icons/ri";
 import AppContext from "@/components/globalContext";
 import { eventIcons, getIconObj } from "@/components/iconsSlides/icons";
@@ -54,6 +55,7 @@ import { avatars, getAvaterObj } from "@/components/iconsSlides/avatars";
 import { dateConvert } from "@/utils";
 import { EditableInput } from "@/components/customForms/editableInput";
 import { Who } from "@/components/eventCreate";
+import Birthday from "@/components/friendDetails/birthday";
 
 export default function FriendDetail() {
   const router = useRouter();
@@ -264,6 +266,7 @@ export default function FriendDetail() {
                       <Text>
                         Last interaction : {dateConvert(friend.last_log)}
                       </Text>
+                      <Birthday/>
                     </VStack>
                   </Flex>
                   <Flex
@@ -271,9 +274,13 @@ export default function FriendDetail() {
                     fontWeight={"bold"}
                     flexDirection={"column"}
                   >
-                    <Flex color={totalAmountColor(friend.sum)} alignItems={"center"} fontSize={"1.5rem"}>
+                    <Flex
+                      color={totalAmountColor(friend.sum)}
+                      alignItems={"center"}
+                      fontSize={"1.5rem"}
+                    >
                       <Text>TOTAL</Text>
-                      <Text m={'0 0.2rem'}>:</Text>
+                      <Text m={"0 0.2rem"}>:</Text>
                       <Text>${friend.sum}</Text>
                     </Flex>
                     <Flex w={"100%"} mt={{ md: "1rem" }}>

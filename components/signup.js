@@ -262,9 +262,19 @@ export default function Signup({ setUser }) {
       </>
     );
   } else if(sentConfirmation === sendingProcessStates.SENDIND) {
-    markup = (<><Spinner size='lg' /></>)
+    markup = (
+    <VStack>
+      <Text fontWeight={"bold"} fontSize={"1.7rem"} color={'red'}>Creating your account…</Text>
+      <Spinner size='lg' />
+    </VStack>
+    )
   } else if(sentConfirmation === sendingProcessStates.SENT) {
-    markup = (<><Text fontSize={'1.2rem'} fontWeight={'bold'}>Sent email to your address.</Text></>)
+    markup = (
+    <VStack>
+    <Text fontWeight={"bold"} fontSize={"1.7rem"} color={'red'}>SUCCESSFULLY SENT A MESSAGE</Text>
+    <Text fontSize={'1.2rem'} fontWeight={'bold'}>Please check your email to activate your account.</Text>
+    </VStack>
+    )
   }
   return (
     <>
