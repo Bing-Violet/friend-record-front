@@ -20,8 +20,7 @@ import Cookies from "universal-cookie";
 import jwt from "jwt-decode";
 import AppContext from "@/components/globalContext";
 import { useRouter } from "next/router";
-import { ImEye } from "react-icons/im";
-import { ImEyeBlocked } from "react-icons/im";
+import { ImEyeBlocked, ImEye } from "react-icons/im";
 import CustomSpinner from "@/components/spinner";
 
 export default function CustomConfPassWithPass({
@@ -50,7 +49,7 @@ export default function CustomConfPassWithPass({
         setPasswordErrorObj={setPasswordErrorObj}
       />
       <FormControl isInvalid={conferror}>
-        <FormLabel>Confirmation-Password</FormLabel>
+        <FormLabel>Confirm your password</FormLabel>
         <InputGroup>
           <Input
             value={confirmationPassword}

@@ -4,11 +4,14 @@ import {
   Form,
   Center,
   Input,
+  IconButton,
   Text,
   Button,
   FormControl,
   FormLabel,
   FormErrorMessage,
+  InputRightElement,
+  InputGroup,
   FormHelperText,
   VStack,
   Spinner
@@ -25,6 +28,7 @@ import jwt from "jwt-decode";
 import AppContext from "./globalContext";
 import CustomSpinner from "./spinner";
 import { useRouter } from "next/router";
+import { ImEyeBlocked, ImEye } from "react-icons/im";
 
 function Email({ email, setValue, error, setError }) {
   const subject = "email";
@@ -39,7 +43,7 @@ function Email({ email, setValue, error, setError }) {
           value={email}
           onChange={handleChange}
           placeholder="enter valid email"
-          size="sm"
+          size="md"
         />
         <FormErrorMessage>Email is required</FormErrorMessage>
       </FormControl>
@@ -47,6 +51,7 @@ function Email({ email, setValue, error, setError }) {
   );
 }
 function Password({ password, setValue, error, setError }) {
+  const [showPassword, setShowPassword] = useState(true)
   const subject = "password";
   const handleChange = (event) => {
     setValue(event.target.value), setError(subject, event.target.value);
@@ -56,12 +61,38 @@ function Password({ password, setValue, error, setError }) {
     <>
       <FormControl isInvalid={!error}>
         <FormLabel>Password</FormLabel>
+        <InputGroup>
         <Input
           value={password}
+          type={!showPassword ? "text" : "password"}
           onChange={handleChange}
           placeholder="enter password"
-          size="sm"
+          size="md"
         />
+        <InputRightElement>
+            {showPassword ? (
+              <>
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  background={"none"}
+                  size="sm"
+                  color={"gray.500"}
+                  icon={<ImEye />}
+                />
+              </>
+            ) : (
+              <>
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  background={"none"}
+                  size="sm"
+                  color={"gray.500"}
+                  icon={<ImEyeBlocked />}
+                />
+              </>
+            )}
+          </InputRightElement>
+          </InputGroup>
         <FormErrorMessage>pasword is required</FormErrorMessage>
       </FormControl>
     </>

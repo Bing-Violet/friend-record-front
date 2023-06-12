@@ -12,9 +12,12 @@ export default function ContextHandler({ children }) {
   const [user, setUser] = useState(cookies.get("user"));
   useEffect(() => {
     console.log("UUEE")
-    if (user) {
-      getFriendsList(user.UID);
+    const asyncGetF = async () => {
+      if (user) {
+        await getFriendsList(user.UID);
+      }
     }
+    asyncGetF()
   }, []);
   async function getFriendsList(userUid) {
     console.log("inGET", userUid);

@@ -45,12 +45,14 @@ import {
 import Logout from "@/components/logout";
 import AppContext from "@/components/globalContext";
 import { useRouter } from "next/router";
-import { FaMoneyCheckAlt } from "react-icons/fa";
+import { FaPeopleArrows } from "react-icons/fa";
 import { HiUsers, HiUser, HiMail, HiOutlineLockClosed } from "react-icons/hi";
+import { GiPayMoney, GiReceiveMoney } from "react-icons/gi";
 import Theme from "@/components/theme";
 import { getAvaterObj, avatars } from "@/components/iconsSlides/avatars";
 import SlideIcons from "@/components/iconsSlides/slideIcons";
 import { EditableInput } from "@/components/customForms/editableInput";
+import CustomSpinner from "@/components/spinner";
 
 export default function Account() {
   const context = useContext(AppContext);
@@ -60,9 +62,7 @@ export default function Account() {
   const addToast = context.addToast;
   const userNameRef = useRef(null);
   useEffect(() => {
-    console.log("from account effeft");
     if (context) {
-      console.log("account", context.user);
       setUser(context.user);
       if (Object.keys(router.query).length && !mounted) {
         toastAction(router.query.code);
@@ -86,7 +86,6 @@ export default function Account() {
     addToast(obj);
   }
   async function updateUser({ ...props }) {
-    console.log("props", props);
     customAxios
       .patch(`/api/user/user-detail/${user.UID}`, props)
       .then((res) => {
@@ -213,6 +212,56 @@ export default function Account() {
     );
   }
   function FriendInfo() {
+    const date = new Date(Date.now());
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const MonthlyStates = {
+      SPENT:'spent',
+      RECEIVED:'received',
+      INTERACTIONS:'interactions'
+    }
+    useEffect(() => {
+      if(context.friends) {
+      }
+    },[])
+    function getMonthlyData(key) {
+      if(context.friends) {
+        let sumOfSpent = 0
+      let sumOfReceive = 0
+      let sumIntractions = 0
+      context.friends.forEach((e) => {
+        for(let i=0; i < e.event.length; i++) {
+          const EDate = new Date(e.event[i].created_on)
+          if(EDate.getMonth()===date.getMonth()){
+            sumOfSpent += e.event[i].money > 0?e.event[i].money:0
+            sumOfReceive  += e.event[i].money < 0?e.event[i].money:0
+            sumIntractions += 1
+          }
+        }
+      })
+      switch(key){
+        case MonthlyStates.SPENT:
+          return sumOfSpent
+        case MonthlyStates.RECEIVED:
+          return sumOfReceive
+        case MonthlyStates.INTERACTIONS:
+          return sumIntractions
+      } 
+
+      }
+    }
     return (
       <>
         <Flex
@@ -224,24 +273,46 @@ export default function Account() {
           <Text color={"gray"} fontFamily={'"Gill Sans", sans-serif'}>
             {user.username}
           </Text>
-          <Stack spacing="4px" fontFamily={'"Gill Sans", sans-serif'}>
-            <CustomField
-              icon={<FaMoneyCheckAlt fontSize={"2rem"} color={"gray"} />}
-              header={"TOTAL SPENT"}
-              text={"$9000000"}
-            />
-            <CustomField
-              icon={<FaMoneyCheckAlt fontSize={"2rem"} color={"gray"} />}
-              header={"TOTAL ALLOCATED"}
-              text={"$9000000"}
-            />
+          <Text
+            mt={"1rem"}
+            textAlign={"left"}
+            w={"100%"}
+            fontWeight={"bold"}
+            color={"gray"}
+            fontSize={"1.5rem"}
+          >
+            Monthly Info({monthNames[date.getMonth()]})
+          </Text>
+          <Stack
+            position={"inline"}
+            spacing="4px"
+            fontFamily={'"Gill Sans", sans-serif'}
+            divider={<StackDivider />}
+          >
+            <Stack spacing="4px" m={"0.5rem 0"}>
+              <CustomField
+                icon={<GiPayMoney fontSize={"2rem"} color={"gray"} />}
+                header={"I SPENT"}
+                text={'$' +getMonthlyData(MonthlyStates.SPENT)}
+              />
+              <CustomField
+                icon={<GiReceiveMoney fontSize={"2rem"} color={"gray"} />}
+                header={"I RECEIVED"}
+                text={'$' + getMonthlyData(MonthlyStates.RECEIVED)*-1}
+              />
+              <CustomField
+                icon={<FaPeopleArrows fontSize={"2rem"} color={"gray"} />}
+                header={"NUMBER OF INTERACTIONS"}
+                text={getMonthlyData(MonthlyStates.INTERACTIONS)}
+              />
+            </Stack>
             <CustomField
               icon={<HiUsers fontSize={"2rem"} color={"gray"} />}
-              header={"TOTAL FRIEND"}
-              text={"20"}
+              header={"NUMBER OF FRIENDS"}
+              text={context.friends.length}
             />
           </Stack>
-          <Box w={"100%"}>
+          <Box w={"100%"} m={"0.5rem 0"}>
             <Flex w={"100%"} justifyContent={"flex-end"}>
               <Logout />
             </Flex>
@@ -293,8 +364,8 @@ export default function Account() {
   }
   return (
     <>
-      {mounted ? (
-        <>
+    {!context.isLoading?(<>
+      <>
           <Card
             minW={"100%"}
             h={{ base: "100vh", md: "auto" }}
@@ -311,9 +382,7 @@ export default function Account() {
             </CardBody>
           </Card>
         </>
-      ) : (
-        <>NO</>
-      )}
+    </>):(<CustomSpinner/>)}
     </>
   );
 }

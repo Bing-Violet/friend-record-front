@@ -36,6 +36,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import {IoHomeOutline} from "react-icons/io5";
+
 export default function PasswordReset({ user }) {
   const router = useRouter();
   const context = useContext(AppContext);
