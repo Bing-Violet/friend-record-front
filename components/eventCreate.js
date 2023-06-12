@@ -109,12 +109,14 @@ function Event({ eventName, setValue, error, setError }) {
     </>
   );
 }
-const Who = forwardRef(({}, ref) => {
-  const [val, setVal] = useState('0') // 0 means +, 1 means -
+export const Who = forwardRef(({disabledFun, defaultVal}, ref) => {
+  const [val, setVal] = useState(typeof defaultVal!=='undefined'?defaultVal:'0') // 0 means +, 1 means -
   function setValue(e) {
-    console.log(ref,e)
     setVal(e)
     ref.current = e
+    if(disabledFun) {
+      disabledFun(false)
+    }
   }
   return (
     <RadioGroup mt={'0.5rem'} onChange={ setValue} value={val}>

@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  forwardRef,
-  useContext,
-} from "react";
+import { useState, useEffect, useRef, forwardRef, useContext } from "react";
 import { useRouter } from "next/router";
 import Cookies from "universal-cookie";
 import { customAxios } from "@/components/customAxios";
@@ -51,10 +45,7 @@ import { useDisclosure } from "@chakra-ui/react";
 import EventCreate from "@/components/eventCreate";
 import { Card, CardBody } from "@chakra-ui/react";
 import { BsCheck2Square } from "react-icons/bs";
-import {
-  RiSettings4Line,
-  RiEdit2Line,
-} from "react-icons/ri";
+import { RiSettings4Line, RiEdit2Line } from "react-icons/ri";
 import AppContext from "@/components/globalContext";
 import { eventIcons, getIconObj } from "@/components/iconsSlides/icons";
 import SlideIcons from "@/components/iconsSlides/slideIcons";
@@ -62,7 +53,7 @@ import CustomSpinner from "@/components/spinner";
 import { avatars, getAvaterObj } from "@/components/iconsSlides/avatars";
 import { dateConvert } from "@/utils";
 import { EditableInput } from "@/components/customForms/editableInput";
-
+import { Who } from "@/components/eventCreate";
 
 function EditableField({ friend, func }) {
   const [editedName, setEditedName] = useState("");
@@ -135,16 +126,14 @@ export default function FriendDetail() {
   const [events, setEvents] = useState("");
   const [mounted, setMounted] = useState(false);
   const [slug, setSlug] = useState("");
-  const editableInputRef = useRef(null)
+  const editableInputRef = useRef(null);
   const toastFun = context.addToast;
   useEffect(() => {
     if (context.user && router.query.slug && context) {
       if (!context.friends.length) {
         const asyncGetFriend = async () => {
           context.setIsLoading(true);
-          await getFriend().then(
-            () => context.setIsLoading(false),
-          );
+          await getFriend().then(() => context.setIsLoading(false));
         };
         asyncGetFriend();
       } else {
@@ -168,7 +157,7 @@ export default function FriendDetail() {
       .catch((e) => {});
   }
   function friendUpdate({ ...props }) {
-    const id = friend.id
+    const id = friend.id;
     customAxios
       .patch(`/api/character/character-detail/${friend.id}`, props)
       .then((res) => {
@@ -223,7 +212,7 @@ export default function FriendDetail() {
       }
     }
     function friendNameUpdate() {
-      friendUpdate({name:editableInputRef.current})
+      friendUpdate({ name: editableInputRef.current });
     }
     function Header({ children }) {
       const { onOpen, onClose, isOpen } = useDisclosure();
@@ -252,11 +241,7 @@ export default function FriendDetail() {
                 bg={"#cfcfcf"}
               >
                 {getAvaterObj(friend.avatar)().icon}
-                <Popover
-                  isOpen={isOpen}
-                  onOpen={onOpen}
-                  onClose={onClose}
-                >
+                <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
                   <PopoverTrigger>
                     <Box
                       position={"absolute"}
@@ -285,9 +270,7 @@ export default function FriendDetail() {
                       </Button>
                       <Button
                         isDisabled={isDisabled}
-                        onClick={() =>
-                          friendUpdate({ avatar: avatar.name})
-                        }
+                        onClick={() => friendUpdate({ avatar: avatar.name })}
                         colorScheme="teal"
                       >
                         Save
@@ -331,7 +314,11 @@ export default function FriendDetail() {
                         <Text mr={"0.3rem"}>Name :</Text>
                         <Box w={"50%%"} h={"100%"}>
                           <Flex alignItems={"center"} position={"absolute"}>
-                          <EditableInput ref={editableInputRef} value={friend.name} func={friendNameUpdate}/>
+                            <EditableInput
+                              ref={editableInputRef}
+                              value={friend.name}
+                              func={friendNameUpdate}
+                            />
                             {/* <EditableField
                               friend={friend}
                               func={friendUpdate}
@@ -339,7 +326,9 @@ export default function FriendDetail() {
                           </Flex>
                         </Box>
                       </Flex>
-                      <Text>Last interaction : {dateConvert(friend.last_log)}</Text>
+                      <Text>
+                        Last interaction : {dateConvert(friend.last_log)}
+                      </Text>
                     </VStack>
                   </Flex>
                   <Flex
@@ -432,7 +421,7 @@ export default function FriendDetail() {
                       border={"solid #69696B"}
                       borderRadius={"20px"}
                       boxShadow="2xl"
-                      mr={'0.5rem'}
+                      mr={"0.5rem"}
                       justifyContent={"center"}
                       bg={"#919191bf"}
                       alignItems={"center"}
@@ -594,7 +583,7 @@ export default function FriendDetail() {
     );
   }
 
-  function EditPopover({ eventName, money, id, defaultIcon }) {
+  function EditPopover({ eventName, money, setMoney, id, defaultIcon }) {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const firstFieldRef = useRef(null);
     const TextInput = forwardRef((props, ref) => {
@@ -611,6 +600,7 @@ export default function FriendDetail() {
       const [editedMoney, setEditedMoney] = useState("default");
       const [isDisabled, setIsDisabled] = useState(true);
       const [icon, setIcon] = useState({});
+      const whoRef = useRef(null);
       useEffect(() => {
         if (typeof icon !== "undefined" && Object.keys(icon).length) {
           if (defaultIcon().name !== icon.name) {
@@ -626,22 +616,43 @@ export default function FriendDetail() {
       };
       function saveFunc() {
         const iconName = icon.name;
+        function moneyCalculation() {
+          if(editedMoney !== "default") {
+            if(whoRef.current !== null) {
+              if(Number(whoRef.current)===0 && money <= 0||Number(whoRef.current)===1 && money >= 0) {
+                return money >= 0?editedMoney*-1:editedMoney
+              } else {
+                return editedMoney
+              }
+            } else {
+              return editedMoney
+            }
+          } else {
+            if(whoRef.current !== null) {
+              if(Number(whoRef.current)===0 && money <= 0||Number(whoRef.current)===1 && money >= 0) {
+                return money*-1
+              } else {
+                return money
+              }
+            } else {
+              return money
+            }
+          }
+        }
         customAxios
           .patch(`/api/event/event-detail/${id}`, {
             name: !editedEventName ? eventName : editedEventName,
-            money: editedMoney !== "default" ? editedMoney : money,
+            money: moneyCalculation(),
             icon: iconName,
           })
           .then((res) => {
             const updatedName = !editedEventName ? eventName : editedEventName;
-            if (editedMoney !== "default") {
-              friend.sum += editedMoney - money;
-            }
+            friend.sum += res.data.money - money
 
             const newEvents = events.map((e) => {
               if (e.id === id) {
                 (e.name = updatedName),
-                  (e.money = editedMoney !== "default" ? editedMoney : money);
+                  (e.money = moneyCalculation());
                 e.icon = iconName;
                 return e;
               } else {
@@ -671,20 +682,28 @@ export default function FriendDetail() {
             setIcon={setIcon}
             defaultIcon={defaultIcon}
           />
-          <TextInput
+          <Box position={'relative'}>
+            <Box position={'absolute'} top={-6}>
+            <TextInput
             // label="Event name"
             id="first-name"
             ref={firstFieldRef}
             defaultValue={eventName}
             onChange={eventHandleChange}
           />
-          {/* <Text>Money</Text> */}
+            </Box>
+          </Box>
+          <Box position={'relative'} h={'1.5rem'}>
+            <Box position={'absolute'} top={1.5}>
+            <Who disabledFun={setIsDisabled} defaultVal={money>=0?'0':'1'} ref={whoRef} />
+            </Box>
+          </Box>
           <NumberInput
             size="md"
             maxW={40}
             m={0}
             onChange={moneyHandleChange}
-            defaultValue={money}
+            defaultValue={money <=0?money*-1:money}
           >
             <NumberInputField top={0} />
             <NumberInputStepper>
@@ -742,7 +761,7 @@ export default function FriendDetail() {
   }
 
   let markup = (
-    <Center width={"100%"} overflow={'hidden'}>
+    <Center width={"100%"} overflow={"hidden"}>
       <Flex w={"100%"} alignItems={"center"} flexDirection={"column"}>
         <FriendInfo />
         <EventCreate
