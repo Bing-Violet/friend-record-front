@@ -146,7 +146,6 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
   const initialRef = useRef(null);
   const finalRef = useRef(null);
   function eventCreate() {
-    console.log("CALED", icon, Number(whoRef.current));
     const customMoney = !Number(whoRef.current)?money:money*-1
     const iconName = icon.name
     console.log("MONEY", customMoney)
@@ -171,6 +170,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
           }
           setEvent('')
           setMoney(0)
+          whoRef.current=null
         });
         toastFun({
           title: "Event created!",
@@ -179,6 +179,7 @@ export default function EventCreate({ slug, friend, events, setEvents }) {
         });
       })
       .catch((e) => {
+        console.log("ERROR", e)
         toastFun({
           title: "Failed creation!",
           description: `Something bad happened. Please try later!`,
