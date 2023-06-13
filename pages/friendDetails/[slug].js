@@ -247,6 +247,7 @@ export default function FriendDetail() {
         <Flex alignItems={"center"}>
           <Text mr={"0.3rem"}>Birthday :</Text>
           <Text>{friend.birthday}</Text>
+          <Birthday friend={friend} setFriend={setFriend} defaultButton={'edit'}/>
         </Flex>
       );
     }

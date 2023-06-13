@@ -56,6 +56,30 @@ import { EditableInput } from "@/components/customForms/editableInput";
 import CustomSpinner from "@/components/spinner";
 import { monthColors } from "@/styles/colors";
 
+export function CustomField({ icon, header, text, mr }) {
+  return (
+    <>
+      <Flex w={"100%"}>
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          mr={mr ? mr : "1rem"}
+        >
+          {icon}
+        </Flex>
+        <Stack w={"100%"} spacing="-8px">
+          <Box fontWeight={"bold"}>{header}</Box>
+          <Box height={"20px"}>
+            <Box w={"40%"} color={"gray"} position={"absolute"}>
+              {text}
+            </Box>
+          </Box>
+        </Stack>
+      </Flex>
+    </>
+  );
+}
+
 export default function Account() {
   const context = useContext(AppContext);
   const router = useRouter();
@@ -193,26 +217,6 @@ export default function Account() {
       </Box>
     );
   }
-
-  function CustomField({ icon, header, text }) {
-    return (
-      <>
-        <Flex w={"100%"} mt={"0.5rem"}>
-          <Flex alignItems={"center"} justifyContent={"center"} mr={"1rem"}>
-            {icon}
-          </Flex>
-          <Stack w={"100%"} spacing="-8px">
-            <Text fontWeight={"bold"}>{header}</Text>
-            <Box height={"20px"}>
-              <Text w={"40%"} color={"gray"} position={"absolute"}>
-                {text}
-              </Text>
-            </Box>
-          </Stack>
-        </Flex>
-      </>
-    );
-  }
   function FriendInfo() {
     const date = new Date(Date.now());
     const monthNames = [
@@ -274,24 +278,23 @@ export default function Account() {
           <Text color={"gray"} fontFamily={'"Gill Sans", sans-serif'}>
             {user.username}
           </Text>
-          <Flex mt={"1rem"}
+          <Flex
+            mt={"1rem"}
             textAlign={"left"}
             w={"100%"}
             fontWeight={"bold"}
             color={"gray"}
             fontSize={"1.5rem"}
-            alignItems={'center'}
-            >
-          <Text
-
+            alignItems={"center"}
           >
-            Monthly Info
-          </Text>
-          <Flex alignItems={"center"} color={monthColors[date.getMonth()]}>
-          (<MdCalendarMonth />{monthNames[date.getMonth()]})
-          </Flex>
+            <Text>Monthly Info</Text>
+            <Flex alignItems={"center"} color={monthColors[date.getMonth()]}>
+              (<MdCalendarMonth />
+              {monthNames[date.getMonth()]})
+            </Flex>
           </Flex>
           <Stack
+          mt={'0.5rem'}
             position={"inline"}
             spacing="4px"
             fontFamily={'"Gill Sans", sans-serif'}
@@ -314,11 +317,13 @@ export default function Account() {
                 text={getMonthlyData(MonthlyStates.INTERACTIONS)}
               />
             </Stack>
+            <Box mt={'1rem'}>
             <CustomField
               icon={<HiUsers fontSize={"2rem"} color={"gray"} />}
               header={"NUMBER OF FRIENDS"}
               text={context.friends.length}
             />
+              </Box>
           </Stack>
           <Box w={"100%"} m={"0.5rem 0"}>
             <Flex w={"100%"} justifyContent={"flex-end"}>
@@ -342,7 +347,7 @@ export default function Account() {
           justifyContent={"center"}
           h={"100%"}
         >
-          <Stack spacing="4px" fontFamily={'"Gill Sans", sans-serif'}>
+          <Stack mt={'0.5rem'} spacing="4px" fontFamily={'"Gill Sans", sans-serif'}>
             <CustomField
               icon={<HiUser fontSize={"2rem"} color={"gray"} />}
               header={"USER NAME"}

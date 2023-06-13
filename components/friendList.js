@@ -1,6 +1,6 @@
 import axios from "axios";
 import Link from "next/link";
-import Image from "next/legacy/image";
+// import Image from "next/legacy/image";
 import { useState, useEffect, useRef, useContext } from "react";
 import {
   Flex,
@@ -13,6 +13,7 @@ import {
   InputGroup,
   InputLeftElement,
   VStack,
+  Image
 } from "@chakra-ui/react";
 import {
   Menu,
@@ -31,7 +32,7 @@ import { FaSearchPlus } from "react-icons/fa";
 import { FiChevronDown } from "react-icons/fi";
 import { dateConvert } from "@/utils";
 import { getAvaterObj } from "./iconsSlides/avatars";
-import { wrap } from "popmotion";
+import MobileList from "./friendLists/mobileList";
 
 const sortOptionStates = {
   LOW_AMOUNT: "Low Amount",
@@ -280,7 +281,7 @@ export default function FriendList({ User, toastFun }) {
             pr={"0.5rem"}
             border={"solid #fa95f6"}
           >
-            <Image src={`/svgs/events/gift.svg`} width={"30px"} height={"30px"} />
+            <Image src={`/svgs/events/gift.svg`} width={{base:'20px', sm:"30px"}} height={"30px"} />
             <Text fontWeight={"bold"}>Birthday is Soon!</Text>
           </Flex>
         ) : (
@@ -306,7 +307,7 @@ export default function FriendList({ User, toastFun }) {
             pr={"0.5rem"}
             border={"solid #fa95f6"}
           >
-            <Image src={`/svgs/clock.svg`} width={"30px"} height={"30px"} />
+            <Image src={`/svgs/clock.svg`} width={{base:'20px', sm:"30px"}} height={"30px"} />
             <Text fontWeight={"bold"}>Catch up!</Text>
           </Flex>
         ) : (
@@ -336,9 +337,9 @@ export default function FriendList({ User, toastFun }) {
           </Flex>
           {searchFriend.map((f, index) => (
             <Card w={"100%"} key={index} mb={"0.5rem"} color={"gray"}>
-              <Flex  position={"absolute"} flexDirection={'column'} right={0}>
-              <DateAlert date={f.last_log} />
+              <Flex fontSize={{base:'0.7rem', sm:'1rem'}}  position={"absolute"} flexDirection={'column'} right={0}>
               <BirthdayAlert date={f.birthday} />
+              <DateAlert date={f.last_log} />
               </Flex>
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
@@ -346,23 +347,28 @@ export default function FriendList({ User, toastFun }) {
                     <Flex
                       position={"relative"}
                       justifyContent={"center"}
-                      w={"70px"}
-                      h={"70px"}
-                      mr={"1rem"}
+                      w={{base:'50px', md:"70px"}}
+                      h={{base:'50px', md:"70px"}}
+                      left={{base:-3, sm:0}}
+                      mr={{base:0, sm:"1rem"}}
                       border={"solid gray"}
                       borderRadius={"50vh"}
                       bg={"#bebebe4a"}
                     >
                       {getAvaterObj(f.avatar)().icon}
+                      <Box position={"absolute"} w={'150%'} bottom={-4}>
                       <Text
-                        position={"absolute"}
-                        bottom={-6}
+                        lineHeight={'1rem'}
                         fontWeight={"bold"}
+                        textAlign={'center'}
                       >
-                        {f.name}
+                        {f.name.slice(0,7)}{f.name.length > 7?'..':''}
                       </Text>
+
+                      </Box>
                     </Flex>
-                    <VStack align="stretch">
+                    <MobileList friend={f} spentOrReceive={spentOrReceive}/>
+                    <VStack display={{base:'none',md:'flex'}} align="stretch">
                       <Flex
                         color={f.sum >= 0 ? "#c0fafb" : "#ff9393"}
                         w={"100%"}

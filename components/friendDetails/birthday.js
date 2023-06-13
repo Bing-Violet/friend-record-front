@@ -38,22 +38,23 @@ import {
 } from "@chakra-ui/react";
 
 import { FaBirthdayCake } from "react-icons/fa";
+import { BsCalendarX, BsCalendar, BsCalendar2Check } from "react-icons/bs";
 import { customAxios } from "../customAxios";
 import AppContext from "../globalContext";
 
 const date = new Date(Date.now());
 
-const Year = forwardRef(({setIsReady}, ref) => {
+const Year = forwardRef(({ setIsReady }, ref) => {
   const [year, setYear] = useState(date.getFullYear());
   const handleChange = (value) => setVal(value);
   const setVal = (val) => {
     setYear(val);
     ref.current = Number(val);
-    setIsReady(true)
+    setIsReady(true);
   };
   useEffect(() => {
-    ref.current = date.getFullYear()
-  },[])
+    ref.current = date.getFullYear();
+  }, []);
   return (
     <Flex mt={"1rem"} h={"50px"} alignItems={"center"} position={"relative"}>
       <Text position={"absolute"} top={"-4"} left={5}>
@@ -94,17 +95,17 @@ const Year = forwardRef(({setIsReady}, ref) => {
   );
 });
 
-const Month = forwardRef(({setIsReady}, ref) => {
+const Month = forwardRef(({ setIsReady }, ref) => {
   const [month, setMonth] = useState(date.getMonth() + 1);
   const handleChange = (value) => setVal(value);
   const setVal = (val) => {
     setMonth(val);
     ref.current = Number(val);
-    setIsReady(true)
+    setIsReady(true);
   };
   useEffect(() => {
-    ref.current = date.getMonth() + 1
-  },[])
+    ref.current = date.getMonth() + 1;
+  }, []);
   return (
     <Flex
       mt={"1rem"}
@@ -132,17 +133,18 @@ const Month = forwardRef(({setIsReady}, ref) => {
     </Flex>
   );
 });
-const Day = forwardRef(({setIsReady}, ref) => {
+
+const Day = forwardRef(({ setIsReady }, ref) => {
   const [day, setDay] = useState(date.getDate());
   const handleChange = (value) => setVal(value);
   const setVal = (val) => {
     setDay(val);
     ref.current = Number(val);
-    setIsReady(true)
+    setIsReady(true);
   };
   useEffect(() => {
-    ref.current = date.getDate()
-  },[])
+    ref.current = date.getDate();
+  }, []);
   return (
     <Flex mt={"1rem"} h={"50px"} alignItems={"center"} position={"relative"}>
       <Text position={"absolute"} top={"-4"} left={0}>
@@ -165,16 +167,15 @@ const Day = forwardRef(({setIsReady}, ref) => {
   );
 });
 
-export default function Birthday({ friend, setFriend}) {
+export default function Birthday({ friend, setFriend, defaultButton }) {
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [isEditing, setIsEditing] = useBoolean();
   const yearRef = useRef(null);
   const monthRef = useRef(null);
   const dayRef = useRef(null);
-  const firstFieldRef = useRef(null)
-  const context = useContext(AppContext)
-  const toastFun = context.addToast
-  const [isReady, setIsReady] = useState(false)
+  const context = useContext(AppContext);
+  const toastFun = context.addToast;
+  const [isReady, setIsReady] = useState(false);
   function birthdayUpdate() {
     const year = yearRef.current;
     const month = monthRef.current;
@@ -185,11 +186,11 @@ export default function Birthday({ friend, setFriend}) {
         year: year,
         month: month,
         day: day,
-        id:friendiId
+        id: friendiId,
       })
       .then((res) => {
-        console.log(res.data)
-        setFriend(res.data)
+        console.log(res.data);
+        setFriend(res.data);
         toastFun({
           title: "Friend updated!",
           description: `Your friend ${friend.name}is successfully updated!`,
@@ -203,25 +204,21 @@ export default function Birthday({ friend, setFriend}) {
           status: "error",
         });
       });
-    console.log("clicked", date, year, month, day);
   }
-  const DateForm = () => {
-    function formCheck() {
-      setError(friendName ? true : false);
-      if (friendName) {
-        friendCreate();
-      } else {
-        console.log("NO");
-      }
+  function calenderIcon() {
+    if (!isReady && isEditing) {
+      return <BsCalendarX color={"red"} />;
+    } else if (isReady && isEditing) {
+      return <BsCalendar2Check color={"blue"} />;
+    } else if (!isEditing) {
+      return <BsCalendar color={"green"} />;
     }
-    return (
-      <Flex>
-        <Year ref={yearRef} setIsReady={setIsReady}/>
-        <Month ref={monthRef} setIsReady={setIsReady}/>
-        <Day ref={dayRef} setIsReady={setIsReady}/>
-      </Flex>
-    );
-  };
+  }
+  function customClose() {
+    onClose();
+    setIsEditing.off();
+    setIsReady(false);
+  }
   return (
     <Box>
       <Popover
@@ -232,22 +229,32 @@ export default function Birthday({ friend, setFriend}) {
       >
         <PopoverTrigger>
           <Center>
-            <Button
-              w={"60%"}
-              colorScheme="twitter"
-              isDisabled={!isReady&&isEditing}
-              leftIcon={<FaBirthdayCake />}
-              onClick={isEditing ? birthdayUpdate : () => {}}
-            >
-              {isEditing ? "Save" : "Add Birthday?"}
-            </Button>
+            {defaultButton === "edit" ? (
+              <Box ml={'0.2rem'} onClick={isReady && isEditing ? birthdayUpdate : () => {}}>
+                {calenderIcon()}
+              </Box>
+            ) : (
+              <Button
+                w={"60%"}
+                colorScheme="twitter"
+                isDisabled={!isReady && isEditing}
+                leftIcon={<FaBirthdayCake />}
+                onClick={isEditing ? birthdayUpdate : () => {}}
+              >
+                {isEditing ? "Save" : "Add Birthday?"}
+              </Button>
+            )}
           </Center>
         </PopoverTrigger>
         <PopoverContent p={5}>
           <FocusLock returnFocus persistentFocus={false}>
             <PopoverArrow />
-            <PopoverCloseButton />
-            <DateForm onCancel={onClose} />
+            <PopoverCloseButton onClick={customClose} />
+            <Flex>
+              <Year ref={yearRef} setIsReady={setIsReady} />
+              <Month ref={monthRef} setIsReady={setIsReady} />
+              <Day ref={dayRef} setIsReady={setIsReady} />
+            </Flex>
           </FocusLock>
         </PopoverContent>
       </Popover>
