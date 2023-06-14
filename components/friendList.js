@@ -13,7 +13,7 @@ import {
   InputGroup,
   InputLeftElement,
   VStack,
-  Image
+  Image,
 } from "@chakra-ui/react";
 import {
   Menu,
@@ -33,6 +33,7 @@ import { FiChevronDown } from "react-icons/fi";
 import { dateConvert } from "@/utils";
 import { getAvaterObj } from "./iconsSlides/avatars";
 import MobileList from "./friendLists/mobileList";
+import { wrap } from "popmotion";
 
 const sortOptionStates = {
   LOW_AMOUNT: "Low Amount",
@@ -41,6 +42,7 @@ const sortOptionStates = {
   OLDEST: "Oldest",
   Name: "Name A to Z",
   EVENT: "Event",
+  // BIRTHDAY: "Birthday",
 };
 function Wrapper({ children, toastFun }) {
   const context = useContext(AppContext);
@@ -134,6 +136,36 @@ function Selector({ searchFriend, setSearchFriend, context }) {
         copiedFriends.sort(
           (a, b) => new Date(a.last_log) - new Date(b.last_log)
         );
+        setSearchFriend([...copiedFriends]);
+        break;
+      // case sortOptionStates.BIRTHDAY:
+      //   console.log("BIER")
+      //   copiedFriends.sort((a, b) => {
+      //     const nowDate = new Date();
+      //     const aDate = new Date(a.birthday);
+      //     const bDate = new Date(b.birthday);
+      //     const A = (nowDate.getMonth() - aDate.getMonth() -12) * -1
+      //     const B = (nowDate.getMonth() - bDate.getMonth() - 12) * -1
+      //     const deffDateA = nowDate.getDate() - aDate.getDate();
+      //     const deffDateB = nowDate.getDate() - bDate.getDate();
+      //     const deffMonthA = wrap(0, 12,A);
+      //     const deffMonthB = wrap(0, 12,B);
+      //     // console.log("A", A, aDate,deffMonthA ,'B', B, bDate, deffMonthB)
+      //     console.log("A", deffMonthA ,'B',deffMonthB)
+      //     if(deffMonthA < deffMonthB) {
+      //       if(deffDateA < deffDateB) {
+      //           return -1
+      //         } else {
+      //           return 1
+      //         }
+      //     } else {
+      //       if(deffDateA > deffDateB) {
+      //         return -1
+      //       } else {
+      //         return 1
+      //       }
+      //     } 
+      //   });
         setSearchFriend([...copiedFriends]);
         break;
       case sortOptionStates.Name:
@@ -231,9 +263,13 @@ export default function FriendList({ User, toastFun }) {
     if (context.friends.length) {
       const chachUpArray = [];
       const dateOrderedArray = context.friends.filter((d) => {
+       const birthdayObj = birthDateCalculation(d.birthday)
         if (dateCalculation(d.last_log) >= 30) {
           chachUpArray.unshift(d);
-        } else {
+        } 
+        else if(typeof birthdayObj!=='undefined'){
+          chachUpArray.unshift(d);
+        }else {
           return d;
         }
       });
@@ -243,7 +279,6 @@ export default function FriendList({ User, toastFun }) {
     }
   }, []);
   function dateCalculation(date) {
-    
     const nowDate = new Date();
     const last_log = new Date(date);
     const diffMilliSec = nowDate - last_log;
@@ -256,26 +291,23 @@ export default function FriendList({ User, toastFun }) {
       const bDate = new Date(date);
       const deffMonth = nowDate.getMonth() - bDate.getMonth();
       const deffDate = nowDate.getDate() - bDate.getDate();
-      if(deffMonth===0) {
-        if(deffDate <= 0) {
-          return {alert:true, deffDate:deffDate}
+      if (deffMonth === 0) {
+        if (deffDate <= 0) {
+          return { alert: true, deffDate: deffDate };
         }
-      } else if(deffMonth===-1||deffMonth===11) {
-        if(deffDate >= 0) {
-          return {alert:true, deffDate:deffDate}
+      } else if (deffMonth === -1 || deffMonth === 11) {
+        if (deffDate >= 0) {
+          return { alert: true, deffDate: deffDate };
         }
       }
     }
   }
   function BirthdayAlert({ date }) {
-    const dateResultObj = birthDateCalculation(date)
-    const dateDisplay = typeof dateResultObj !== 'undefined'?dateResultObj.alert:''
+    const dateResultObj = birthDateCalculation(date);
+    const dateDisplay =
+      typeof dateResultObj !== "undefined" ? dateResultObj.alert : "";
     return (
-      <Flex
-        w={"100%"}
-        color={"red.500"}
-        justifyContent={"flex-end"}
-      >
+      <Flex w={"100%"} color={"red.500"} justifyContent={"flex-end"}>
         {dateDisplay ? (
           <Flex
             alignItems={"center"}
@@ -286,8 +318,16 @@ export default function FriendList({ User, toastFun }) {
             pr={"0.5rem"}
             border={"solid #fa95f6"}
           >
-            <Image src={`/svgs/events/gift.svg`} width={{base:'20px', sm:"30px"}} height={"30px"} />
-            <Text fontWeight={"bold"}>{dateResultObj.deffDate===0?'Birthday is Today!':'Birthday is Soon!'}</Text>
+            <Image
+              src={`/svgs/events/gift.svg`}
+              width={{ base: "20px", sm: "30px" }}
+              height={"30px"}
+            />
+            <Text fontWeight={"bold"}>
+              {dateResultObj.deffDate === 0
+                ? "Birthday is Today!"
+                : "Birthday is Soon!"}
+            </Text>
           </Flex>
         ) : (
           <></>
@@ -297,11 +337,7 @@ export default function FriendList({ User, toastFun }) {
   }
   function DateAlert({ date }) {
     return (
-      <Flex
-        w={"100%"}
-        color={"red.500"}
-        justifyContent={"flex-end"}
-      >
+      <Flex w={"100%"} color={"red.500"} justifyContent={"flex-end"}>
         {dateCalculation(date) >= 30 ? (
           <Flex
             alignItems={"center"}
@@ -312,7 +348,11 @@ export default function FriendList({ User, toastFun }) {
             pr={"0.5rem"}
             border={"solid #fa95f6"}
           >
-            <Image src={`/svgs/clock.svg`} width={{base:'20px', sm:"30px"}} height={"30px"} />
+            <Image
+              src={`/svgs/clock.svg`}
+              width={{ base: "20px", sm: "30px" }}
+              height={"30px"}
+            />
             <Text fontWeight={"bold"}>Catch up!</Text>
           </Flex>
         ) : (
@@ -342,9 +382,14 @@ export default function FriendList({ User, toastFun }) {
           </Flex>
           {searchFriend.map((f, index) => (
             <Card w={"100%"} key={index} mb={"0.5rem"} color={"gray"}>
-              <Flex fontSize={{base:'0.7rem', sm:'1rem'}}  position={"absolute"} flexDirection={'column'} right={0}>
-              <BirthdayAlert date={f.birthday} />
-              <DateAlert date={f.last_log} />
+              <Flex
+                fontSize={{ base: "0.7rem", sm: "1rem" }}
+                position={"absolute"}
+                flexDirection={"column"}
+                right={0}
+              >
+                <BirthdayAlert date={f.birthday} />
+                <DateAlert date={f.last_log} />
               </Flex>
               <Link href={"friendDetails/" + f.id} scroll={false}>
                 <CardBody>
@@ -352,28 +397,31 @@ export default function FriendList({ User, toastFun }) {
                     <Flex
                       position={"relative"}
                       justifyContent={"center"}
-                      w={{base:'50px', md:"70px"}}
-                      h={{base:'50px', md:"70px"}}
-                      left={{base:-3, sm:0}}
-                      mr={{base:0, sm:"1rem"}}
+                      w={{ base: "50px", md: "70px" }}
+                      h={{ base: "50px", md: "70px" }}
+                      left={{ base: -3, sm: 0 }}
+                      mr={{ base: 0, sm: "1rem" }}
                       border={"solid gray"}
                       borderRadius={"50vh"}
                       bg={"#bebebe4a"}
                     >
                       {getAvaterObj(f.avatar)().icon}
-                      <Box position={"absolute"} w={'150%'} bottom={-4}>
-                      <Text
-                        lineHeight={'1rem'}
-                        fontWeight={"bold"}
-                        textAlign={'center'}
-                      >
-                        {f.name.slice(0,7)}{f.name.length > 7?'..':''}
-                      </Text>
-
+                      <Box position={"absolute"} w={"150%"} bottom={-4}>
+                        <Text
+                          lineHeight={"1rem"}
+                          fontWeight={"bold"}
+                          textAlign={"center"}
+                        >
+                          {f.name.slice(0, 7)}
+                          {f.name.length > 7 ? ".." : ""}
+                        </Text>
                       </Box>
                     </Flex>
-                    <MobileList friend={f} spentOrReceive={spentOrReceive}/>
-                    <VStack display={{base:'none',md:'flex'}} align="stretch">
+                    <MobileList friend={f} spentOrReceive={spentOrReceive} />
+                    <VStack
+                      display={{ base: "none", md: "flex" }}
+                      align="stretch"
+                    >
                       <Flex
                         color={f.sum >= 0 ? "#c0fafb" : "#ff9393"}
                         w={"100%"}
