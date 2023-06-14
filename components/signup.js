@@ -7,12 +7,14 @@ import {
   InputGroup,
   Button,
   IconButton,
+  Text,
   FormControl,
   FormLabel,
   FormErrorMessage,
   FormHelperText,
   InputRightElement,
   VStack,
+  Spinner
 } from "@chakra-ui/react";
 import axios from "axios";
 import Cookies from "universal-cookie";
@@ -96,8 +98,15 @@ export default function Signup({ setUser }) {
   const [password, setPassword] = useState("");
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const [isLoading, setIsloading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  // const [passwordFormCheck,setPasswordFormCheck] = useState('')
+  const [sentConfirmation, setSentConfirmation] = useState("");
+  const sendingProcessStates = {
+    NOT_READY: "NOT_READY",
+    SENDIND: "SENDIND",
+    SENT: "SENT",
+  };
+  useEffect(() => {
+    setSentConfirmation(sendingProcessStates.NOT_READY);
+  }, []);
   const [emailErrorObj, setEmailErrorObj] = useState({
     isError: false,
     isEmpty: false,
@@ -118,7 +127,7 @@ export default function Signup({ setUser }) {
     useState(false);
   const cookies = new Cookies();
   function userCreate() {
-    setIsloading(true);
+    setSentConfirmation(sendingProcessStates.SENDIND)
     axios({
       method: "post",
       url: "/api/user/user-create/",
@@ -130,20 +139,15 @@ export default function Signup({ setUser }) {
     })
       .then((res) => {
         setIsloading(false);
-        setEmailSent(true);
-        // const data = jwt(res.data.tokens.access_token);
-        // cookies.set("jwt-tokens", {
-        //   access_token: res.data.tokens.access_token,
-        //   refresh_token: res.data.tokens.refresh_token,
-        // });
-        // cookies.set("user", data.user_id);
-        // context.setUser(data.user_id);
+        setSentConfirmation(sendingProcessStates.SENT)
         setUsername("");
         setEmail("");
         setPassword("");
         setConfirmationPassword("");
       })
       .catch((e) => {
+        console.log("error",e)
+        setSentConfirmation(sendingProcessStates.NOT_READY)
         if (e.response.data.message === "this email is already in use.") {
           setEmailErrorObj({
             ...passwordErrorObj,
@@ -159,9 +163,6 @@ export default function Signup({ setUser }) {
         }
       });
   }
-  // function abstractSetError(sub, state) {
-  //   setErrors({ ...errors, [sub]: state ? true : false });
-  // }
   function SubmitButton() {
     function emailFormCheck() {
       function checkValidEmail() {
@@ -208,8 +209,8 @@ export default function Signup({ setUser }) {
     }
     return (
       <Button
-        colorScheme="teal"
-        variant="solid"
+        colorScheme="blue"
+        variant='outline'
         type="submit"
         onClick={formCheck}
       >
@@ -217,11 +218,14 @@ export default function Signup({ setUser }) {
       </Button>
     );
   }
-  return (
-    <Flex w={"90%"}>
-      {!isLoading ? (
-        <>
-          {!emailSent ? (
+  let markup;
+  if (
+    sentConfirmation !== sendingProcessStates.SENDIND &&
+    sentConfirmation !== sendingProcessStates.SENT
+  ) {
+    markup = (
+      <>
+        <Flex w={"90%"}>
             <FormControl isRequired>
               <VStack spacing={"1rem"}>
                 <Username
@@ -252,15 +256,29 @@ export default function Signup({ setUser }) {
                 <SubmitButton />
               </Center>
             </FormControl>
-          ) : (
-            <>SENT</>
-          )}
-        </>
-      ) : (
-        <>
-          <CustomSpinner />
-        </>
-      )}
+         
+     
     </Flex>
+      </>
+    );
+  } else if(sentConfirmation === sendingProcessStates.SENDIND) {
+    markup = (
+    <VStack>
+      <Text fontWeight={"bold"} fontSize={"1.7rem"} color={'red'}>Creating your account…</Text>
+      <Spinner size='lg' />
+    </VStack>
+    )
+  } else if(sentConfirmation === sendingProcessStates.SENT) {
+    markup = (
+    <VStack>
+    <Text fontWeight={"bold"} fontSize={"1.7rem"} color={'red'}>SUCCESSFULLY SENT A MESSAGE</Text>
+    <Text fontSize={'1.2rem'} fontWeight={'bold'}>Please check your email to activate your account.</Text>
+    </VStack>
+    )
+  }
+  return (
+    <>
+    {markup}
+    </>
   );
 }

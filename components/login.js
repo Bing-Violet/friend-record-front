@@ -4,13 +4,17 @@ import {
   Form,
   Center,
   Input,
+  IconButton,
   Text,
   Button,
   FormControl,
   FormLabel,
   FormErrorMessage,
+  InputRightElement,
+  InputGroup,
   FormHelperText,
   VStack,
+  Spinner
 } from "@chakra-ui/react";
 import {
   Alert,
@@ -24,6 +28,7 @@ import jwt from "jwt-decode";
 import AppContext from "./globalContext";
 import CustomSpinner from "./spinner";
 import { useRouter } from "next/router";
+import { ImEyeBlocked, ImEye } from "react-icons/im";
 
 function Email({ email, setValue, error, setError }) {
   const subject = "email";
@@ -38,7 +43,7 @@ function Email({ email, setValue, error, setError }) {
           value={email}
           onChange={handleChange}
           placeholder="enter valid email"
-          size="sm"
+          size="md"
         />
         <FormErrorMessage>Email is required</FormErrorMessage>
       </FormControl>
@@ -46,6 +51,7 @@ function Email({ email, setValue, error, setError }) {
   );
 }
 function Password({ password, setValue, error, setError }) {
+  const [showPassword, setShowPassword] = useState(true)
   const subject = "password";
   const handleChange = (event) => {
     setValue(event.target.value), setError(subject, event.target.value);
@@ -55,12 +61,38 @@ function Password({ password, setValue, error, setError }) {
     <>
       <FormControl isInvalid={!error}>
         <FormLabel>Password</FormLabel>
+        <InputGroup>
         <Input
           value={password}
+          type={!showPassword ? "text" : "password"}
           onChange={handleChange}
           placeholder="enter password"
-          size="sm"
+          size="md"
         />
+        <InputRightElement>
+            {showPassword ? (
+              <>
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  background={"none"}
+                  size="sm"
+                  color={"gray.500"}
+                  icon={<ImEye />}
+                />
+              </>
+            ) : (
+              <>
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  background={"none"}
+                  size="sm"
+                  color={"gray.500"}
+                  icon={<ImEyeBlocked />}
+                />
+              </>
+            )}
+          </InputRightElement>
+          </InputGroup>
         <FormErrorMessage>pasword is required</FormErrorMessage>
       </FormControl>
     </>
@@ -71,7 +103,7 @@ export default function Login() {
   const context = useContext(AppContext);
   const router = useRouter();
   const [isLoading, setIsloading] = useState(false);
-  const [sentResetPassword, setSentResetPassword] = useState(false);
+  const [sentResetPassword, setSentResetPassword] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userExist, setUserExist] = useState(false);
@@ -81,7 +113,14 @@ export default function Login() {
     password: true,
   });
   const [apiError, setApiError] = useState(false);
-
+  const sendingProcessStates = {
+    NOT_READY: "NOT_READY",
+    SENDIND: "SENDIND",
+    SENT: "SENT",
+  };
+  useEffect(() => {
+    setSentResetPassword(sendingProcessStates.NOT_READY);
+  }, []);
   function login() {
     axios({
       method: "post",
@@ -89,7 +128,7 @@ export default function Login() {
       data: {
         email: email,
         password: password,
-      }
+      },
     })
       .then(async (res) => {
         const data = jwt(res.data.tokens.access_token);
@@ -105,13 +144,16 @@ export default function Login() {
           pathname: "/account",
           query: { code: "login" },
         });
-        context.setIsLoading(false)
+        // context.setIsLoading(false)
       })
       .catch((e) => {
         console.log("error", e);
-        try{
+        try {
           if (e.response.data.user_exist) {
-            setErrorMessage("Password is wrong!. Please confirm your password!");
+            console.log("USER>EX");
+            setErrorMessage(
+              "Password is wrong! or your email is not verify. Please confirm your password!"
+            );
             setUserExist(true);
           } else {
             setErrorMessage("User doesn't exist. Please confirm your eamil!");
@@ -119,12 +161,13 @@ export default function Login() {
           }
         } catch {
           setErrorMessage("Something bad happened. Please try later!");
-            setUserExist(false);
+          setUserExist(false);
         }
         setApiError(true);
       });
   }
   function sendResetPassword() {
+    setSentResetPassword(sendingProcessStates.SENDIND);
     axios({
       method: "post",
       url: "/api/user/send-password-change/",
@@ -132,7 +175,7 @@ export default function Login() {
     })
       .then((res) => {
         console.log("res", res.data);
-        setSentResetPassword(true);
+        setSentResetPassword(sendingProcessStates.SENT);
         setApiError(false);
       })
       .catch((e) => {
@@ -155,7 +198,7 @@ export default function Login() {
       password: password ? true : false,
     });
     if (email && password) {
-      context.setIsLoading(true,login())
+      login();
     } else {
       console.log("NO");
     }
@@ -195,40 +238,40 @@ export default function Login() {
       </>
     );
   }
+  let markup;
+  if (
+    sentResetPassword !== sendingProcessStates.SENDIND &&
+    sentResetPassword !== sendingProcessStates.SENT
+  ) {
+    markup = (
+      <>
+        <VStack w={"90%"}>
+          <Email
+            email={email}
+            setValue={setEmail}
+            error={errors.email}
+            setError={abstractSetError}
+          />
+          <Password
+            password={password}
+            setValue={setPassword}
+            error={errors.password}
+            setError={abstractSetError}
+          />
+          <Button colorScheme="red" variant="outline" onClick={formCheck}>
+            Login
+          </Button>
+          {!apiError ? <></> : <ApiAlert />}
+        </VStack>
+      </>
+    );
+  } else if(sentResetPassword === sendingProcessStates.SENDIND) {
+    markup = (<><Spinner size='lg' /></>)
+  } else if(sentResetPassword === sendingProcessStates.SENT) {
+    markup = (<><Text fontSize={'1.2rem'} fontWeight={'bold'}>Sent email to your address.</Text></>)
+  }
+
   return (
-    <>
-      {!isLoading ? (
-        <>
-          {!sentResetPassword ? (
-            <>
-              <VStack w={"90%"}>
-                <Email
-                  email={email}
-                  setValue={setEmail}
-                  error={errors.email}
-                  setError={abstractSetError}
-                />
-                <Password
-                  password={password}
-                  setValue={setPassword}
-                  error={errors.password}
-                  setError={abstractSetError}
-                />
-                <Button colorScheme="red" variant="outline" onClick={formCheck}>
-                  Login
-                </Button>
-                {!apiError ? <></> : <ApiAlert />}
-              </VStack>
-            </>
-          ) : (
-            <>SENT</>
-          )}
-        </>
-      ) : (
-        <>
-          <CustomSpinner />
-        </>
-      )}
-    </>
+    <>{markup}</>
   );
 }

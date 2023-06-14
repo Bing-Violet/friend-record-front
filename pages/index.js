@@ -6,7 +6,10 @@ import FriendCreate from "../components/friendCreate";
 import axios from "axios";
 import AppContext from "@/components/globalContext";
 import CustomSpinner from "@/components/spinner";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
+import NotLogin from "@/components/homes/notLogin";
+import FriendCreateBG from "@/components/backgrounds/friendCreateBG";
+import Cookies from "universal-cookie";
 import {
   Button,
   ButtonGroup,
@@ -15,60 +18,79 @@ import {
   Flex,
   Spinner,
 } from "@chakra-ui/react";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
+} from '@chakra-ui/react'
 
-export default function Home() {
+export default function Home({setRerender}) {
+  console.log("FROM_HOME")
   const context = useContext(AppContext);
   const [mounted, setMounted] = useState("");
   const addToast = context.addToast
   const [user, setUser] = useState(context.user)
-
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [buttonAttr, setButtonAttr] = useState("");
+  const cookies = new Cookies()
   useEffect(() => {
-    // if (user&&!context.friends.length) {
-    //   axios({
-    //     method: "post",
-    //     url: "/api/character/user-character/",
-    //     data: {
-    //       user: user,
-    //     },
-    //   })
-    //     .then((res) => {
-    //       context.setFriends(res.data);
-    //     })
-    //     .catch((e) => {});
-    // }
+    console.log("FROM_INDEX")
     setMounted(true);
   }, []);
-
+  function InitialFocus({children}) {
+  
+    const initialRef = useRef(null)
+    const finalRef = useRef(null)
+    const mainText = buttonAttr==='signup'?'Create your account':'Login your account'
+    const markup = buttonAttr==='signup'?(<Signup />):(<Login setRerender={setRerender} />)
+    return (
+      <>
+        <Modal
+          initialFocusRef={initialRef}
+          finalFocusRef={finalRef}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>{mainText}</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody pb={6}>
+              <Center>
+              {markup}
+              </Center>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </>
+    )
+  }
   function SignupOrLogin() {
     const [signup, setSignup] = useState(true);
     return (
-      <Flex w={"600px"} mt={"2rem"} flexDirection={"column"}>
-        <Center>
-          <ButtonGroup>
-            <Button colorScheme="gray" onClick={() => setSignup(true)}>
-              Signup
-            </Button>
-            <Button colorScheme="gray" onClick={() => setSignup(false)}>
-              Login
-            </Button>
-          </ButtonGroup>
-        </Center>
-        <Center>{signup ? <Signup /> : <Login />}</Center>
-      </Flex>
+      <>
+      <NotLogin width={"100vw"} height={'100vh'} onOpen={onOpen} setButtonAttr={setButtonAttr}/>
+       <InitialFocus/>
+      </>
     );
   }
   function IsLoggedin() {
     return (
-      <VStack>
-        <FriendCreate User={user} toastFun={addToast} />
+      <VStack w={"100%"}>
+        {/* <FriendCreateBG User={user} toastFun={addToast}/> */}
         <FriendList User={user} toastFun={addToast} />
       </VStack>
     );
   }
-  return (
-    <>
+  let markup
+  if(mounted) {
+    markup = (
       <Flex justifyContent={"center"}>
-        {mounted ? (
           <>
             {user ? (
               <>
@@ -80,10 +102,12 @@ export default function Home() {
               </>
             )}
           </>
-        ) : (
-         <CustomSpinner/>
-        )}
       </Flex>
+    )
+  }
+  return (
+    <>
+    {!context.isLoading?(<>{markup}</>):(<CustomSpinner/>)}
     </>
   );
 }

@@ -1,18 +1,13 @@
 import { useState, useEffect, useRef, forwardRef, useContext } from "react";
 import { useRouter } from "next/router";
 import Cookies from "universal-cookie";
-import axios from "axios";
 import { customAxios } from "@/components/customAxios";
 import {
   Button,
   ButtonGroup,
-  Wrap,
-  WrapItem,
   Center,
   VStack,
   Flex,
-  Spinner,
-  Avatar,
   Text,
   Box,
   Stack,
@@ -20,7 +15,9 @@ import {
   FormControl,
   FormLabel,
   Input,
-  IconButton
+  StackDivider,
+  CloseButton,
+  IconButton,
 } from "@chakra-ui/react";
 
 import {
@@ -33,7 +30,7 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   PopoverAnchor,
-  Portal
+  Portal,
 } from "@chakra-ui/react";
 
 import {
@@ -47,162 +44,507 @@ import {
 import { useDisclosure } from "@chakra-ui/react";
 
 import EventCreate from "@/components/eventCreate";
-import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { AiOutlineEdit } from "react-icons/ai";
-import { FiDelete } from "react-icons/fi";
+import { Card, CardBody } from "@chakra-ui/react";
+import { FaBirthdayCake } from "react-icons/fa";
+import { RiSettings4Line, RiEdit2Line } from "react-icons/ri";
 import AppContext from "@/components/globalContext";
+import { eventIcons, getIconObj } from "@/components/iconsSlides/icons";
+import SlideIcons from "@/components/iconsSlides/slideIcons";
+import CustomSpinner from "@/components/spinner";
+import { avatars, getAvaterObj } from "@/components/iconsSlides/avatars";
+import { dateConvert } from "@/utils";
+import { EditableInput } from "@/components/customForms/editableInput";
+import { Who } from "@/components/eventCreate";
+import Birthday from "@/components/friendDetails/birthday";
 
 export default function FriendDetail() {
-  const cookies = new Cookies
   const router = useRouter();
   const context = useContext(AppContext);
   const [friend, setFriend] = useState("");
   const [events, setEvents] = useState("");
   const [mounted, setMounted] = useState(false);
   const [slug, setSlug] = useState("");
-  const toastFun = context.addToast
+  const editableInputRef = useRef(null);
+  const toastFun = context.addToast;
   useEffect(() => {
-    if (context.user && router.query.slug) {
-      if(!context.friends.length){getFriend()
-      }else{
-        const f = context.friends.find(f => f.id==router.query.slug)
+    if (context.user && router.query.slug && context) {
+      if (!context.friends.length) {
+        const asyncGetFriend = async () => {
+          context.setIsLoading(true);
+          await getFriend().then(() => context.setIsLoading(false));
+        };
+        asyncGetFriend();
+      } else {
+        const f = context.friends.find((f) => f.id == router.query.slug);
         setFriend(f);
         setEvents(f.event);
       }
     } else if (!slug) {
       setSlug(router.query.slug);
     }
-    setMounted(true);
-  }, [router.query.slug]); //why set router? this is for reloading.
+    return setMounted(true);
+  }, []); //why set router? this is for reloading.
 
   async function getFriend() {
-    customAxios.get(`/api/character/character-detail/${router.query.slug}`)
+    customAxios
+      .get(`/api/character/character-detail/${router.query.slug}`)
       .then((res) => {
         setFriend(res.data);
         setEvents(res.data.event);
       })
       .catch((e) => {});
   }
-
-  function dateConvert(date) {
-    const dateObj = new Date();
-    const offset = dateObj.getTimezoneOffset();
-    let dt = new Date(date);
-    const localTime = dt.setMinutes(offset * -1 + dt.getMinutes());
-
-    dt = new Date(localTime);
-    const stringDT = dt.toLocaleString([], {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    return stringDT.replace(/\//g, "-");
+  function friendUpdate({ ...props }) {
+    const id = friend.id;
+    customAxios
+      .patch(`/api/character/character-detail/${friend.id}`, props)
+      .then((res) => {
+        const newEvents = context.friends.map((e) => {
+          if (e.id === id) {
+            e = res.data;
+            friend.avatar = props.avatar ? props.avatar : friend.avatar;
+            friend.name = props.name ? props.name : friend.name;
+            return e;
+          } else {
+            return e;
+          }
+        });
+        context.setFriends([...newEvents]);
+        toastFun({
+          title: "Your friend is updated!",
+          description: `Your friend ${friend.name} is successfully updated!`,
+          status: "success",
+        });
+      })
+      .catch((e) => {
+        toastFun({
+          title: "Failed!",
+          description: `Something bad happened. Please try later!`,
+          status: "error",
+        });
+      });
   }
   function FriendInfo() {
+    const outerRef = useRef();
+    const innerRef = useRef();
+    useEffect(() => {
+      if (typeof innerRef.current !== "undefined") {
+        outerRef.current.style.height =
+          innerRef.current.offsetHeight + 32 + "px"; //32 is half of the image
+      }
+    }, [innerRef.current]);
+    function amountCalculation(eventList, sub) {
+      // eventList is array, sub will be paied or bePaied
+      const acceptedSubs = ["paied", "bePaied"];
+      let paied = 0;
+      let bePaied = 0;
+      eventList.forEach((e) => {
+        const money = Number(e.money);
+        paied += money > 0 ? money : 0;
+        bePaied += money < 0 ? money : 0;
+      });
+      if (acceptedSubs.includes(sub)) {
+        return sub === "paied" ? paied : bePaied * -1;
+      } else {
+        throw "sub must be paied or bePaied";
+      }
+    }
+    function friendNameUpdate() {
+      friendUpdate({ name: editableInputRef.current });
+    }
+    function Header({ children }) {
+      const { onOpen, onClose, isOpen } = useDisclosure();
+      const [avatar, setAvatar] = useState("");
+      const [isDisabled, setIsDisabled] = useState(true);
+      useEffect(() => {
+        if (avatar) {
+          if (friend.avatar !== avatar.name) {
+            setIsDisabled(false);
+          } else {
+            setIsDisabled(true);
+          }
+        }
+      }, [avatar]);
+      return (
+        <Box w={"100%"} ref={outerRef}>
+          <Flex position={"relative"} justifyContent={"center"} w={"100%"}>
+            <Box zIndex={1}>
+              <Box
+                position={"relative"}
+                w={"70px"}
+                h={"70px"}
+                mr={"1rem"}
+                border={"solid gray"}
+                borderRadius={"50vh"}
+                bg={"#cfcfcf"}
+              >
+                {getAvaterObj(friend.avatar)().icon}
+                <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+                  <PopoverTrigger>
+                    <Box
+                      position={"absolute"}
+                      right={-6}
+                      bottom={0}
+                      border={"solid gray"}
+                      borderRadius={"4px"}
+                      p={"0 0.2rem"}
+                      fontSize={"0.5rem"}
+                      transition={".3s"}
+                      _hover={{ bg: "#dadada", color: "gray" }}
+                    >
+                      Edit
+                    </Box>
+                  </PopoverTrigger>
+                  <PopoverContent p={5}>
+                    <PopoverCloseButton />
+                    <SlideIcons
+                      iconArray={avatars}
+                      setIcon={setAvatar}
+                      defaultIcon={getAvaterObj(friend.avatar)}
+                    />
+                    <ButtonGroup display="flex" justifyContent="flex-end">
+                      <Button variant="outline" onClick={onClose}>
+                        Cancel
+                      </Button>
+                      <Button
+                        isDisabled={isDisabled}
+                        onClick={() => friendUpdate({ avatar: avatar.name })}
+                        colorScheme="teal"
+                      >
+                        Save
+                      </Button>
+                    </ButtonGroup>
+                  </PopoverContent>
+                </Popover>
+              </Box>
+            </Box>
+            <Box w={"100%"} position={"absolute"} top={"50%"} ref={innerRef}>
+              {children}
+            </Box>
+          </Flex>
+        </Box>
+      );
+    }
+    const totalAmountColor = (amount) => {
+      function chack() {
+        if(amount === 0){
+          return ''
+        } else if(amount > 0) {
+          return "#c0fafb"
+        } else {
+          return "#ff9393"
+        }
+      }
+      return chack()
+    };
+    let birthday;
+    if (!friend.birthday) {
+      birthday = <Birthday friend={friend} setFriend={setFriend} />;
+    }
+    let birthdayDisplay;
+    if (friend.birthday) {
+      birthdayDisplay = (
+        <Flex alignItems={"center"}>
+          <Text mr={"0.3rem"}>Birthday :</Text>
+          <Text>{friend.birthday}</Text>
+          <Birthday friend={friend} setFriend={setFriend} defaultButton={'edit'}/>
+        </Flex>
+      );
+    }
     return (
       <>
         {Object.keys(friend).length ? (
-          <Card minW={"100%"}>
-            <CardBody>
-              <Flex alignItems={"center"}>
-                <Avatar mr={"1rem"} />
-                <VStack align="stretch">
-                  <Text>Name : {friend.name}</Text>
-                  <Text>Sum : ${friend.sum}</Text>
-                  <Text>Last_log : {dateConvert(friend.last_log)}</Text>
-                </VStack>
-              </Flex>
-            </CardBody>
-          </Card>
+          <Header>
+            <Card
+              color={"gray"}
+              border={"solid #898686"}
+              w={"100%"}
+              overflow={"hidden"}
+              position={"relative"}
+            >
+              <FriendDeletePopover id={friend.id} friendName={friend.name} />
+              <CardBody w={"100%"} pt={"0.2rem"}>
+                <Stack
+                  divider={<StackDivider />}
+                  spacing={{ base: "1", md: "4" }}
+                >
+                  <Flex w={"100%"} justifyContent={"center"}>
+                    <VStack
+                      align="stretch"
+                      fontWeight={"bold"}
+                      spacing={"0.5rem"}
+                    >
+                      <Flex alignItems={"center"}>
+                        <Text mr={"0.3rem"}>Name :</Text>
+                        <Box w={"50%%"} h={"100%"}>
+                          <Flex alignItems={"center"} position={"absolute"}>
+                            <EditableInput
+                              ref={editableInputRef}
+                              value={friend.name}
+                              func={friendNameUpdate}
+                            />
+                          </Flex>
+                        </Box>
+                      </Flex>
+                      {birthdayDisplay}
+                      <Text>
+                        Last interaction : {dateConvert(friend.last_log)}
+                      </Text>
+                      {birthday}
+                    </VStack>
+                  </Flex>
+                  <Flex
+                    alignItems={"center"}
+                    fontWeight={"bold"}
+                    flexDirection={"column"}
+                  >
+                    <Flex
+                      color={totalAmountColor(friend.sum)}
+                      alignItems={"center"}
+                      fontSize={"1.5rem"}
+                    >
+                      <Text>TOTAL</Text>
+                      <Text m={"0 0.2rem"}>:</Text>
+                      <Text>${friend.sum}</Text>
+                    </Flex>
+                    <Flex w={"100%"} mt={{ md: "1rem" }}>
+                      <Box textAlign={"center"} flexBasis={"50%"}>
+                        <Text color={"#008dff"}>I Paid</Text>
+                        <Text>${amountCalculation(events, "paied")}</Text>
+                      </Box>
+                      <Box textAlign={"center"} flexBasis={"50%"}>
+                        <Text color={"#ff4d76"}>They Paid</Text>
+                        <Text>${amountCalculation(events, "bePaied")}</Text>
+                      </Box>
+                    </Flex>
+                  </Flex>
+                </Stack>
+              </CardBody>
+            </Card>
+          </Header>
         ) : (
-          <>
-            <Spinner />
-          </>
+          <></>
         )}
       </>
     );
   }
   function EventList() {
+    const listRef = useRef();
+    const [maxH, setMaxH] = useState(0);
+    useEffect(() => {
+      if (typeof window !== "undefined") {
+        const lisrect = listRef.current.getBoundingClientRect();
+        setMaxH(window.innerHeight - lisrect.top - 48);
+      }
+    }, []);
+    function colorHandler(amount) {
+      if (amount > 0) {
+        return "#e4feff";
+      } else if (amount < 0) {
+        return "#ffddea";
+      } else {
+        return "#ffffe0";
+      }
+    }
+    function spentOrReceive(amount) {
+      return amount >= 0 ? "I owe them" : "They owe me";
+    }
     return (
-      <Box mt={"1rem"}>
+      <Box
+        w={"99%"}
+        fontWeight={"bold"}
+        ref={listRef}
+        maxH={maxH}
+        overflowY={events.length > 1 ? "scroll" : "none"}
+        overflowX={events.length > 1 ? "hidden" : "none"}
+      >
         {events.length ? (
           <>
             {events.map((e, index) => (
-              <Card position={"relative"} key={index} mb={"1rem"} minW={"100%"}>
-                <EditPopover eventName={e.name} money={e.money} id={e.id} />
+              <Card
+                border={"solid #ffddf9"}
+                position={"relative"}
+                key={index}
+                mt={"0.3rem"}
+                minW={"100%"}
+                bg={colorHandler(e.money)}
+              >
+                <Flex position={"absolute"} right={0}>
+                  <DeletePopover id={e.id} eventName={e.name} />
+                  <EditPopover
+                    eventName={e.name}
+                    money={e.money}
+                    id={e.id}
+                    defaultIcon={getIconObj(e.icon)}
+                  />
+                </Flex>
                 <CardBody>
                   <Flex alignItems={"center"}>
-                    <VStack align="stretch">
-                      <Text>Event-Name : {e.name}</Text>
-                      <Text>Money : ${e.money}</Text>
+                    <Flex
+                      w={"50px"}
+                      h={"50px"}
+                      position={"relative"}
+                      border={"solid #69696B"}
+                      borderRadius={"20px"}
+                      boxShadow="2xl"
+                      mr={"0.5rem"}
+                      justifyContent={"center"}
+                      bg={"#919191bf"}
+                      alignItems={"center"}
+                    >
+                      {getIconObj(e.icon)().icon}
+                    </Flex>
+
+                    <VStack align="stretch" color={"gray"}>
+                      <Text>Event Name : {e.name}</Text>
+                      <Text>
+                        {spentOrReceive(e.money)} : $
+                        {e.money >= 0 ? e.money : e.money * -1}
+                      </Text>
                       <Text>Created : {dateConvert(e.created_on)}</Text>
                     </VStack>
                   </Flex>
                 </CardBody>
-                <DeletePopover id={e.id} eventName={e.name}/>
               </Card>
             ))}
-            <EventCreate
-              slug={router.query.slug}
-              friend={friend}
-              events={events}
-              setEvents={setEvents}
-            />
           </>
         ) : (
-          <Flex flexDirection={"column"} alignItems={"center"}>
-            <Text>No Event To Show</Text>
-            <EventCreate
-              slug={router.query.slug}
-              friend={friend}
-              events={events}
-              setEvents={setEvents}
-            />
-          </Flex>
+          <></>
         )}
       </Box>
     );
   }
-
-  function DeletePopover({id, eventName}) {
+  function FriendDeletePopover({ id, friendName }) {
+    const router = useRouter();
     function deleteEvent() {
-      customAxios.delete(`/api/event/event-detail/${id}`)
+      customAxios
+        .delete(`/api/character/character-detail/${id}`)
         .then((res) => {
-           //need to change character data
-          const newEvents = events.filter(e => e.id !== id);
-          events.forEach((e) => {
-            if(e.id===id) {
-              friend.sum -= e.money
-            }
-            
-          })
-          setEvents([...newEvents]);
-          toastFun({title:'Event deleted!',description:`Your event ${eventName} is successfully deleted!`, status:'success' })
+          //need to change character data
+          const newEvents = context.friends.filter((e) => e.id !== id);
+          // setSearchFriend([...newEvents]);
+          context.setFriends([...newEvents]);
+          router.push({
+            pathname: "/",
+          });
+          toastFun({
+            title: "Your event is deleted!",
+            description: `Your friend ${friendName} is successfully deleted!`,
+            status: "success",
+          });
         })
         .catch((e) => {
-          toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
+          toastFun({
+            title: "Failed!",
+            description: `Something bad happened. Please try later!`,
+            status: "error",
+          });
+        });
+    }
+    return (
+      <>
+        <Popover placement="left">
+          <Flex as={Flex} justifyContent={"flex-end"}>
+            <PopoverTrigger>
+              <CloseButton color={"#ff7373"} size="md" />
+            </PopoverTrigger>
+          </Flex>
+          <Portal>
+            <PopoverContent
+              bg="gray"
+              color="white"
+              border={"0.1rem solid #ff7070"}
+            >
+              <PopoverHeader fontWeight={"bold"}>Confirmation</PopoverHeader>
+              <PopoverCloseButton />
+              <PopoverBody>
+                <Flex alignItems={"center"}>
+                  <Text fontWeight={"bold"} flexBasis={"50%"}>
+                    Delete {friendName}?
+                  </Text>
+                  <Flex flexBasis={"50%"} justifyContent={"flex-end"}>
+                    <Button
+                      bg={"white"}
+                      onClick={deleteEvent}
+                      colorScheme="red"
+                      variant="outline"
+                    >
+                      Delete
+                    </Button>
+                  </Flex>
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </Portal>
+        </Popover>
+      </>
+    );
+  }
+  function DeletePopover({ id, eventName }) {
+    function deleteEvent() {
+      customAxios
+        .delete(`/api/event/event-detail/${id}`)
+        .then((res) => {
+          //need to change character data
+          const newEvents = events.filter((e) => e.id !== id);
+          events.forEach((e) => {
+            if (e.id === id) {
+              friend.sum -= e.money;
+            }
+          });
+          setEvents([...newEvents]);
+          toastFun({
+            title: "Event deleted!",
+            description: `Your event ${eventName} is successfully deleted!`,
+            status: "success",
+          });
+        })
+        .catch((e) => {
+          toastFun({
+            title: "Failed!",
+            description: `Something bad happened. Please try later!`,
+            status: "error",
+          });
         });
     }
     return (
       <>
         <Popover>
           <PopoverTrigger>
-            <Button background={'red.700'} color={'red.100'}>DELETE</Button>
+            <Center>
+              <CloseButton
+                color={"#ff7373"}
+                size="md"
+                _hover={{ bg: "none" }}
+              />
+            </Center>
           </PopoverTrigger>
           <Portal>
-            <PopoverContent background={'pink.400'}>
-              <PopoverArrow />
-              <PopoverHeader>Confirmation</PopoverHeader>
+            <PopoverContent
+              bg="gray"
+              color="white"
+              border={"0.1rem solid #ff7070"}
+            >
+              {/* <PopoverArrow /> */}
+              <PopoverHeader fontWeight={"bold"}>Confirmation</PopoverHeader>
               <PopoverCloseButton />
               <PopoverBody>
-                are you sure? 
+                <Flex alignItems={"center"}>
+                  <Text fontWeight={"bold"} flexBasis={"50%"}>
+                    Are You Sure?
+                  </Text>
+                  <Flex flexBasis={"50%"} justifyContent={"flex-end"}>
+                    <Button
+                      bg={"white"}
+                      onClick={deleteEvent}
+                      colorScheme="red"
+                      variant="outline"
+                    >
+                      Delete
+                    </Button>
+                  </Flex>
+                </Flex>
               </PopoverBody>
-              <PopoverFooter textAlign={'center'}>
-              <Button onClick={deleteEvent} colorScheme="blue">Delete</Button>
-              </PopoverFooter>
             </PopoverContent>
           </Portal>
         </Popover>
@@ -210,7 +552,7 @@ export default function FriendDetail() {
     );
   }
 
-  function EditPopover({ eventName, money, id }) {
+  function EditPopover({ eventName, money, setMoney, id, defaultIcon }) {
     const { onOpen, onClose, isOpen } = useDisclosure();
     const firstFieldRef = useRef(null);
     const TextInput = forwardRef((props, ref) => {
@@ -226,7 +568,15 @@ export default function FriendDetail() {
       const [editedEventName, setEditedEventName] = useState("");
       const [editedMoney, setEditedMoney] = useState("default");
       const [isDisabled, setIsDisabled] = useState(true);
-
+      const [icon, setIcon] = useState({});
+      const whoRef = useRef(null);
+      useEffect(() => {
+        if (typeof icon !== "undefined" && Object.keys(icon).length) {
+          if (defaultIcon().name !== icon.name) {
+            setIsDisabled(false);
+          }
+        }
+      }, [icon]);
       const eventHandleChange = (event) => {
         setEditedEventName(event.target.value), setIsDisabled(false);
       };
@@ -234,51 +584,106 @@ export default function FriendDetail() {
         setEditedMoney(event), setIsDisabled(false);
       };
       function saveFunc() {
-        customAxios.patch(`/api/event/event-detail/${id}`,{
-          name: !editedEventName ? eventName : editedEventName,
-          money: editedMoney !== "default" ? editedMoney : money,
-        })
-          .then((res) => {
-            const  updatedName = !editedEventName ? eventName : editedEventName
-            if(editedMoney !== "default") {
-              friend.sum += editedMoney - money
+        const iconName = icon.name;
+        function moneyCalculation() {
+          if (editedMoney !== "default") {
+            if (whoRef.current !== null) {
+              if (
+                (Number(whoRef.current) === 0 && money <= 0) ||
+                (Number(whoRef.current) === 1 && money >= 0)
+              ) {
+                return money >= 0 ? editedMoney * -1 : editedMoney;
+              } else {
+                return editedMoney;
+              }
+            } else {
+              return editedMoney;
             }
-            
+          } else {
+            if (whoRef.current !== null) {
+              if (
+                (Number(whoRef.current) === 0 && money <= 0) ||
+                (Number(whoRef.current) === 1 && money >= 0)
+              ) {
+                return money * -1;
+              } else {
+                return money;
+              }
+            } else {
+              return money;
+            }
+          }
+        }
+        customAxios
+          .patch(`/api/event/event-detail/${id}`, {
+            name: !editedEventName ? eventName : editedEventName,
+            money: moneyCalculation(),
+            icon: iconName,
+          })
+          .then((res) => {
+            const updatedName = !editedEventName ? eventName : editedEventName;
+            friend.sum += res.data.money - money;
+
             const newEvents = events.map((e) => {
               if (e.id === id) {
-                (e.name = updatedName),
-                  (e.money = editedMoney !== "default" ? editedMoney : money);
+                (e.name = updatedName), (e.money = moneyCalculation());
+                e.icon = iconName;
                 return e;
               } else {
                 return e;
               }
             });
             setEvents([...newEvents]);
-            toastFun({title:'Event updated!',description:`Your event ${eventName} is successfully updated!`, status:'success' })
+            toastFun({
+              title: "Event updated!",
+              description: `Your event ${eventName} is successfully updated!`,
+              status: "success",
+            });
             onCancel();
           })
           .catch((e) => {
-            // context.getAccessTokenFromRefreshToken(e, saveFunc)
-            toastFun({title:'Failed!',description:`Something bad happened. Please try later!`, status:'error' })
+            toastFun({
+              title: "Failed!",
+              description: `Something bad happened. Please try later!`,
+              status: "error",
+            });
           });
       }
       return (
         <Stack spacing={4}>
-          <TextInput
-            label="Event name"
-            id="first-name"
-            ref={firstFieldRef}
-            defaultValue={eventName}
-            onChange={eventHandleChange}
+          <SlideIcons
+            iconArray={eventIcons}
+            setIcon={setIcon}
+            defaultIcon={defaultIcon}
           />
-          <Box>Money</Box>
+          <Box position={"relative"}>
+            <Box position={"absolute"} top={-6}>
+              <TextInput
+                // label="Event name"
+                id="first-name"
+                ref={firstFieldRef}
+                defaultValue={eventName}
+                onChange={eventHandleChange}
+              />
+            </Box>
+          </Box>
+          <Box position={"relative"} h={"1.5rem"}>
+            <Box position={"absolute"} top={1.5}>
+              <Who
+                disabledFun={setIsDisabled}
+                defaultVal={money >= 0 ? "0" : "1"}
+                ref={whoRef}
+              />
+            </Box>
+          </Box>
           <NumberInput
             size="md"
             maxW={40}
+            m={0}
             onChange={moneyHandleChange}
-            defaultValue={money}
+            defaultValue={money <= 0 ? money * -1 : money}
           >
-            <NumberInputField />
+            <NumberInputField top={0} />
             <NumberInputStepper>
               <NumberIncrementStepper />
               <NumberDecrementStepper />
@@ -301,17 +706,25 @@ export default function FriendDetail() {
     };
 
     return (
-      <Box position={"absolute"} right={"0"}>
+      <>
         <Popover
           isOpen={isOpen}
           initialFocusRef={firstFieldRef}
           onOpen={onOpen}
           onClose={onClose}
-          placement="right"
-          closeOnBlur={false}
+          placement="left"
+          isLazy
         >
           <PopoverTrigger>
-            <IconButton size="sm" icon={<AiOutlineEdit />} />
+            <Box mt={"0.5rem"} mr={"0.5rem"}>
+              <RiSettings4Line
+                cursor={"pointer"}
+                color={"gray"}
+                bg={"none"}
+                m={0}
+                _hover={{ bg: "none", color: "darkgray" }}
+              />
+            </Box>
           </PopoverTrigger>
           <PopoverContent p={5}>
             <FocusLock returnFocus persistentFocus={false}>
@@ -321,20 +734,31 @@ export default function FriendDetail() {
             </FocusLock>
           </PopoverContent>
         </Popover>
-      </Box>
+      </>
     );
   }
+
+  let markup = (
+    <Center width={"100%"} overflow={"hidden"}>
+      <Flex w={"100%"} alignItems={"center"} flexDirection={"column"}>
+        <FriendInfo />
+        <EventCreate
+          slug={router.query.slug}
+          friend={friend}
+          events={events}
+          setEvents={setEvents}
+        />
+        <EventList />
+      </Flex>
+    </Center>
+  );
+
   return (
     <>
-      {mounted ? (
-        <Center width={"100%"}>
-          <Flex w={"600px"} alignItems={"center"} flexDirection={"column"}>
-            <FriendInfo />
-            <EventList />
-          </Flex>
-        </Center>
+      {!context.isLoading && Object.keys(friend).length ? (
+        <>{markup}</>
       ) : (
-        <></>
+        <CustomSpinner />
       )}
     </>
   );

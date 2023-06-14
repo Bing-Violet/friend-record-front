@@ -23,13 +23,25 @@ import {
   FormHelperText,
   InputRightElement,
   VStack,
+  Box
 } from "@chakra-ui/react";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
+} from '@chakra-ui/react'
+import {IoHomeOutline} from "react-icons/io5";
 
 export default function PasswordReset({ user }) {
   const router = useRouter();
   const context = useContext(AppContext);
   const [mounted, setMounted] = useState(false);
-  const [slug, setSlug] = useState("");
+  const [isError, setIsError] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const [confirmationPasswordError, setConfirmationPasswordError] =
@@ -45,16 +57,16 @@ export default function PasswordReset({ user }) {
   });
   useEffect(() => {
     console.log("to", router.query.token, router.isReady);
-    // if (router.isReady) {
-    //   if (!router.query.token) {
-    //     router.push({
-    //       pathname: "/",
-    //     });
-    //   } else {
-    //   }
-    // } else {
-    //   console.log("NO_TOKEN");
-    // }
+    if (router.isReady) {
+      if (!router.query.token) {
+        router.push({
+          pathname: "/",
+        });
+      } else {
+      }
+    } else {
+      console.log("NO_TOKEN");
+    }
   }, [router.isReady]);
   function passwordChange() {
     context.setIsLoading(true)
@@ -87,7 +99,8 @@ export default function PasswordReset({ user }) {
         context.setIsLoading(false)
       })
       .catch((e) => {
-        console.log("error", e);
+        setIsError(true)
+        console.log("error", e.response.data.message);
         // need to check token is not exist or new token is there
         // router.push({
         //   pathname: "/",
@@ -119,15 +132,42 @@ export default function PasswordReset({ user }) {
       </Button>
     );
   }
+  function ErrorModal() {
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    useEffect(() => {
+      onOpen()
+    },[])
+    return (
+      <>
+        <Modal onClose={onClose} isOpen={isOpen}>
+          <ModalOverlay />
+          <ModalContent bg={'red.300'}>
+            <ModalHeader color={'red.900'}>Error Occurred</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              The link you clicked might be old. Please check the latest one or resend email.
+            </ModalBody>
+            <ModalFooter>
+              <Button leftIcon={<IoHomeOutline/>} bg={"#cdf9ff"} border={'solid #c22a2a'} color={'#c22a2a'} onClick={() => router.push({
+          pathname: "/",
+        })}>Home</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </>
+    )
+  }
+
   return (
-    <>
+    <Box w={'100%'} mt={'1rem'}>
+      {isError&&(<><ErrorModal/></>)}
       <Center>
+      <Flex w={'600px'}  flexDirection={'column'} alignItems={'center'}>
         <Text color={"red"} fontSize={"1.6rem"}>
           Reset your password!
         </Text>
-      </Center>
-      <FormControl isRequired>
-        <VStack spacing={"1rem"}>
+      <FormControl isRequired w={'90%'}>
+        <VStack spacing={"1rem"} >
           <CustomConfPassWithPass
             confirmationPassword={confirmationPassword}
             setConf={setConfirmationPassword}
@@ -143,6 +183,8 @@ export default function PasswordReset({ user }) {
           <SubmitButton />
         </Center>
       </FormControl>
-    </>
+    </Flex>
+      </Center>
+    </Box>
   );
 }

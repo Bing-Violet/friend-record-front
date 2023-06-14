@@ -12,15 +12,17 @@ export default function ContextHandler({ children }) {
   const [user, setUser] = useState(cookies.get("user"));
   useEffect(() => {
     console.log("UUEE")
-    if (user) {
-      getFriendsList(user.UID);
+    const asyncGetF = async () => {
+      if (user) {
+        await getFriendsList(user.UID);
+      }
     }
+    asyncGetF()
   }, []);
   async function getFriendsList(userUid) {
     console.log("inGET", userUid);
     setIsLoading(true)
     if (userUid) {
-      console.log("inGETUSER", user);
       axios({
         method: "post",
         url: "/api/character/user-character/",
@@ -118,6 +120,7 @@ export default function ContextHandler({ children }) {
     <>
       <AppContext.Provider
         value={{
+          useToast,
           friends,
           setFriends,
           user,
@@ -131,7 +134,8 @@ export default function ContextHandler({ children }) {
           addToast,
         }}
       >
-         {isLoading?(<CustomSpinner/>):(<>{children}</>)}
+        {children }
+         {/* {isLoading?(<CustomSpinner/>):(<>{children}</>)} */}
       </AppContext.Provider>
     </>
   );
