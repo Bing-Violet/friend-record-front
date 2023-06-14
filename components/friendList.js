@@ -243,6 +243,7 @@ export default function FriendList({ User, toastFun }) {
     }
   }, []);
   function dateCalculation(date) {
+    
     const nowDate = new Date();
     const last_log = new Date(date);
     const diffMilliSec = nowDate - last_log;
@@ -256,22 +257,26 @@ export default function FriendList({ User, toastFun }) {
       const deffMonth = nowDate.getMonth() - bDate.getMonth();
       const deffDate = nowDate.getDate() - bDate.getDate();
       if(deffMonth===0) {
-        return true
+        if(deffDate <= 0) {
+          return {alert:true, deffDate:deffDate}
+        }
       } else if(deffMonth===-1||deffMonth===11) {
         if(deffDate >= 0) {
-          return true
+          return {alert:true, deffDate:deffDate}
         }
       }
     }
   }
   function BirthdayAlert({ date }) {
+    const dateResultObj = birthDateCalculation(date)
+    const dateDisplay = typeof dateResultObj !== 'undefined'?dateResultObj.alert:''
     return (
       <Flex
         w={"100%"}
         color={"red.500"}
         justifyContent={"flex-end"}
       >
-        {birthDateCalculation(date) ? (
+        {dateDisplay ? (
           <Flex
             alignItems={"center"}
             mr={"0.5rem"}
@@ -282,7 +287,7 @@ export default function FriendList({ User, toastFun }) {
             border={"solid #fa95f6"}
           >
             <Image src={`/svgs/events/gift.svg`} width={{base:'20px', sm:"30px"}} height={"30px"} />
-            <Text fontWeight={"bold"}>Birthday is Soon!</Text>
+            <Text fontWeight={"bold"}>{dateResultObj.deffDate===0?'Birthday is Today!':'Birthday is Soon!'}</Text>
           </Flex>
         ) : (
           <></>
